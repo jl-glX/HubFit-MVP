@@ -1,0 +1,169 @@
+import { useState, useEffect } from "react";
+import { Button } from "./ui/button";
+import { useAdminClasses, type AdminClass } from "../hooks/useAdminClasses";
+import { useUsers } from "../hooks/useUsers";
+
+interface ClassFormProps {
+  gymClass?: AdminClass | null;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+export function ClassForm({ gymClass, onClose, onSuccess }: ClassFormProps) {
+  const { createClass, updateClass } = useAdminClasses();
+  const { users } = useUsers();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const trainers = users.filter((u) => u.role === "trainer");
+
+  const [formData, setFormData] = useState({
+    name: gymClass?.name || "",
+    description: gymClass?.description || "",
+    trainerId: gymClass?.trainerId || (trainers.length > 0 ? trainers[0].id : ""),
+    trainerName: gymClass?.trainerName || (trainers.length > 0 ? trainers[0].name : ""),
+    maxCapacity: gymClass?.maxCapacity || 20,
+    scheduledAt: gymClass ? new Date(gymClass.scheduledAt).toISOString().slice(0, 16) : "",
+  });
+
+  useEffect(() => {
+    if (formData.trainerId && !gymClass) {
+      const trainer = trainers.find((t) => t.id === formData.trainerId);
+      if (trainer) {
+        setFormData((prev) => ({ ...prev, trainerName: trainer.name }));
+      }
+    }
+  }, [formData.trainerId, trainers, gymClass]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (!formData.scheduledAt) {
+        setError("Date and time are required");
+        setLoading(false);
+        return;
+      }
+
+      const scheduledAt = new Date(formData.scheduledAt).getTime();
+
+      if (gymClass) {
+        await updateClass(gymClass.id, {
+          name: formData.name,
+          description: formData.description,
+          trainerId: formData.trainerId,
+          trainerName: formData.trainerName,
+          maxCapacity: Number(formData.maxCapacity),
+          scheduledAt,
+        });
+      } else {
+        await createClass({
+          name: formData.name,
+          description: formData.description,
+          trainerId: formData.trainerId,
+          trainerName: formData.trainerName,
+          maxCapacity: Number(formData.maxCapacity),
+          scheduledAt,
+        });
+      }
+      onSuccess();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h2 className="text-xl font-bold mb-4">{gymClass ? "Edit Class" : "Create Class"}</h2>
+
+        {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded text-sm">{error}</div>}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Class Name *</label>
+            <input
+              type="text"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Trainer *</label>
+            <select
+              required
+              value={formData.trainerId}
+              onChange={(e) => {
+                const trainer = trainers.find((t) => t.id === e.target.value);
+                setFormData({
+                  ...formData,
+                  trainerId: e.target.value,
+                  trainerName: trainer?.name || "",
+                });
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+            >
+              <option value="">Select a trainer</option>
+              {trainers.map((trainer) => (
+                <option key={trainer.id} value={trainer.id}>
+                  {trainer.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date & Time *</label>
+              <input
+                type="datetime-local"
+                required
+                value={formData.scheduledAt}
+                onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Max Capacity *</label>
+              <input
+                type="number"
+                required
+                min="1"
+                value={formData.maxCapacity}
+                onChange={(e) => setFormData({ ...formData, maxCapacity: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2 justify-end pt-4">
+            <Button variant="outline" onClick={onClose} disabled={loading}>
+              Cancel
+            </Button>
+            <Button disabled={loading}>
+              {loading ? "Saving..." : "Save"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

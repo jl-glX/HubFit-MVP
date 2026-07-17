@@ -1,0 +1,144 @@
+import express from "express";
+import {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+  deleteMultipleUsers,
+  updateUserRole,
+} from "../services/users";
+
+export const usersRouter = express.Router();
+
+// Get all users
+usersRouter.get("/", async (req: express.Request, res: express.Response) => {
+  try {
+    const users = await getAllUsers();
+    res.json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+// Get user by ID
+usersRouter.get(
+  "/:id",
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const user = await getUserById(req.params.id);
+      if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ error: "Failed to fetch user" });
+    }
+  }
+);
+
+// Create user
+usersRouter.post(
+  "/",
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const { email, name, password, role } = req.body;
+
+      const user = await createUser(
+        email,
+        name,
+        password,
+        role || "member"
+      );
+      res.status(201).json(user);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error("Error creating user:", error);
+      res.status(400).json({ error: message });
+    }
+  }
+);
+
+// Update user
+usersRouter.put(
+  "/:id",
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const { email, name, password, role } = req.body;
+
+      const user = await updateUser(req.params.id, {
+        email,
+        name,
+        password,
+        role,
+      });
+      res.json(user);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error("Error updating user:", error);
+      res.status(400).json({ error: message });
+    }
+  }
+);
+
+// Update user role
+usersRouter.patch(
+  "/:id/role",
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const { role } = req.body;
+
+      if (!role || !["member", "trainer", "admin"].includes(role)) {
+        res.status(400).json({ error: "Invalid role" });
+        return;
+      }
+
+      const user = await updateUserRole(req.params.id, role);
+      res.json(user);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error("Error updating user role:", error);
+      res.status(400).json({ error: message });
+    }
+  }
+);
+
+// Delete user
+usersRouter.delete(
+  "/:id",
+  async (req: express.Request, res: express.Response) => {
+    try {
+      await deleteUser(req.params.id);
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error("Error deleting user:", error);
+      res.status(400).json({ error: message });
+    }
+  }
+);
+
+// Delete multiple users
+usersRouter.post(
+  "/bulk/delete",
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const { userIds } = req.body;
+
+      if (!Array.isArray(userIds) || userIds.length === 0) {
+        res.status(400).json({ error: "Invalid userIds array" });
+        return;
+      }
+
+      await deleteMultipleUsers(userIds);
+      res.json({ message: `Deleted ${userIds.length} users` });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error("Error deleting users:", error);
+      res.status(400).json({ error: message });
+    }
+  }
+);

@@ -1,0 +1,177 @@
+import { useState, useEffect } from "react";
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: "member" | "trainer" | "admin";
+  createdAt: number;
+}
+
+export function useUsers() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch("/api/users");
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch users");
+      }
+
+      const data = await response.json();
+      setUsers(data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      setError(message);
+      console.error("Error fetching users:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createUser = async (data: {
+    email: string;
+    name: string;
+    password: string;
+    role?: "member" | "trainer" | "admin";
+  }): Promise<User> => {
+    try {
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to create user");
+      }
+
+      const newUser = await response.json();
+      setUsers([...users, newUser]);
+      return newUser;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error("Error creating user:", err);
+      throw err;
+    }
+  };
+
+  const updateUser = async (
+    id: string,
+    updates: {
+      email?: string;
+      name?: string;
+      password?: string;
+      role?: "member" | "trainer" | "admin";
+    }
+  ): Promise<User> => {
+    try {
+      const response = await fetch(`/api/users/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update user");
+      }
+
+      const updatedUser = await response.json();
+      setUsers(users.map((u) => (u.id === id ? updatedUser : u)));
+      return updatedUser;
+    } catch (err) {
+      console.error("Error updating user:", err);
+      throw err;
+    }
+  };
+
+  const updateUserRole = async (
+    id: string,
+    role: "member" | "trainer" | "admin"
+  ): Promise<User> => {
+    try {
+      const response = await fetch(`/api/users/${id}/role`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update user role");
+      }
+
+      const updatedUser = await response.json();
+      setUsers(users.map((u) => (u.id === id ? updatedUser : u)));
+      return updatedUser;
+    } catch (err) {
+      console.error("Error updating user role:", err);
+      throw err;
+    }
+  };
+
+  const deleteUser = async (id: string): Promise<void> => {
+    try {
+      const response = await fetch(`/api/users/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to delete user");
+      }
+
+      setUsers(users.filter((u) => u.id !== id));
+    } catch (err) {
+      console.error("Error deleting user:", err);
+      throw err;
+    }
+  };
+
+  const deleteMultipleUsers = async (userIds: string[]): Promise<void> => {
+    try {
+      const response = await fetch("/api/users/bulk/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userIds }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to delete users");
+      }
+
+      setUsers(users.filter((u) => !userIds.includes(u.id)));
+    } catch (err) {
+      console.error("Error deleting users:", err);
+      throw err;
+    }
+  };
+
+  const refreshUsers = async () => {
+    await fetchUsers();
+  };
+
+  return {
+    users,
+    loading,
+    error,
+    createUser,
+    updateUser,
+    updateUserRole,
+    deleteUser,
+    deleteMultipleUsers,
+    refreshUsers,
+  };
+}

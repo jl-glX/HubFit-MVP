@@ -1,0 +1,252 @@
+import { db } from "./client";
+import { hashPassword } from "../services/auth";
+
+const ADMIN_USER = {
+  id: "admin-1",
+  name: "Admin HubFit",
+  email: "admin@hubfit.com",
+  password: "admin123",
+};
+
+const TRAINERS = [
+  { id: "trainer-1", name: "Carlos Martínez", email: "carlos@hubfit.com", password: "password123" },
+  { id: "trainer-2", name: "Ana García", email: "ana@hubfit.com", password: "password123" },
+  { id: "trainer-3", name: "Jorge López", email: "jorge@hubfit.com", password: "password123" },
+  { id: "trainer-4", name: "Sofía Rodríguez", email: "sofia@hubfit.com", password: "password123" },
+];
+
+const CLASS_TYPES = [
+  { name: "Yoga Flow", description: "Relaxing yoga session for all levels" },
+  {
+    name: "HIIT Bootcamp",
+    description: "High intensity interval training workout",
+  },
+  { name: "Pilates Core", description: "Strengthen your core with pilates" },
+  { name: "Spinning", description: "Indoor cycling class" },
+  { name: "Box Fit", description: "Boxing fitness training" },
+  { name: "Zumba", description: "Dance fitness class" },
+];
+
+const DEMO_USERS = [
+  { email: "juan@example.com", name: "Juan Pérez", password: "password123", role: "member" as const },
+  { email: "maria@example.com", name: "María González", password: "password123", role: "member" as const },
+  { email: "carlos@example.com", name: "Carlos López", password: "password123", role: "member" as const },
+  { email: "laura@example.com", name: "Laura Fernández", password: "password123", role: "member" as const },
+  { email: "ana@example.com", name: "Ana Martínez", password: "password123", role: "member" as const },
+];
+
+export async function seedDatabase() {
+  console.log("Seeding database with demo data...");
+
+  try {
+    // Seed admin user
+    try {
+      const existingAdmin = await db
+        .selectFrom("users")
+        .selectAll()
+        .where("email", "=", ADMIN_USER.email)
+        .executeTakeFirst();
+
+      const hashedPassword = await hashPassword(ADMIN_USER.password);
+
+      if (existingAdmin) {
+        console.log("Updating admin user...");
+        await db
+          .updateTable("users")
+          .set({
+            password: hashedPassword,
+            role: "admin",
+            name: ADMIN_USER.name,
+          })
+          .where("email", "=", ADMIN_USER.email)
+          .execute();
+      } else {
+        await db
+          .insertInto("users")
+          .values({
+            id: ADMIN_USER.id,
+            email: ADMIN_USER.email,
+            name: ADMIN_USER.name,
+            password: hashedPassword,
+            role: "admin",
+            createdAt: Date.now(),
+          })
+          .execute();
+      }
+    } catch (err) {
+      console.error(`Error seeding admin user:`, err);
+    }
+
+    // Seed trainers
+    for (const trainer of TRAINERS) {
+      try {
+        // Check if user exists
+        const existingUser = await db
+          .selectFrom("users")
+          .selectAll()
+          .where("email", "=", trainer.email)
+          .executeTakeFirst();
+
+        const hashedPassword = await hashPassword(trainer.password);
+
+        if (existingUser) {
+          // Always update trainers to ensure passwords and roles are correct
+          console.log(`Updating trainer ${trainer.email}...`);
+          await db
+            .updateTable("users")
+            .set({
+              password: hashedPassword,
+              role: "trainer",
+              name: trainer.name,
+            })
+            .where("email", "=", trainer.email)
+            .execute();
+        } else {
+          // Insert new trainer
+          await db
+            .insertInto("users")
+            .values({
+              id: trainer.id,
+              email: trainer.email,
+              name: trainer.name,
+              password: hashedPassword,
+              role: "trainer",
+              createdAt: Date.now(),
+            })
+            .execute();
+        }
+      } catch (err) {
+        console.error(`Error seeding trainer ${trainer.email}:`, err);
+      }
+    }
+
+    // Seed members
+    for (const user of DEMO_USERS) {
+      try {
+        const userId = `user-${user.email.split("@")[0]}`;
+        
+        // Check if user exists
+        const existingUser = await db
+          .selectFrom("users")
+          .selectAll()
+          .where("email", "=", user.email)
+          .executeTakeFirst();
+
+        const hashedPassword = await hashPassword(user.password);
+
+        if (existingUser) {
+          // Always update demo users to ensure passwords are correct
+          console.log(`Updating user ${user.email}...`);
+          await db
+            .updateTable("users")
+            .set({
+              password: hashedPassword,
+              role: user.role,
+              name: user.name,
+            })
+            .where("email", "=", user.email)
+            .execute();
+        } else {
+          // Insert new user
+          await db
+            .insertInto("users")
+            .values({
+              id: userId,
+              email: user.email,
+              name: user.name,
+              password: hashedPassword,
+              role: user.role,
+              createdAt: Date.now(),
+            })
+            .execute();
+        }
+      } catch (err) {
+        console.error(`Error seeding user ${user.email}:`, err);
+      }
+    }
+
+    // Check if classes already exist
+    const existingClasses = await db
+      .selectFrom("gymClasses")
+      .select("id")
+      .limit(1)
+      .execute();
+
+    if (existingClasses.length > 0) {
+      console.log("Classes already seeded");
+      return;
+    }
+
+    // Generate classes for the next 7 days
+    const now = Date.now();
+    const dayInMs = 24 * 60 * 60 * 1000;
+    const times = [9, 11, 16, 18, 20]; // 9am, 11am, 4pm, 6pm, 8pm
+
+    let classIndex = 0;
+    for (let day = 0; day < 7; day++) {
+      const dayStart = now + day * dayInMs;
+
+      for (const hour of times) {
+        const classTime = new Date(dayStart);
+        classTime.setHours(hour, 0, 0, 0);
+
+        const classData = CLASS_TYPES[classIndex % CLASS_TYPES.length];
+        const trainer = TRAINERS[classIndex % TRAINERS.length];
+        const maxCapacity = Math.floor(Math.random() * 5) + 15; // 15-20 capacity
+
+        await db
+          .insertInto("gymClasses")
+          .values({
+            id: `class-${day}-${hour}`,
+            name: classData.name,
+            description: classData.description,
+            trainerId: trainer.id,
+            trainerName: trainer.name,
+            maxCapacity,
+            scheduledAt: classTime.getTime(),
+          })
+          .execute();
+
+        classIndex++;
+      }
+    }
+
+    // Add some demo bookings
+    const classes = await db
+      .selectFrom("gymClasses")
+      .select(["id"])
+      .orderBy("scheduledAt")
+      .limit(10)
+      .execute();
+
+    for (let i = 0; i < Math.min(3, classes.length); i++) {
+      const classId = classes[i].id;
+
+      for (let j = 0; j < 8; j++) {
+        const userEmail = DEMO_USERS[j % DEMO_USERS.length].email;
+        const userId = `user-${userEmail.split("@")[0]}`;
+
+        try {
+          await db
+            .insertInto("bookings")
+            .values({
+              id: `booking-${classId}-${userId}-${i}-${j}`,
+              classId,
+              userId,
+              status: "confirmed",
+              createdAt: Date.now(),
+              cancelledAt: null,
+            })
+            .execute();
+        } catch (err) {
+          console.log(`Booking already exists for class ${classId}`);
+        }
+      }
+    }
+
+    console.log("Database seeded successfully");
+  } catch (error) {
+    console.error("Error seeding database:", error);
+    throw error;
+  }
+}

@@ -1,0 +1,118 @@
+import { useState, useEffect, useCallback } from "react";
+
+export interface Attendee {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  status: "confirmed";
+}
+
+export interface WaitlistEntry {
+  id: string;
+  userId: string;
+  position: number;
+  name: string;
+  email: string;
+  createdAt: number;
+}
+
+interface AttendeeState {
+  attendees: Attendee[];
+  waitlist: WaitlistEntry[];
+  loading: boolean;
+  error: string | null;
+}
+
+const API_BASE =
+  typeof window !== "undefined" &&
+  window.location.hostname === "localhost"
+    ? "http://localhost:3001"
+    : "";
+
+export function useClassAttendees(classId: string) {
+  const [state, setState] = useState<AttendeeState>({
+    attendees: [],
+    waitlist: [],
+    loading: true,
+    error: null,
+  });
+
+  const fetchAttendees = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+
+    try {
+      const [attendeesRes, waitlistRes] = await Promise.all([
+        fetch(`${API_BASE}/api/bookings/class/${classId}`),
+        fetch(`${API_BASE}/api/bookings/waitlist/${classId}`),
+      ]);
+
+      if (!attendeesRes.ok || !waitlistRes.ok) {
+        throw new Error("Failed to fetch attendees");
+      }
+
+      const attendees = await attendeesRes.json();
+      const waitlist = await waitlistRes.json();
+
+      setState({
+        attendees: attendees.map(
+          (a: {
+            id: string;
+            userId: string;
+            name: string;
+            email: string;
+            status: "confirmed";
+          }) => ({
+            id: a.id,
+            userId: a.userId,
+            name: a.name,
+            email: a.email,
+            status: a.status,
+          })
+        ),
+        waitlist: waitlist.map(
+          (w: {
+            id: string;
+            userId: string;
+            position: number;
+            name: string;
+            email: string;
+            createdAt: number;
+          }) => ({
+            id: w.id,
+            userId: w.userId,
+            position: w.position,
+            name: w.name,
+            email: w.email,
+            createdAt: w.createdAt,
+          })
+        ),
+        loading: false,
+        error: null,
+      });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to fetch attendees";
+      setState({
+        attendees: [],
+        waitlist: [],
+        loading: false,
+        error: message,
+      });
+    }
+  }, [classId]);
+
+  useEffect(() => {
+    if (classId) {
+      fetchAttendees();
+    }
+  }, [classId, fetchAttendees]);
+
+  return {
+    attendees: state.attendees,
+    waitlist: state.waitlist,
+    loading: state.loading,
+    error: state.error,
+    refreshAttendees: fetchAttendees,
+  };
+}
