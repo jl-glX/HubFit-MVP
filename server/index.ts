@@ -8,6 +8,7 @@ import { classesRouter } from "./routes/classes.js";
 import { bookingsRouter } from "./routes/bookings.js";
 import { usersRouter } from "./routes/users.js";
 import { adminClassesRouter } from "./routes/admin-classes.js";
+import { analyticsRouter } from "./routes/analytics.js";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use("/api/classes", classesRouter);
 app.use("/api/bookings", bookingsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/admin/classes", adminClassesRouter);
+app.use("/api/analytics", analyticsRouter);
 
 // Health check endpoint
 app.get("/api/health", (req: express.Request, res: express.Response) => {

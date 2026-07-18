@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Calendar, Bookmark, Home, LogOut, Settings, Shield } from "lucide-react";
+import { Calendar, Bookmark, Home, LogOut, Settings, Shield, BarChart3 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "./ui/button";
 

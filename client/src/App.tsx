@@ -7,6 +7,9 @@ import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
 import { TrainerDashboardPage } from "./pages/TrainerDashboardPage";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage";
+import { ActivityDashboardPage } from "./pages/ActivityDashboardPage";
+import { TrainerAnalyticsDashboardPage } from "./pages/TrainerAnalyticsDashboardPage";
+import { AdminAnalyticsDashboardPage } from "./pages/AdminAnalyticsDashboardPage";
 import { Navigation } from "./components/Navigation";
 import { UnauthorizedPage } from "./pages/UnauthorizedPage";
 
@@ -92,6 +95,30 @@ function App() {
           element={
             <ProtectedRoute requiredRole="admin">
               <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/activity-dashboard"
+          element={
+            <ProtectedRoute requiredRole="member">
+              <ActivityDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trainer-analytics"
+          element={
+            <ProtectedRoute requiredRole="trainer">
+              <TrainerAnalyticsDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-analytics"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminAnalyticsDashboardPage />
             </ProtectedRoute>
           }
         />
