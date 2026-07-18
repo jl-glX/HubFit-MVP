@@ -1,6 +1,6 @@
 import express from "express";
-import { db } from "../db/client";
-import { getClassWithAvailability } from "../services/booking";
+import { db } from "../db/client.js";
+import { getClassWithAvailability } from "../services/booking.js";
 
 export const classesRouter = express.Router();
 

@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import Database from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
-import type { Database as DatabaseSchema } from "./types";
+import type { Database as DatabaseSchema } from "./types.js";
 
 const dataDirectory = process.env.DATA_DIRECTORY ?? "/home/app/data";
 

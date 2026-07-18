@@ -5,7 +5,7 @@ import {
   createClass,
   updateClass,
   deleteClass,
-} from "../services/classes";
+} from "../services/classes.js";
 
 export const adminClassesRouter = express.Router();
 

@@ -1,5 +1,5 @@
-import { db } from "../db/client";
-import { hashPassword } from "./auth";
+import { db } from "../db/client.js";
+import { hashPassword } from "./auth.js";
 import { randomBytes } from "crypto";
 
 export interface UserWithoutPassword {

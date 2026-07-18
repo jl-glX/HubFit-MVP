@@ -1,4 +1,4 @@
-import { db } from "../db/client";
+import { db } from "../db/client.js";
 import { randomBytes } from "crypto";
 
 export interface ClassWithAvailability {

@@ -1,5 +1,5 @@
-import { db } from "./client";
-import { hashPassword } from "../services/auth";
+import { db } from "./client.js";
+import { hashPassword } from "../services/auth.js";
 
 const ADMIN_USER = {
   id: "admin-1",

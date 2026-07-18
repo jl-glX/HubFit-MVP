@@ -1,6 +1,6 @@
 import express from "express";
-import { signup, login, logout, verifyToken } from "../services/auth";
-import { db } from "../db/client";
+import { signup, login, logout, verifyToken } from "../services/auth.js";
+import { db } from "../db/client.js";
 
 export const authRouter = express.Router();
 

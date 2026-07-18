@@ -7,7 +7,7 @@ import {
   deleteUser,
   deleteMultipleUsers,
   updateUserRole,
-} from "../services/users";
+} from "../services/users.js";
 
 export const usersRouter = express.Router();
 

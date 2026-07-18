@@ -6,7 +6,7 @@ import {
   getClassBookings,
   getClassWaitlist,
   exportClassAttendeesCsv,
-} from "../services/booking";
+} from "../services/booking.js";
 
 export const bookingsRouter = express.Router();
 

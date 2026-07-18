@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto";
 import bcryptjs from "bcryptjs";
-import { db } from "../db/client";
+import { db } from "../db/client.js";
 
 const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 const sessions = new Map<string, SessionData>();
