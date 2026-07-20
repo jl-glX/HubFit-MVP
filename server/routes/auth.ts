@@ -1,9 +1,15 @@
 import express from "express";
 import { signup, login, logout, verifyToken } from "../services/auth.js";
+import { authenticationLimiter } from "../middleware/security.js";
+import {
+  loginValidation,
+  signupValidation,
+  tokenValidation,
+} from "../middleware/validation.js";
 
 export const authRouter = express.Router();
 
-authRouter.post("/signup", async (req: express.Request, res: express.Response) => {
+authRouter.post("/signup", authenticationLimiter, signupValidation, async (req: express.Request, res: express.Response) => {
   try {
     const { email, name, password } = req.body;
 
@@ -15,7 +21,7 @@ authRouter.post("/signup", async (req: express.Request, res: express.Response) =
     res.status(400).json({ error: message });
   }
 });
-authRouter.post("/login", async (req: express.Request, res: express.Response) => {
+authRouter.post("/login", authenticationLimiter, loginValidation, async (req: express.Request, res: express.Response) => {
   try {
     const { email, password } = req.body;
 
@@ -28,7 +34,7 @@ authRouter.post("/login", async (req: express.Request, res: express.Response) =>
   }
 });
 
-authRouter.post("/logout", (req: express.Request, res: express.Response) => {
+authRouter.post("/logout", tokenValidation, (req: express.Request, res: express.Response) => {
   try {
     const { token } = req.body;
 
@@ -45,7 +51,7 @@ authRouter.post("/logout", (req: express.Request, res: express.Response) => {
   }
 });
 
-authRouter.post("/verify", (req: express.Request, res: express.Response) => {
+authRouter.post("/verify", tokenValidation, (req: express.Request, res: express.Response) => {
   try {
     const { token } = req.body;
 

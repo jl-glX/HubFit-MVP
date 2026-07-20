@@ -6,6 +6,11 @@ import {
   updateClass,
   deleteClass,
 } from "../services/classes.js";
+import {
+  createClassValidation,
+  updateClassValidation,
+  validateId,
+} from "../middleware/validation.js";
 
 export const adminClassesRouter = express.Router();
 
@@ -26,6 +31,7 @@ adminClassesRouter.get(
 // Get single class
 adminClassesRouter.get(
   "/:id",
+  validateId("id"),
   async (req: express.Request, res: express.Response) => {
     try {
       const gymClass = await getClassWithAvailability(req.params.id);
@@ -44,6 +50,7 @@ adminClassesRouter.get(
 // Create class
 adminClassesRouter.post(
   "/",
+  createClassValidation,
   async (req: express.Request, res: express.Response) => {
     try {
       const { name, description, trainerId, trainerName, maxCapacity, scheduledAt } = req.body;
@@ -74,6 +81,7 @@ adminClassesRouter.post(
 // Update class
 adminClassesRouter.put(
   "/:id",
+  updateClassValidation,
   async (req: express.Request, res: express.Response) => {
     try {
       const { name, description, trainerId, trainerName, maxCapacity, scheduledAt } = req.body;
@@ -99,6 +107,7 @@ adminClassesRouter.put(
 // Delete class
 adminClassesRouter.delete(
   "/:id",
+  validateId("id"),
   async (req: express.Request, res: express.Response) => {
     try {
       await deleteClass(req.params.id);

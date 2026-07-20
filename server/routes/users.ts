@@ -8,6 +8,13 @@ import {
   deleteMultipleUsers,
   updateUserRole,
 } from "../services/users.js";
+import {
+  bulkDeleteUsersValidation,
+  createUserValidation,
+  updateRoleValidation,
+  updateUserValidation,
+  validateId,
+} from "../middleware/validation.js";
 
 export const usersRouter = express.Router();
 
@@ -25,6 +32,7 @@ usersRouter.get("/", async (req: express.Request, res: express.Response) => {
 // Get user by ID
 usersRouter.get(
   "/:id",
+  validateId("id"),
   async (req: express.Request, res: express.Response) => {
     try {
       const user = await getUserById(req.params.id);
@@ -43,6 +51,7 @@ usersRouter.get(
 // Create user
 usersRouter.post(
   "/",
+  createUserValidation,
   async (req: express.Request, res: express.Response) => {
     try {
       const { email, name, password, role } = req.body;
@@ -65,6 +74,7 @@ usersRouter.post(
 // Update user
 usersRouter.put(
   "/:id",
+  updateUserValidation,
   async (req: express.Request, res: express.Response) => {
     try {
       const { email, name, password, role } = req.body;
@@ -87,6 +97,7 @@ usersRouter.put(
 // Update user role
 usersRouter.patch(
   "/:id/role",
+  updateRoleValidation,
   async (req: express.Request, res: express.Response) => {
     try {
       const { role } = req.body;
@@ -109,6 +120,7 @@ usersRouter.patch(
 // Delete user
 usersRouter.delete(
   "/:id",
+  validateId("id"),
   async (req: express.Request, res: express.Response) => {
     try {
       await deleteUser(req.params.id);
@@ -124,6 +136,7 @@ usersRouter.delete(
 // Delete multiple users
 usersRouter.post(
   "/bulk/delete",
+  bulkDeleteUsersValidation,
   async (req: express.Request, res: express.Response) => {
     try {
       const { userIds } = req.body;

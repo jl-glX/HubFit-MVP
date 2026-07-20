@@ -1,5 +1,7 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
+import helmet from "helmet";
 import { pathToFileURL } from "node:url";
 import { setupStaticServing } from "./static-serve.js";
 import { initializeDatabase, closeDatabase } from "./db/client.js";
@@ -10,14 +12,52 @@ import { bookingsRouter } from "./routes/bookings.js";
 import { usersRouter } from "./routes/users.js";
 import { adminClassesRouter } from "./routes/admin-classes.js";
 import { analyticsRouter } from "./routes/analytics.js";
+import {
+  apiLimiter,
+  apiSecurityHeaders,
+} from "./middleware/security.js";
+import {
+  errorHandler,
+  notFoundHandler,
+} from "./middleware/error-handler.js";
 
 dotenv.config();
 
-const app = express();
+export const app = express();
+
+app.disable("x-powered-by");
+app.set("trust proxy", false);
+
+const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:3000";
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production" && !process.env.CLIENT_ORIGIN
+        ? false
+        : clientOrigin.split(",").map((origin) => origin.trim()),
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: false,
+    maxAge: 600,
+  })
+);
+app.use(
+  helmet({
+    contentSecurityPolicy:
+      process.env.NODE_ENV === "production" ? undefined : false,
+    crossOriginEmbedderPolicy: false,
+    strictTransportSecurity:
+      process.env.NODE_ENV === "production" ? undefined : false,
+  })
+);
+
+app.use("/api", apiSecurityHeaders);
+app.use("/api", apiLimiter);
 
 // Body parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const requestLimit = process.env.MAX_REQUEST_SIZE || "32kb";
+app.use(express.json({ limit: requestLimit }));
+app.use(express.urlencoded({ extended: true, limit: requestLimit }));
 
 // API routes
 app.use("/api/auth", authRouter);
@@ -32,16 +72,20 @@ app.get("/api/health", (req: express.Request, res: express.Response) => {
   res.json({ status: "ok" });
 });
 
+app.use("/api", notFoundHandler);
+
+if (process.env.NODE_ENV === "production") {
+  setupStaticServing(app);
+}
+
+app.use(errorHandler);
+
 // Export a function to start the server
 export async function startServer(port: string | number) {
   try {
     // Initialize database
     await initializeDatabase();
     await seedDatabase();
-
-    if (process.env.NODE_ENV === "production") {
-      setupStaticServing(app);
-    }
 
     app.listen(port, () => {
       console.log(`API Server running on port ${port}`);
