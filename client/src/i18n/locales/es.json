@@ -1,0 +1,7 @@
+{
+  "common": {
+    "appName": "HubFit",
+    "loading": "Cargando...",
+    "unauthorized": "No tienes permiso para acceder a esta sección"
+  }
+}
