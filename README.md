@@ -154,6 +154,21 @@ npm run check         # Full local verification
 
 ---
 
+## Security Configuration
+
+Copy `.env.example` to `.env` when local overrides are needed.
+
+- `CLIENT_ORIGIN` - Comma-separated browser origins allowed to call the API
+- `MAX_REQUEST_SIZE` - Maximum JSON and form request size (default `32kb`)
+- `RATE_LIMIT_WINDOW_MINUTES` - General API rate-limit window
+- `RATE_LIMIT_MAX_REQUESTS` - General requests allowed per window
+- `AUTH_RATE_LIMIT_MAX_REQUESTS` - Login and signup attempts allowed per window
+
+In production, requests are same-origin by default. Set `CLIENT_ORIGIN` explicitly
+when the browser application and API are deployed on different origins.
+
+---
+
 ## Limitations (v1.0)
 
 - Sessions are stored in memory and reset when the server restarts

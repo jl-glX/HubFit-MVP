@@ -1,6 +1,7 @@
 import express from "express";
 import { db } from "../db/client.js";
 import { getClassWithAvailability } from "../services/booking.js";
+import { validateId } from "../middleware/validation.js";
 
 export const classesRouter = express.Router();
 
@@ -30,6 +31,7 @@ classesRouter.get("/", async (req: express.Request, res: express.Response) => {
 // Get trainer's classes
 classesRouter.get(
   "/trainer/:trainerId",
+  validateId("trainerId"),
   async (req: express.Request, res: express.Response) => {
     try {
       const classes = await db
@@ -57,6 +59,7 @@ classesRouter.get(
 // Get single class with availability
 classesRouter.get(
   "/:id",
+  validateId("id"),
   async (req: express.Request, res: express.Response) => {
     try {
       const gymClass = await getClassWithAvailability(req.params.id);

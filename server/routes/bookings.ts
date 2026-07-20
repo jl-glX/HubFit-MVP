@@ -7,12 +7,18 @@ import {
   getClassWaitlist,
   exportClassAttendeesCsv,
 } from "../services/booking.js";
+import {
+  bookingCancellationValidation,
+  bookingValidation,
+  validateId,
+} from "../middleware/validation.js";
 
 export const bookingsRouter = express.Router();
 
 // Get user bookings
 bookingsRouter.get(
   "/user/:userId",
+  validateId("userId"),
   async (req: express.Request, res: express.Response) => {
     try {
       const bookings = await getUserBookings(req.params.userId);
@@ -27,6 +33,7 @@ bookingsRouter.get(
 // Get class bookings (for admin/trainer view)
 bookingsRouter.get(
   "/class/:classId",
+  validateId("classId"),
   async (req: express.Request, res: express.Response) => {
     try {
       const bookings = await getClassBookings(req.params.classId);
@@ -41,6 +48,7 @@ bookingsRouter.get(
 // Export class attendees as CSV
 bookingsRouter.get(
   "/class/:classId/export-csv",
+  validateId("classId"),
   async (req: express.Request, res: express.Response) => {
     try {
       const csv = await exportClassAttendeesCsv(req.params.classId);
@@ -60,6 +68,7 @@ bookingsRouter.get(
 // Create booking
 bookingsRouter.post(
   "/",
+  bookingValidation,
   async (req: express.Request, res: express.Response) => {
     try {
       const { classId, userId } = req.body;
@@ -82,6 +91,7 @@ bookingsRouter.post(
 // Cancel booking
 bookingsRouter.delete(
   "/:bookingId",
+  bookingCancellationValidation,
   async (req: express.Request, res: express.Response) => {
     try {
       const { userId } = req.body;
@@ -104,6 +114,7 @@ bookingsRouter.delete(
 // Get class waitlist
 bookingsRouter.get(
   "/waitlist/:classId",
+  validateId("classId"),
   async (req: express.Request, res: express.Response) => {
     try {
       const waitlist = await getClassWaitlist(req.params.classId);

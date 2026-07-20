@@ -11,12 +11,18 @@ import {
   getUpcomingBookings,
   getTrainerUpcomingClasses,
 } from "../services/analytics.js";
+import {
+  dateRangeValidation,
+  monthValidation,
+  validateId,
+} from "../middleware/validation.js";
 
 export const analyticsRouter = express.Router();
 
 // Get daily metrics for a date range
 analyticsRouter.get(
   "/daily",
+  dateRangeValidation,
   async (req: express.Request, res: express.Response) => {
     try {
       const startDate = parseInt(req.query.startDate as string);
@@ -39,6 +45,7 @@ analyticsRouter.get(
 // Get weekly metrics for a date range
 analyticsRouter.get(
   "/weekly",
+  dateRangeValidation,
   async (req: express.Request, res: express.Response) => {
     try {
       const startDate = parseInt(req.query.startDate as string);
@@ -61,6 +68,7 @@ analyticsRouter.get(
 // Get monthly metrics
 analyticsRouter.get(
   "/monthly",
+  monthValidation,
   async (req: express.Request, res: express.Response) => {
     try {
       const year = parseInt(req.query.year as string);
@@ -111,6 +119,7 @@ analyticsRouter.get(
 // Get user activity metrics
 analyticsRouter.get(
   "/user/:userId",
+  validateId("userId"),
   async (req: express.Request, res: express.Response) => {
     try {
       const metrics = await getUserActivityMetrics(req.params.userId);
@@ -131,6 +140,7 @@ analyticsRouter.get(
 // Get trainer activity metrics
 analyticsRouter.get(
   "/trainer/:trainerId",
+  validateId("trainerId"),
   async (req: express.Request, res: express.Response) => {
     try {
       const metrics = await getTrainerActivityMetrics(req.params.trainerId);
@@ -161,6 +171,7 @@ analyticsRouter.get(
 // Get upcoming bookings for a user
 analyticsRouter.get(
   "/user/:userId/upcoming-bookings",
+  validateId("userId"),
   async (req: express.Request, res: express.Response) => {
     try {
       const bookings = await getUpcomingBookings(req.params.userId);
@@ -175,6 +186,7 @@ analyticsRouter.get(
 // Get trainer upcoming classes
 analyticsRouter.get(
   "/trainer/:trainerId/upcoming-classes",
+  validateId("trainerId"),
   async (req: express.Request, res: express.Response) => {
     try {
       const classes = await getTrainerUpcomingClasses(req.params.trainerId);

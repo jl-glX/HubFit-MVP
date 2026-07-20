@@ -31,7 +31,7 @@ export default tseslint.config(
     ...reactRefresh.configs.vite,
   },
   {
-    files: ['server/**/*.ts', 'scripts/**/*.ts', 'vite.config.js'],
+    files: ['server/**/*.ts', 'scripts/**/*.ts', 'vite.config.js', 'vitest.config.ts'],
     languageOptions: {
       globals: globals.node,
     },
