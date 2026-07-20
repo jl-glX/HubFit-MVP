@@ -17,7 +17,7 @@ interface UpcomingBooking {
 
 interface UpcomingBookingsListProps {
   title: string;
-  data: any[];
+  data: UpcomingBooking[];
   limit?: number;
 }
 

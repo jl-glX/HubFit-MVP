@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import { pathToFileURL } from "node:url";
 import { setupStaticServing } from "./static-serve.js";
 import { initializeDatabase, closeDatabase } from "./db/client.js";
 import { seedDatabase } from "./db/seed.js";
@@ -65,7 +66,10 @@ export async function startServer(port: string | number) {
 }
 
 // Start the server directly if this is the main module
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
   console.log("Starting server...");
   startServer(process.env.PORT || 3001);
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AlertCircle, Loader, RefreshCw } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { ClassCard } from "../components/ClassCard";
@@ -10,15 +10,9 @@ import { groupClassesByDate } from "../lib/dateUtils";
 export function ClassesPage() {
   const user = useCurrentUser();
   const { classes, loading: classesLoading, error: classesError, refreshClasses } = useClasses();
-  const { bookings, bookClass, loading: bookingLoading } = useBookings(user?.id || "");
+  const { bookings, bookClass } = useBookings(user?.id || "");
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [bookingInProgress, setBookingInProgress] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (user?.id) {
-      // Initial load is handled by useBookings, but we need to fetch again after class refresh
-    }
-  }, [user?.id]);
 
   const userBookedClassIds = new Set(bookings.map((b) => b.classId));
   const groupedClasses = groupClassesByDate(classes);
@@ -50,7 +44,7 @@ export function ClassesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
       <div className="mx-auto max-w-6xl px-4 py-8">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">

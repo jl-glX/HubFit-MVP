@@ -1,13 +1,16 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 export const vitePort = 3000;
+const configDirectory = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig(({ mode }) => {
-  return {
+export default defineConfig({
     plugins: [
       react(),
+      tailwindcss(),
       // Custom plugin to handle source map requests
       {
         name: 'handle-source-map-requests',
@@ -24,37 +27,10 @@ export default defineConfig(({ mode }) => {
           });
         },
       },
-      // Custom plugin to add CORS headers
-      {
-        name: 'add-cors-headers',
-        apply: 'serve',
-        configureServer(server) {
-          server.middlewares.use((req, res, next) => {
-            // Add CORS headers to all responses
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.setHeader(
-              'Access-Control-Allow-Methods',
-              'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-            );
-            res.setHeader(
-              'Access-Control-Allow-Headers',
-              'Content-Type, Authorization, X-Requested-With',
-            );
-
-            // Handle OPTIONS requests
-            if (req.method === 'OPTIONS') {
-              res.statusCode = 204;
-              return res.end();
-            }
-
-            next();
-          });
-        },
-      },
-    ].filter(Boolean),
+    ],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, './client/src'),
+        '@': path.resolve(configDirectory, './client/src'),
       },
     },
     root: path.join(process.cwd(), 'client'),
@@ -67,10 +43,8 @@ export default defineConfig(({ mode }) => {
       hmr: {
         overlay: false,
       },
-      host: true,
+      host: '127.0.0.1',
       port: vitePort,
-      allowedHosts: true,
-      cors: true, // Enable CORS in the dev server
       proxy: {
         '/api/': {
           target: 'http://localhost:3001',
@@ -82,9 +56,4 @@ export default defineConfig(({ mode }) => {
     css: {
       devSourcemap: true,
     },
-    // Ensure source maps are properly generated
-    esbuild: {
-      sourcemap: true,
-    },
-  };
 });

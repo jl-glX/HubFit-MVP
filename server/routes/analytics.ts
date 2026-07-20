@@ -10,7 +10,7 @@ import {
   getMemberMetrics,
   getUpcomingBookings,
   getTrainerUpcomingClasses,
-} from "../services/analytics";
+} from "../services/analytics.js";
 
 export const analyticsRouter = express.Router();
 

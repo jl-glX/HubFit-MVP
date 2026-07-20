@@ -1,5 +1,4 @@
 import { Card } from "./ui/card";
-import { formatDate } from "../lib/dateUtils";
 
 interface ClassPopularityData {
   classId: string;

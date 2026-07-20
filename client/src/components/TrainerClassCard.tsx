@@ -43,7 +43,7 @@ export function TrainerClassCard({
             {name}
           </h3>
           {isFull && (
-            <div className="flex-shrink-0 rounded-full bg-red-100 p-2">
+            <div className="shrink-0 rounded-full bg-red-100 p-2">
               <AlertCircle className="h-4 w-4 text-red-600" />
             </div>
           )}
@@ -51,14 +51,14 @@ export function TrainerClassCard({
 
         <div className="space-y-2 text-sm text-slate-600">
           <div className="flex items-center gap-2">
-            <Clock size={16} className="flex-shrink-0" />
+            <Clock size={16} className="shrink-0" />
             <span>
               {formatDate(scheduledAt)} at {formatTime(scheduledAt)}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <Users size={16} className="flex-shrink-0" />
+            <Users size={16} className="shrink-0" />
             <span>
               {bookedCount}/{maxCapacity} attendees
             </span>

@@ -6,7 +6,7 @@ export function UnauthorizedPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
       <div className="max-w-md text-center">
         <AlertCircle className="mx-auto mb-4 text-red-600" size={64} />
         <h1 className="text-3xl font-bold text-slate-900 mb-2">

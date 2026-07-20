@@ -60,7 +60,6 @@ export function useUsers() {
       setUsers([...users, newUser]);
       return newUser;
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
       console.error("Error creating user:", err);
       throw err;
     }

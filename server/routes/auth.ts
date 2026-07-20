@@ -1,6 +1,5 @@
 import express from "express";
 import { signup, login, logout, verifyToken } from "../services/auth.js";
-import { db } from "../db/client.js";
 
 export const authRouter = express.Router();
 
@@ -16,7 +15,6 @@ authRouter.post("/signup", async (req: express.Request, res: express.Response) =
     res.status(400).json({ error: message });
   }
 });
-
 authRouter.post("/login", async (req: express.Request, res: express.Response) => {
   try {
     const { email, password } = req.body;
@@ -73,31 +71,5 @@ authRouter.post("/verify", (req: express.Request, res: express.Response) => {
   } catch (error) {
     console.error("[Auth Route] Verify error:", error);
     res.status(500).json({ error: "Verification failed" });
-  }
-});
-
-// Debug endpoint to check user data (remove in production)
-authRouter.get("/debug/users", async (req: express.Request, res: express.Response) => {
-  try {
-    const users = await db
-      .selectFrom("users")
-      .select(["id", "email", "name", "role", "password"])
-      .execute();
-    
-    res.json({
-      count: users.length,
-      users: users.map(u => ({
-        id: u.id,
-        email: u.email,
-        name: u.name,
-        role: u.role,
-        hasPassword: !!u.password,
-        passwordLength: u.password?.length || 0,
-        passwordPreview: u.password ? `${u.password.substring(0, 10)}...` : "empty"
-      }))
-    });
-  } catch (error) {
-    console.error("[Auth Route] Debug users error:", error);
-    res.status(500).json({ error: "Failed to fetch users" });
   }
 });

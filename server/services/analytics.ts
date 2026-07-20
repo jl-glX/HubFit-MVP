@@ -1,4 +1,4 @@
-import { db } from "../db/client";
+import { db } from "../db/client.js";
 
 export interface DailyMetrics {
   date: string;
@@ -343,8 +343,6 @@ export async function getUserActivityMetrics(
   const cancelledCount = bookings.filter(
     (b) => b.status === "cancelled"
   ).length;
-  const waitlistCount = bookings.filter((b) => b.status === "waitlist").length;
-
   const upcomingBookings = await db
     .selectFrom("bookings")
     .innerJoin("gymClasses", "bookings.classId", "gymClasses.id")

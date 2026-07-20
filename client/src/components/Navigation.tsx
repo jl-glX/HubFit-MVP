@@ -12,6 +12,12 @@ export function Navigation() {
 
   const activeClass = "text-blue-600 border-b-2 border-blue-600";
   const inactiveClass = "text-gray-600 hover:text-gray-900";
+  const analyticsPath =
+    user?.role === "admin"
+      ? "/admin-analytics"
+      : user?.role === "trainer"
+        ? "/trainer-analytics"
+        : "/activity-dashboard";
 
   const handleLogout = async () => {
     await logout();
@@ -94,6 +100,16 @@ export function Navigation() {
                 <span>Admin</span>
               </Link>
             )}
+
+            <Link
+              to={analyticsPath}
+              className={`flex items-center gap-2 border-b-2 border-transparent py-2 transition-colors ${
+                isActive(analyticsPath) ? activeClass : inactiveClass
+              }`}
+            >
+              <BarChart3 size={20} />
+              <span>Analytics</span>
+            </Link>
 
             <div className="border-l border-gray-200 pl-8 flex items-center gap-4">
               <div className="text-sm">

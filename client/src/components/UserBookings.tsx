@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { AlertCircle, Loader, Trash2, Clock, User } from "lucide-react";
@@ -24,11 +24,7 @@ export function UserBookings({ userId }: UserBookingsProps) {
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchBookings();
-  }, [userId]);
-
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -48,7 +44,11 @@ export function UserBookings({ userId }: UserBookingsProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    void fetchBookings();
+  }, [fetchBookings]);
 
   const handleCancel = async (bookingId: string) => {
     try {
