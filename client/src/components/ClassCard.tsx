@@ -19,7 +19,6 @@ interface ClassCardProps {
 }
 
 export function ClassCard({
-  id,
   name,
   description,
   trainerName,

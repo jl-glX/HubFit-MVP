@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import { pathToFileURL } from "node:url";
 import { setupStaticServing } from "./static-serve.js";
 import { initializeDatabase, closeDatabase } from "./db/client.js";
 import { seedDatabase } from "./db/seed.js";
@@ -8,6 +9,7 @@ import { classesRouter } from "./routes/classes.js";
 import { bookingsRouter } from "./routes/bookings.js";
 import { usersRouter } from "./routes/users.js";
 import { adminClassesRouter } from "./routes/admin-classes.js";
+import { analyticsRouter } from "./routes/analytics.js";
 
 dotenv.config();
 
@@ -23,6 +25,7 @@ app.use("/api/classes", classesRouter);
 app.use("/api/bookings", bookingsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/admin/classes", adminClassesRouter);
+app.use("/api/analytics", analyticsRouter);
 
 // Health check endpoint
 app.get("/api/health", (req: express.Request, res: express.Response) => {
@@ -63,7 +66,10 @@ export async function startServer(port: string | number) {
 }
 
 // Start the server directly if this is the main module
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
   console.log("Starting server...");
   startServer(process.env.PORT || 3001);
 }

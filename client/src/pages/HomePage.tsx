@@ -7,7 +7,7 @@ export function HomePage() {
   const user = useCurrentUser();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       {/* Header */}
       <header className="border-b border-slate-700">
         <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
@@ -54,7 +54,7 @@ export function HomePage() {
 
           {/* Features */}
           <div className="space-y-4">
-            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-6 backdrop-blur">
+            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-6 backdrop-blur-sm">
               <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600">
                 <Calendar size={24} />
               </div>
@@ -64,7 +64,7 @@ export function HomePage() {
               </p>
             </div>
 
-            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-6 backdrop-blur">
+            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-6 backdrop-blur-sm">
               <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600">
                 <Users size={24} />
               </div>
@@ -74,7 +74,7 @@ export function HomePage() {
               </p>
             </div>
 
-            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-6 backdrop-blur">
+            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-6 backdrop-blur-sm">
               <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600">
                 <Bookmark size={24} />
               </div>

@@ -10,6 +10,9 @@ npm start
 
 # Build for production
 npm run build
+
+# Lint, type-check, and build
+npm run check
 ```
 
 **Demo user:** Juan Perez (juan@example.com)
@@ -33,11 +36,15 @@ npm run build
 - Smart Waitlist - Automatically join waitlist when full
 - Auto-Promotion - First in waitlist promoted when spots open
 - Booking Management - View and cancel reservations
+- Authentication with member, trainer, and administrator roles
+- Role-based management and analytics dashboards
 
 ### Technical
-- Full TypeScript with strict mode
+- TypeScript 6 client and server validation
+- ESLint 10 with React and TypeScript rules
 - Modular architecture
-- React 18 + Vite frontend
+- React 19 + Vite 8 frontend
+- Tailwind CSS 4
 - Express 5 API backend
 - SQLite database
 - Responsive design
@@ -48,7 +55,7 @@ npm run build
 ## Architecture
 
 ### Tech Stack
-- Frontend: React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui
+- Frontend: React 19, TypeScript 6, Vite 8, Tailwind CSS 4, shadcn/ui
 - Backend: Node.js, Express 5, TypeScript
 - Database: SQLite with Kysely query builder
 
@@ -66,7 +73,7 @@ server/                   Backend application
   services/              Business logic
 
 data/                     Database storage
-  database.sqlite        SQLite file
+  database.sqlite        Generated SQLite file (not versioned)
 ```
 
 ---
@@ -82,6 +89,13 @@ Bookings:
 - DELETE /api/bookings/:id - Cancel booking
 - GET /api/bookings/user/:id - Get user bookings
 - GET /api/bookings/class/:id - Get class attendees
+
+Analytics:
+- GET /api/analytics/daily - Daily booking and occupancy metrics
+- GET /api/analytics/weekly - Weekly metrics
+- GET /api/analytics/monthly - Monthly metrics
+- GET /api/analytics/class-popularity - Class popularity
+- GET /api/analytics/peak-hours - Peak usage hours
 
 ---
 
@@ -133,16 +147,17 @@ Backend:
 ```bash
 npm start              # Dev servers
 npm run build         # Production build
+npm run lint          # ESLint
+npm run typecheck     # Client and server TypeScript
+npm run check         # Full local verification
 ```
 
 ---
 
 ## Limitations (v1.0)
 
-- Demo user only (no auth)
+- Sessions are stored in memory and reset when the server restarts
 - No real-time notifications
-- No trainer dashboard
-- No search/filtering
 - No email/SMS alerts
 
 See PROJECT_COMPLETION_CHECKLIST.md for future features.

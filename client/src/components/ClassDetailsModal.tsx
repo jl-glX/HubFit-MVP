@@ -73,7 +73,7 @@ export function ClassDetailsModal({
             </div>
             <button
               onClick={() => onOpenChange(false)}
-              className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="shrink-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <X size={20} className="text-gray-600" />
             </button>
@@ -115,7 +115,7 @@ export function ClassDetailsModal({
             {/* Error State */}
             {error && (
               <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
-                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
                 <p className="text-sm text-red-800">{error}</p>
               </div>
             )}
@@ -172,7 +172,7 @@ export function ClassDetailsModal({
                           key={entry.id}
                           className="flex items-center gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50"
                         >
-                          <div className="flex-shrink-0 rounded-full bg-amber-200 w-6 h-6 flex items-center justify-center">
+                          <div className="shrink-0 rounded-full bg-amber-200 w-6 h-6 flex items-center justify-center">
                             <span className="text-xs font-semibold text-amber-900">
                               {entry.position}
                             </span>

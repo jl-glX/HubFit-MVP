@@ -9,14 +9,14 @@ export function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("users");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900">Admin Dashboard</h1>
           <p className="mt-2 text-gray-600">Manage users and gym classes</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white rounded-lg shadow-xs border border-gray-200">
           <div className="border-b border-gray-200">
             <div className="flex gap-8 px-6">
               <button

@@ -238,7 +238,7 @@ export async function seedDatabase() {
               cancelledAt: null,
             })
             .execute();
-        } catch (err) {
+        } catch {
           console.log(`Booking already exists for class ${classId}`);
         }
       }
