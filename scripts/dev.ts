@@ -1,41 +1,58 @@
-import { startServer } from '../server/index.js';
-import { createServer } from 'vite';
+import type { Server } from "node:http";
+import { createServer, type ViteDevServer } from "vite";
+import { closeDatabase } from "../server/db/client.js";
+import { startServer } from "../server/index.js";
 
-let viteServer;
+let apiServer: Server | undefined;
+let viteServer: ViteDevServer | undefined;
+let shuttingDown = false;
 
-async function startDev() {
-  // Start the Express API server first
-  await startServer(3001);
+function closeApiServer(server: Server | undefined): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!server?.listening) {
+      resolve();
+      return;
+    }
 
-  // Then start Vite in dev mode
-  viteServer = await createServer({
-    configFile: './vite.config.js',
+    server.close((error) => (error ? reject(error) : resolve()));
   });
-
-  await viteServer.listen();
-  console.log(
-    `Vite dev server running on port ${viteServer.config.server.port}`,
-  );
 }
 
-/**
- * Handle tsx watch restarts
- * This ensures Vite is closed gracefully before the process exits
- */
-process.on('SIGTERM', async () => {
-  console.log('Received SIGTERM, closing servers gracefully...');
+async function shutdown(exitCode: number): Promise<void> {
+  if (shuttingDown) return;
+  shuttingDown = true;
 
-  if (viteServer) {
-    try {
-      await viteServer.close();
-      console.log('Vite server closed successfully');
-    } catch (err) {
-      console.error('Error closing Vite server:', err);
+  const results = await Promise.allSettled([
+    viteServer?.close(),
+    closeApiServer(apiServer),
+  ]);
+
+  for (const result of results) {
+    if (result.status === "rejected") {
+      console.error("Failed to stop a development server:", result.reason);
     }
   }
 
-  // Exit cleanly so tsx can restart the process
-  process.exit(0);
-});
+  closeDatabase();
+  process.exit(exitCode);
+}
 
-startDev();
+async function startDevelopmentServers(): Promise<void> {
+  const apiPort = Number.parseInt(process.env.PORT ?? "3001", 10);
+  apiServer = await startServer(apiPort);
+
+  viteServer = await createServer({ configFile: "./vite.config.js" });
+  await viteServer.listen();
+
+  console.log(
+    `Development servers ready: frontend http://127.0.0.1:${viteServer.config.server.port}, API http://127.0.0.1:${apiPort}`,
+  );
+}
+
+process.once("SIGINT", () => void shutdown(0));
+process.once("SIGTERM", () => void shutdown(0));
+
+startDevelopmentServers().catch((error) => {
+  console.error("Failed to start development servers:", error);
+  void shutdown(1);
+});

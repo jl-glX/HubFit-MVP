@@ -145,7 +145,8 @@ Backend:
 ## Development
 
 ```bash
-npm start              # Dev servers
+npm run dev            # Frontend and API together in development
+npm start              # Same combined development launcher (legacy alias)
 npm run build         # Production build
 npm run lint          # ESLint
 npm run typecheck     # Client and server TypeScript
