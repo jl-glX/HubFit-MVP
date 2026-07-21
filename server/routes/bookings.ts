@@ -12,13 +12,21 @@ import {
   bookingValidation,
   validateId,
 } from "../middleware/validation.js";
+import {
+  authenticate,
+  requireSelfBodyOrRole,
+  requireSelfParamOrRole,
+  requireTrainerClassOrRole,
+} from "../middleware/authorization.js";
 
 export const bookingsRouter = express.Router();
+bookingsRouter.use(authenticate);
 
 // Get user bookings
 bookingsRouter.get(
   "/user/:userId",
   validateId("userId"),
+  requireSelfParamOrRole("userId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const bookings = await getUserBookings(req.params.userId);
@@ -34,6 +42,7 @@ bookingsRouter.get(
 bookingsRouter.get(
   "/class/:classId",
   validateId("classId"),
+  requireTrainerClassOrRole("classId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const bookings = await getClassBookings(req.params.classId);
@@ -49,6 +58,7 @@ bookingsRouter.get(
 bookingsRouter.get(
   "/class/:classId/export-csv",
   validateId("classId"),
+  requireTrainerClassOrRole("classId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const csv = await exportClassAttendeesCsv(req.params.classId);
@@ -69,6 +79,7 @@ bookingsRouter.get(
 bookingsRouter.post(
   "/",
   bookingValidation,
+  requireSelfBodyOrRole("userId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const { classId, userId } = req.body;
@@ -92,6 +103,7 @@ bookingsRouter.post(
 bookingsRouter.delete(
   "/:bookingId",
   bookingCancellationValidation,
+  requireSelfBodyOrRole("userId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const { userId } = req.body;
@@ -115,6 +127,7 @@ bookingsRouter.delete(
 bookingsRouter.get(
   "/waitlist/:classId",
   validateId("classId"),
+  requireTrainerClassOrRole("classId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const waitlist = await getClassWaitlist(req.params.classId);

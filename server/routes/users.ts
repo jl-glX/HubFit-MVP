@@ -15,8 +15,10 @@ import {
   updateUserValidation,
   validateId,
 } from "../middleware/validation.js";
+import { authenticate, requireRole } from "../middleware/authorization.js";
 
 export const usersRouter = express.Router();
+usersRouter.use(authenticate, requireRole("admin"));
 
 // Get all users
 usersRouter.get("/", async (req: express.Request, res: express.Response) => {

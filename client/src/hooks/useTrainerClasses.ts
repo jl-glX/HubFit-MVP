@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { authFetch } from "../lib/api";
 
 export interface TrainerClass {
   id: string;
@@ -36,7 +37,7 @@ export function useTrainerClasses(trainerId: string) {
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
-      const res = await fetch(
+      const res = await authFetch(
         `${API_BASE}/api/classes/trainer/${trainerId}`
       );
 

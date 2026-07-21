@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { useClassAttendees } from "../hooks/useClassAttendees";
 import { useAuth } from "../hooks/useAuth";
 import { formatDate, formatTime } from "../lib/dateUtils";
+import { authFetch } from "../lib/api";
 
 interface ClassDetailsModalProps {
   classId: string;
@@ -31,7 +32,7 @@ export function ClassDetailsModal({
 
   const handleExportCsv = async () => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `/api/bookings/class/${classId}/export-csv`,
         {
           method: "GET",

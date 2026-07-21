@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { AlertCircle, Loader, Trash2, Clock, User } from "lucide-react";
 import { formatDateTime, isFutureClass } from "../lib/dateUtils";
+import { authFetch } from "../lib/api";
 
 interface UserBooking {
   id: string;
@@ -28,7 +29,7 @@ export function UserBookings({ userId }: UserBookingsProps) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`/api/bookings/user/${userId}`);
+      const response = await authFetch(`/api/bookings/user/${userId}`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch bookings");
@@ -53,7 +54,7 @@ export function UserBookings({ userId }: UserBookingsProps) {
   const handleCancel = async (bookingId: string) => {
     try {
       setCancelling(bookingId);
-      const response = await fetch(`/api/bookings/${bookingId}`, {
+      const response = await authFetch(`/api/bookings/${bookingId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

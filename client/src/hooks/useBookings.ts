@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { authFetch } from "../lib/api";
 
 export interface UserBooking {
   id: string;
@@ -24,7 +25,7 @@ export function useBookings(userId: string) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`/api/bookings/user/${userId}`);
+      const response = await authFetch(`/api/bookings/user/${userId}`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch bookings");
@@ -44,7 +45,7 @@ export function useBookings(userId: string) {
   const bookClass = async (classId: string) => {
     try {
       setError(null);
-      const response = await fetch("/api/bookings", {
+      const response = await authFetch("/api/bookings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -70,7 +71,7 @@ export function useBookings(userId: string) {
   const cancelBooking = async (bookingId: string) => {
     try {
       setError(null);
-      const response = await fetch(`/api/bookings/${bookingId}`, {
+      const response = await authFetch(`/api/bookings/${bookingId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

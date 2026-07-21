@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { authFetch } from "../lib/api";
 
 export interface Attendee {
   id: string;
@@ -43,8 +44,8 @@ export function useClassAttendees(classId: string) {
 
     try {
       const [attendeesRes, waitlistRes] = await Promise.all([
-        fetch(`${API_BASE}/api/bookings/class/${classId}`),
-        fetch(`${API_BASE}/api/bookings/waitlist/${classId}`),
+        authFetch(`${API_BASE}/api/bookings/class/${classId}`),
+        authFetch(`${API_BASE}/api/bookings/waitlist/${classId}`),
       ]);
 
       if (!attendeesRes.ok || !waitlistRes.ok) {

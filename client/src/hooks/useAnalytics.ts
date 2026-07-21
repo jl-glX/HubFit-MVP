@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { authFetch } from "../lib/api";
 
 const API_BASE =
   typeof window !== "undefined" &&
@@ -88,7 +89,7 @@ export function useDailyMetrics(startDate: number, endDate: number) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(
+        const res = await authFetch(
           `${API_BASE}/api/analytics/daily?startDate=${startDate}&endDate=${endDate}`
         );
         if (!res.ok) throw new Error("Failed to fetch daily metrics");
@@ -120,7 +121,7 @@ export function useWeeklyMetrics(startDate: number, endDate: number) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(
+        const res = await authFetch(
           `${API_BASE}/api/analytics/weekly?startDate=${startDate}&endDate=${endDate}`
         );
         if (!res.ok) throw new Error("Failed to fetch weekly metrics");
@@ -152,7 +153,7 @@ export function useMonthlyMetrics(year: number, month: number) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(
+        const res = await authFetch(
           `${API_BASE}/api/analytics/monthly?year=${year}&month=${month}`
         );
         if (!res.ok) throw new Error("Failed to fetch monthly metrics");
@@ -182,7 +183,7 @@ export function useClassPopularity() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${API_BASE}/api/analytics/class-popularity`);
+        const res = await authFetch(`${API_BASE}/api/analytics/class-popularity`);
         if (!res.ok) throw new Error("Failed to fetch class popularity");
         const result = await res.json();
         setData(result);
@@ -210,7 +211,7 @@ export function usePeakHours() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${API_BASE}/api/analytics/peak-hours`);
+        const res = await authFetch(`${API_BASE}/api/analytics/peak-hours`);
         if (!res.ok) throw new Error("Failed to fetch peak hours");
         const result = await res.json();
         setData(result);
@@ -240,7 +241,7 @@ export function useUserActivityMetrics(userId: string) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${API_BASE}/api/analytics/user/${userId}`);
+        const res = await authFetch(`${API_BASE}/api/analytics/user/${userId}`);
         if (!res.ok) throw new Error("Failed to fetch user activity metrics");
         const result = await res.json();
         setData(result);
@@ -270,7 +271,7 @@ export function useTrainerActivityMetrics(trainerId: string) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(
+        const res = await authFetch(
           `${API_BASE}/api/analytics/trainer/${trainerId}`
         );
         if (!res.ok) throw new Error("Failed to fetch trainer activity metrics");
@@ -300,7 +301,7 @@ export function useMemberMetrics() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${API_BASE}/api/analytics/members`);
+        const res = await authFetch(`${API_BASE}/api/analytics/members`);
         if (!res.ok) throw new Error("Failed to fetch member metrics");
         const result = await res.json();
         setData(result);
@@ -330,7 +331,7 @@ export function useUpcomingBookings(userId: string) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(
+        const res = await authFetch(
           `${API_BASE}/api/analytics/user/${userId}/upcoming-bookings`
         );
         if (!res.ok) throw new Error("Failed to fetch upcoming bookings");
@@ -362,7 +363,7 @@ export function useTrainerUpcomingClasses(trainerId: string) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(
+        const res = await authFetch(
           `${API_BASE}/api/analytics/trainer/${trainerId}/upcoming-classes`
         );
         if (!res.ok) throw new Error("Failed to fetch upcoming classes");

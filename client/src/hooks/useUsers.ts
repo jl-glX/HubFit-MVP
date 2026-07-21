@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { authFetch } from "../lib/api";
 
 export interface User {
   id: string;
@@ -21,7 +22,7 @@ export function useUsers() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch("/api/users");
+      const response = await authFetch("/api/users");
 
       if (!response.ok) {
         throw new Error("Failed to fetch users");
@@ -45,7 +46,7 @@ export function useUsers() {
     role?: "member" | "trainer" | "admin";
   }): Promise<User> => {
     try {
-      const response = await fetch("/api/users", {
+      const response = await authFetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -75,7 +76,7 @@ export function useUsers() {
     }
   ): Promise<User> => {
     try {
-      const response = await fetch(`/api/users/${id}`, {
+      const response = await authFetch(`/api/users/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
@@ -100,7 +101,7 @@ export function useUsers() {
     role: "member" | "trainer" | "admin"
   ): Promise<User> => {
     try {
-      const response = await fetch(`/api/users/${id}/role`, {
+      const response = await authFetch(`/api/users/${id}/role`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role }),
@@ -122,7 +123,7 @@ export function useUsers() {
 
   const deleteUser = async (id: string): Promise<void> => {
     try {
-      const response = await fetch(`/api/users/${id}`, {
+      const response = await authFetch(`/api/users/${id}`, {
         method: "DELETE",
       });
 
@@ -140,7 +141,7 @@ export function useUsers() {
 
   const deleteMultipleUsers = async (userIds: string[]): Promise<void> => {
     try {
-      const response = await fetch("/api/users/bulk/delete", {
+      const response = await authFetch("/api/users/bulk/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userIds }),
