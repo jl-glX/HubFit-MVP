@@ -2,8 +2,14 @@ import express from "express";
 import { db } from "../db/client.js";
 import { getClassWithAvailability } from "../services/booking.js";
 import { validateId } from "../middleware/validation.js";
+import {
+  authenticate,
+  requireRole,
+  requireSelfParamOrRole,
+} from "../middleware/authorization.js";
 
 export const classesRouter = express.Router();
+classesRouter.use(authenticate);
 
 // Get all classes
 classesRouter.get("/", async (req: express.Request, res: express.Response) => {
@@ -32,6 +38,8 @@ classesRouter.get("/", async (req: express.Request, res: express.Response) => {
 classesRouter.get(
   "/trainer/:trainerId",
   validateId("trainerId"),
+  requireRole("trainer", "admin"),
+  requireSelfParamOrRole("trainerId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const classes = await db

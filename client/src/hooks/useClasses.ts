@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { authFetch } from "../lib/api";
 
 export interface GymClass {
   id: string;
@@ -26,7 +27,7 @@ export function useClasses() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch("/api/classes");
+      const response = await authFetch("/api/classes");
 
       if (!response.ok) {
         throw new Error("Failed to fetch classes");

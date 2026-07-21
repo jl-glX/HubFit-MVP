@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { authFetch } from "../lib/api";
 
 export interface AdminClass {
   id: string;
@@ -26,7 +27,7 @@ export function useAdminClasses() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch("/api/admin/classes");
+      const response = await authFetch("/api/admin/classes");
 
       if (!response.ok) {
         throw new Error("Failed to fetch classes");
@@ -52,7 +53,7 @@ export function useAdminClasses() {
     scheduledAt: number;
   }): Promise<AdminClass> => {
     try {
-      const response = await fetch("/api/admin/classes", {
+      const response = await authFetch("/api/admin/classes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -84,7 +85,7 @@ export function useAdminClasses() {
     }
   ): Promise<AdminClass> => {
     try {
-      const response = await fetch(`/api/admin/classes/${id}`, {
+      const response = await authFetch(`/api/admin/classes/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
@@ -106,7 +107,7 @@ export function useAdminClasses() {
 
   const deleteClass = async (id: string): Promise<void> => {
     try {
-      const response = await fetch(`/api/admin/classes/${id}`, {
+      const response = await authFetch(`/api/admin/classes/${id}`, {
         method: "DELETE",
       });
 

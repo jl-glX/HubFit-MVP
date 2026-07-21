@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { AUTH_TOKEN_KEY } from "../lib/api";
 
 export interface AuthUser {
   id: string;
@@ -14,7 +15,6 @@ interface AuthState {
   error: string | null;
 }
 
-const TOKEN_KEY = "hubfit_auth_token";
 const API_BASE =
   typeof window !== "undefined" &&
   window.location.hostname === "localhost"
@@ -31,7 +31,7 @@ export function useAuth() {
 
   // Initialize auth state from storage
   useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEY);
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
     if (token) {
       verifySessionToken(token);
     } else {
@@ -48,7 +48,7 @@ export function useAuth() {
       });
 
       if (!res.ok) {
-        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(AUTH_TOKEN_KEY);
         setState({
           user: null,
           token: null,
@@ -67,7 +67,7 @@ export function useAuth() {
       });
     } catch (err) {
       console.error("[Auth] Verification error:", err);
-      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(AUTH_TOKEN_KEY);
       setState({
         user: null,
         token: null,
@@ -94,7 +94,7 @@ export function useAuth() {
         }
 
         const data = await res.json();
-        localStorage.setItem(TOKEN_KEY, data.token);
+        localStorage.setItem(AUTH_TOKEN_KEY, data.token);
 
         setState({
           user: data.user,
@@ -134,7 +134,7 @@ export function useAuth() {
         }
 
         const data = await res.json();
-        localStorage.setItem(TOKEN_KEY, data.token);
+        localStorage.setItem(AUTH_TOKEN_KEY, data.token);
 
         setState({
           user: data.user,
@@ -172,7 +172,7 @@ export function useAuth() {
       }
     }
 
-    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(AUTH_TOKEN_KEY);
     setState({
       user: null,
       token: null,

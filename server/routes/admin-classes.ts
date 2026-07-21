@@ -11,8 +11,10 @@ import {
   updateClassValidation,
   validateId,
 } from "../middleware/validation.js";
+import { authenticate, requireRole } from "../middleware/authorization.js";
 
 export const adminClassesRouter = express.Router();
+adminClassesRouter.use(authenticate, requireRole("admin"));
 
 // Get all classes
 adminClassesRouter.get(

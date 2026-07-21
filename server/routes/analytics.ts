@@ -16,13 +16,20 @@ import {
   monthValidation,
   validateId,
 } from "../middleware/validation.js";
+import {
+  authenticate,
+  requireRole,
+  requireSelfParamOrRole,
+} from "../middleware/authorization.js";
 
 export const analyticsRouter = express.Router();
+analyticsRouter.use(authenticate);
 
 // Get daily metrics for a date range
 analyticsRouter.get(
   "/daily",
   dateRangeValidation,
+  requireRole("admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const startDate = parseInt(req.query.startDate as string);
@@ -46,6 +53,7 @@ analyticsRouter.get(
 analyticsRouter.get(
   "/weekly",
   dateRangeValidation,
+  requireRole("admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const startDate = parseInt(req.query.startDate as string);
@@ -69,6 +77,7 @@ analyticsRouter.get(
 analyticsRouter.get(
   "/monthly",
   monthValidation,
+  requireRole("admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const year = parseInt(req.query.year as string);
@@ -91,6 +100,7 @@ analyticsRouter.get(
 // Get class popularity
 analyticsRouter.get(
   "/class-popularity",
+  requireRole("admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const popularity = await getClassPopularity();
@@ -105,6 +115,7 @@ analyticsRouter.get(
 // Get peak hours
 analyticsRouter.get(
   "/peak-hours",
+  requireRole("admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const peakHours = await getPeakHours();
@@ -120,6 +131,7 @@ analyticsRouter.get(
 analyticsRouter.get(
   "/user/:userId",
   validateId("userId"),
+  requireSelfParamOrRole("userId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const metrics = await getUserActivityMetrics(req.params.userId);
@@ -141,6 +153,8 @@ analyticsRouter.get(
 analyticsRouter.get(
   "/trainer/:trainerId",
   validateId("trainerId"),
+  requireRole("trainer", "admin"),
+  requireSelfParamOrRole("trainerId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const metrics = await getTrainerActivityMetrics(req.params.trainerId);
@@ -157,6 +171,7 @@ analyticsRouter.get(
 // Get member metrics
 analyticsRouter.get(
   "/members",
+  requireRole("admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const metrics = await getMemberMetrics();
@@ -172,6 +187,7 @@ analyticsRouter.get(
 analyticsRouter.get(
   "/user/:userId/upcoming-bookings",
   validateId("userId"),
+  requireSelfParamOrRole("userId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const bookings = await getUpcomingBookings(req.params.userId);
@@ -187,6 +203,8 @@ analyticsRouter.get(
 analyticsRouter.get(
   "/trainer/:trainerId/upcoming-classes",
   validateId("trainerId"),
+  requireRole("trainer", "admin"),
+  requireSelfParamOrRole("trainerId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const classes = await getTrainerUpcomingClasses(req.params.trainerId);
