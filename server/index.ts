@@ -1,4 +1,5 @@
 import express from "express";
+import type { Server } from "node:http";
 import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
@@ -81,7 +82,7 @@ if (process.env.NODE_ENV === "production") {
 app.use(errorHandler);
 
 // Export a function to start the server
-export async function startServer(port: string | number) {
+export async function startServer(port: string | number): Promise<Server> {
   try {
     // Initialize database
     await initializeDatabase();
@@ -92,26 +93,26 @@ export async function startServer(port: string | number) {
       await seedDatabase();
     }
 
-    app.listen(port, () => {
-      console.log(`API Server running on port ${port}`);
-    });
-
-    // Handle graceful shutdown
-    process.on("SIGINT", () => {
-      console.log("Shutting down gracefully...");
-      closeDatabase();
-      process.exit(0);
-    });
-
-    process.on("SIGTERM", () => {
-      console.log("Shutting down gracefully...");
-      closeDatabase();
-      process.exit(0);
+    return await new Promise<Server>((resolve, reject) => {
+      const server = app.listen(port, () => {
+        console.log(`API Server running on port ${port}`);
+        resolve(server);
+      });
+      server.once("error", reject);
     });
   } catch (err) {
     console.error("Failed to start server:", err);
-    process.exit(1);
+    throw err;
   }
+}
+
+function stopServer(server: Server): void {
+  console.log("Shutting down gracefully...");
+  server.close((error) => {
+    closeDatabase();
+    if (error) console.error("Failed to stop API server:", error);
+    process.exit(error ? 1 : 0);
+  });
 }
 
 // Start the server directly if this is the main module
@@ -120,5 +121,13 @@ if (
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
   console.log("Starting server...");
-  startServer(process.env.PORT || 3001);
+  startServer(process.env.PORT || 3001)
+    .then((server) => {
+      process.once("SIGINT", () => stopServer(server));
+      process.once("SIGTERM", () => stopServer(server));
+    })
+    .catch(() => {
+      closeDatabase();
+      process.exit(1);
+    });
 }
