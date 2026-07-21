@@ -39,8 +39,15 @@ export function SignupPage() {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setValidationError("Password must be at least 6 characters");
+    if (
+      formData.password.length < 12 ||
+      !/[a-z]/.test(formData.password) ||
+      !/[A-Z]/.test(formData.password) ||
+      !/[0-9]/.test(formData.password)
+    ) {
+      setValidationError(
+        "Password must contain at least 12 characters, uppercase, lowercase and a number"
+      );
       return;
     }
 

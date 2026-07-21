@@ -77,7 +77,12 @@ export const signupValidation = validateRequest([
     .normalizeEmail()
     .isLength({ max: 254 }),
   body("name").isString().trim().isLength({ min: 1, max: 100 }),
-  body("password").isString().isLength({ min: 6, max: 128 }),
+  body("password")
+    .isString()
+    .isLength({ min: 12, max: 128 })
+    .matches(/[a-z]/)
+    .matches(/[A-Z]/)
+    .matches(/[0-9]/),
 ]);
 
 export const loginValidation = validateRequest([
@@ -89,11 +94,6 @@ export const loginValidation = validateRequest([
     .normalizeEmail()
     .isLength({ max: 254 }),
   body("password").isString().isLength({ min: 1, max: 128 }),
-]);
-
-export const tokenValidation = validateRequest([
-  strictBody(["token"]),
-  body("token").isString().matches(/^[a-f0-9]{64}$/i),
 ]);
 
 export const bookingValidation = validateRequest([
@@ -179,7 +179,12 @@ export const createUserValidation = validateRequest([
     .normalizeEmail()
     .isLength({ max: 254 }),
   body("name").isString().trim().isLength({ min: 1, max: 100 }),
-  body("password").isString().isLength({ min: 6, max: 128 }),
+  body("password")
+    .isString()
+    .isLength({ min: 12, max: 128 })
+    .matches(/[a-z]/)
+    .matches(/[A-Z]/)
+    .matches(/[0-9]/),
   body("role").optional().isIn(roles),
 ]);
 
@@ -201,7 +206,10 @@ export const updateUserValidation = validateRequest([
   body("password")
     .optional()
     .isString()
-    .isLength({ min: 6, max: 128 }),
+    .isLength({ min: 12, max: 128 })
+    .matches(/[a-z]/)
+    .matches(/[A-Z]/)
+    .matches(/[0-9]/),
   body("role").optional().isIn(roles),
 ]);
 

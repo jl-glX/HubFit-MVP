@@ -1,71 +1,56 @@
 import express from "express";
-import { signup, login, logout, verifyToken } from "../services/auth.js";
+import { login, logout, logoutAll, signup } from "../services/auth.js";
 import { authenticationLimiter } from "../middleware/security.js";
+import { loginValidation, signupValidation } from "../middleware/validation.js";
+import { authenticate, getAuthenticatedUser } from "../middleware/authorization.js";
 import {
-  loginValidation,
-  signupValidation,
-  tokenValidation,
-} from "../middleware/validation.js";
+  clearSessionCookie,
+  readSessionToken,
+  setSessionCookie,
+} from "../lib/session-cookie.js";
 
 export const authRouter = express.Router();
 
-authRouter.post("/signup", authenticationLimiter, signupValidation, async (req: express.Request, res: express.Response) => {
-  try {
-    const { email, name, password } = req.body;
-
-    const result = await signup(email, name, password);
-    res.status(201).json(result);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Signup failed";
-    console.error("[Auth Route] Signup error:", error);
-    res.status(400).json({ error: message });
-  }
-});
-authRouter.post("/login", authenticationLimiter, loginValidation, async (req: express.Request, res: express.Response) => {
-  try {
-    const { email, password } = req.body;
-
-    const result = await login(email, password);
-    res.status(200).json(result);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Login failed";
-    console.error("[Auth Route] Login error:", error);
-    res.status(400).json({ error: message });
-  }
-});
-
-authRouter.post("/logout", tokenValidation, (req: express.Request, res: express.Response) => {
-  try {
-    const { token } = req.body;
-
-    if (!token) {
-      res.status(400).json({ error: "Token required" });
-      return;
+authRouter.post(
+  "/signup",
+  authenticationLimiter,
+  signupValidation,
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const { email, name, password } = req.body;
+      const { sessionToken, user } = await signup(email, name, password);
+      setSessionCookie(res, sessionToken);
+      res.status(201).json({ user });
+    } catch (error) {
+      console.error("[Auth] Signup failed");
+      res.status(400).json({
+        error: error instanceof Error ? error.message : "Signup failed",
+      });
     }
-
-    logout(token);
-    res.json({ message: "Logged out successfully" });
-  } catch (error) {
-    console.error("[Auth Route] Logout error:", error);
-    res.status(500).json({ error: "Logout failed" });
   }
-});
+);
 
-authRouter.post("/verify", tokenValidation, (req: express.Request, res: express.Response) => {
-  try {
-    const { token } = req.body;
-
-    if (!token) {
-      res.status(400).json({ error: "Token required" });
-      return;
+authRouter.post(
+  "/login",
+  authenticationLimiter,
+  loginValidation,
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const { email, password } = req.body;
+      const { sessionToken, user } = await login(email, password);
+      setSessionCookie(res, sessionToken);
+      res.status(200).json({ user });
+    } catch {
+      res.status(401).json({ error: "Invalid email or password" });
     }
+  }
+);
 
-    const session = verifyToken(token);
-    if (!session) {
-      res.status(401).json({ error: "Invalid or expired token" });
-      return;
-    }
-
+authRouter.get(
+  "/session",
+  authenticate,
+  (_req: express.Request, res: express.Response) => {
+    const session = getAuthenticatedUser(res);
     res.json({
       user: {
         id: session.userId,
@@ -74,8 +59,28 @@ authRouter.post("/verify", tokenValidation, (req: express.Request, res: express.
         role: session.role,
       },
     });
-  } catch (error) {
-    console.error("[Auth Route] Verify error:", error);
-    res.status(500).json({ error: "Verification failed" });
   }
-});
+);
+
+authRouter.post(
+  "/logout",
+  authenticate,
+  async (req: express.Request, res: express.Response) => {
+    const token = readSessionToken(req);
+    if (token) {
+      await logout(token);
+    }
+    clearSessionCookie(res);
+    res.json({ message: "Logged out successfully" });
+  }
+);
+
+authRouter.post(
+  "/logout-all",
+  authenticate,
+  async (_req: express.Request, res: express.Response) => {
+    await logoutAll(getAuthenticatedUser(res).userId);
+    clearSessionCookie(res);
+    res.json({ message: "All sessions revoked" });
+  }
+);

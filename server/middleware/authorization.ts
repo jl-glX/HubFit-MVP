@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { db } from "../db/client.js";
 import { verifyToken } from "../services/auth.js";
+import { readSessionToken } from "../lib/session-cookie.js";
 
 export type UserRole = "member" | "trainer" | "admin";
 
@@ -23,23 +24,25 @@ export function getAuthenticatedUser(res: Response): AuthenticatedUser {
   return res.locals.auth as AuthenticatedUser;
 }
 
-export function authenticate(req: Request, res: Response, next: NextFunction): void {
-  const authorization = req.get("Authorization");
-  const [scheme, token, ...extra] = authorization?.trim().split(/\s+/) ?? [];
-
-  if (scheme?.toLowerCase() !== "bearer" || !token || extra.length > 0) {
+export async function authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const token = readSessionToken(req);
+  if (!token) {
     unauthorized(res);
     return;
   }
 
-  const session = verifyToken(token);
-  if (!session) {
-    unauthorized(res, "Invalid or expired session");
-    return;
-  }
+  try {
+    const session = await verifyToken(token);
+    if (!session) {
+      unauthorized(res, "Invalid or expired session");
+      return;
+    }
 
-  res.locals.auth = session;
-  next();
+    res.locals.auth = session;
+    next();
+  } catch (error) {
+    next(error);
+  }
 }
 
 export function requireRole(...roles: UserRole[]) {

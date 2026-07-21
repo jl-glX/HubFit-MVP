@@ -1,11 +1,10 @@
-import { randomBytes } from "crypto";
+import { createHash, randomBytes } from "node:crypto";
 import bcryptjs from "bcryptjs";
 import { db } from "../db/client.js";
 
-const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
-const sessions = new Map<string, SessionData>();
+export const SESSION_DURATION = 24 * 60 * 60 * 1000;
 
-interface SessionData {
+export interface SessionData {
   userId: string;
   email: string;
   name: string;
@@ -14,8 +13,8 @@ interface SessionData {
   expiresAt: number;
 }
 
-export interface AuthResponse {
-  token: string;
+export interface AuthResult {
+  sessionToken: string;
   user: {
     id: string;
     email: string;
@@ -25,98 +24,77 @@ export interface AuthResponse {
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  const salt = await bcryptjs.genSalt(10);
-  return bcryptjs.hash(password, salt);
+  return bcryptjs.hash(password, 12);
 }
 
-async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  return bcryptjs.compare(password, hash);
+export function isStrongPassword(password: string): boolean {
+  return (
+    password.length >= 12 &&
+    password.length <= 128 &&
+    /[a-z]/.test(password) &&
+    /[A-Z]/.test(password) &&
+    /[0-9]/.test(password)
+  );
 }
 
-function generateToken(): string {
-  return randomBytes(32).toString("hex");
+function sessionId(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
 }
 
-export async function signup(
-  email: string,
-  name: string,
-  password: string
-): Promise<AuthResponse> {
-  console.log(`[Auth] Signup attempt for: ${email}`);
+async function createSession(user: AuthResult["user"]): Promise<AuthResult> {
+  const now = Date.now();
+  const token = randomBytes(32).toString("hex");
 
-  // Validate input
-  if (!email || !name || !password) {
-    throw new Error("Email, name, and password are required");
+  await db.deleteFrom("sessions").where("expiresAt", "<", now).execute();
+  await db
+    .insertInto("sessions")
+    .values({
+      id: sessionId(token),
+      userId: user.id,
+      createdAt: now,
+      expiresAt: now + SESSION_DURATION,
+      revokedAt: null,
+    })
+    .execute();
+
+  return { sessionToken: token, user };
+}
+
+export async function signup(email: string, name: string, password: string): Promise<AuthResult> {
+  if (!isStrongPassword(password)) {
+    throw new Error("Password does not meet the security requirements");
   }
 
-  if (password.length < 6) {
-    throw new Error("Password must be at least 6 characters");
-  }
-
-  if (!email.includes("@")) {
-    throw new Error("Invalid email format");
-  }
-
-  // Check if user exists
   const existingUser = await db
     .selectFrom("users")
-    .selectAll()
+    .select("id")
     .where("email", "=", email)
     .executeTakeFirst();
 
   if (existingUser) {
-    console.log(`[Auth] User already exists: ${email}`);
-    throw new Error("Email already registered");
+    throw new Error("Unable to create account with these credentials");
   }
 
-  const hashedPassword = await hashPassword(password);
-  const userId = `user-${randomBytes(8).toString("hex")}`;
+  const user = {
+    id: `user-${randomBytes(8).toString("hex")}`,
+    email,
+    name,
+    role: "member" as const,
+  };
 
   await db
     .insertInto("users")
     .values({
-      id: userId,
-      email,
-      name,
-      password: hashedPassword,
-      role: "member",
+      ...user,
+      password: await hashPassword(password),
       createdAt: Date.now(),
     })
     .execute();
 
-  console.log(`[Auth] User created successfully: ${email}`);
-
-  const token = generateToken();
-  sessions.set(token, {
-    userId,
-    email,
-    name,
-    role: "member",
-    createdAt: Date.now(),
-    expiresAt: Date.now() + SESSION_DURATION,
-  });
-
-  return {
-    token,
-    user: {
-      id: userId,
-      email,
-      name,
-      role: "member",
-    },
-  };
+  return createSession(user);
 }
 
-export async function login(
-  email: string,
-  password: string
-): Promise<AuthResponse> {
-  console.log(`[Auth] Login attempt for: ${email}`);
-
-  if (!email || !password) {
-    throw new Error("Email and password are required");
-  }
-
+export async function login(email: string, password: string): Promise<AuthResult> {
   const user = await db
     .selectFrom("users")
     .selectAll()
@@ -124,62 +102,70 @@ export async function login(
     .executeTakeFirst();
 
   if (!user) {
-    console.log(`[Auth] Login failed: user not found - ${email}`);
+    await bcryptjs.hash(password, 12);
     throw new Error("Invalid email or password");
   }
 
-  console.log(`[Auth] User found: ${email}, has password: ${!!user.password}, password length: ${user.password?.length || 0}`);
-
-  const passwordMatch = await verifyPassword(password, user.password);
-  if (!passwordMatch) {
-    console.log(`[Auth] Login failed: wrong password - ${email}`);
+  if (!(await bcryptjs.compare(password, user.password))) {
     throw new Error("Invalid email or password");
   }
 
-  console.log(`[Auth] Login successful: ${email}`);
-
-  const token = generateToken();
-  sessions.set(token, {
-    userId: user.id,
+  return createSession({
+    id: user.id,
     email: user.email,
     name: user.name,
     role: user.role,
-    createdAt: Date.now(),
-    expiresAt: Date.now() + SESSION_DURATION,
   });
+}
+
+export async function verifyToken(token: string): Promise<SessionData | null> {
+  if (!/^[a-f0-9]{64}$/i.test(token)) {
+    return null;
+  }
+
+  const now = Date.now();
+  const record = await db
+    .selectFrom("sessions")
+    .innerJoin("users", "users.id", "sessions.userId")
+    .select([
+      "sessions.userId",
+      "sessions.createdAt",
+      "sessions.expiresAt",
+      "sessions.revokedAt",
+      "users.email",
+      "users.name",
+      "users.role",
+    ])
+    .where("sessions.id", "=", sessionId(token))
+    .executeTakeFirst();
+
+  if (!record || record.revokedAt !== null || record.expiresAt <= now) {
+    return null;
+  }
 
   return {
-    token,
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    },
+    userId: record.userId,
+    email: record.email,
+    name: record.name,
+    role: record.role,
+    createdAt: record.createdAt,
+    expiresAt: record.expiresAt,
   };
 }
 
-export function verifyToken(token: string): SessionData | null {
-  const session = sessions.get(token);
-  if (!session) {
-    console.log("[Auth] Token not found");
-    return null;
-  }
-
-  if (session.expiresAt < Date.now()) {
-    console.log("[Auth] Token expired");
-    sessions.delete(token);
-    return null;
-  }
-
-  return session;
+export async function logout(token: string): Promise<void> {
+  await db
+    .updateTable("sessions")
+    .set({ revokedAt: Date.now() })
+    .where("id", "=", sessionId(token))
+    .execute();
 }
 
-export function logout(token: string): void {
-  sessions.delete(token);
-  console.log("[Auth] User logged out");
-}
-
-export function getAllSessions(): Map<string, SessionData> {
-  return new Map(sessions);
+export async function logoutAll(userId: string): Promise<void> {
+  await db
+    .updateTable("sessions")
+    .set({ revokedAt: Date.now() })
+    .where("userId", "=", userId)
+    .where("revokedAt", "is", null)
+    .execute();
 }
