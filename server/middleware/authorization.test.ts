@@ -57,16 +57,16 @@ describe("server authorization", () => {
     verifyToken.mockImplementation((token: string) => users[token as keyof typeof users] ?? null);
   });
 
-  it("rejects missing and invalid bearer sessions", async () => {
+  it("rejects missing and invalid cookie sessions", async () => {
     const app = createTestApp();
     await request(app).get("/admin").expect(401);
-    await request(app).get("/admin").set("Authorization", "Bearer invalid").expect(401);
+    await request(app).get("/admin").set("Cookie", "hubfit_session=invalid").expect(401);
   });
 
   it("prevents a member from escalating into an administrator route", async () => {
     const response = await request(createTestApp())
       .get("/admin")
-      .set("Authorization", "Bearer member")
+      .set("Cookie", "hubfit_session=member")
       .expect(403);
 
     expect(response.body.code).toBe("FORBIDDEN");
@@ -75,7 +75,7 @@ describe("server authorization", () => {
   it("allows administrators into administrator routes", async () => {
     await request(createTestApp())
       .get("/admin")
-      .set("Authorization", "Bearer admin")
+      .set("Cookie", "hubfit_session=admin")
       .expect(200, { ok: true });
   });
 
@@ -83,15 +83,15 @@ describe("server authorization", () => {
     const app = createTestApp();
     await request(app)
       .get("/profile/member-2")
-      .set("Authorization", "Bearer member")
+      .set("Cookie", "hubfit_session=member")
       .expect(403);
     await request(app)
       .get("/profile/member-1")
-      .set("Authorization", "Bearer member")
+      .set("Cookie", "hubfit_session=member")
       .expect(200);
     await request(app)
       .get("/profile/member-1")
-      .set("Authorization", "Bearer admin")
+      .set("Cookie", "hubfit_session=admin")
       .expect(200);
   });
 });

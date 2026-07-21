@@ -16,7 +16,7 @@ const sqliteDb = new Database(databasePath);
 
 export const db = new Kysely<DatabaseSchema>({
   dialect: new SqliteDialect({ database: sqliteDb }),
-  log: ["query", "error"],
+  log: process.env.NODE_ENV === "development" ? ["query", "error"] : ["error"],
 });
 
 export async function initializeDatabase() {
@@ -123,6 +123,22 @@ export async function initializeDatabase() {
       );
       CREATE INDEX idx_waitlistEntries_classId ON waitlistEntries(classId);
       CREATE INDEX idx_waitlistEntries_userId ON waitlistEntries(userId);
+    `);
+  }
+
+  if (!tableNames.includes("sessions")) {
+    console.log("Creating sessions table...");
+    sqliteDb.exec(`
+      CREATE TABLE sessions (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        createdAt INTEGER NOT NULL,
+        expiresAt INTEGER NOT NULL,
+        revokedAt INTEGER,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_sessions_userId ON sessions(userId);
+      CREATE INDEX idx_sessions_expiresAt ON sessions(expiresAt);
     `);
   }
 

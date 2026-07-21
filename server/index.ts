@@ -37,7 +37,7 @@ app.use(
         : clientOrigin.split(",").map((origin) => origin.trim()),
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: false,
+    credentials: true,
     maxAge: 600,
   })
 );
@@ -85,7 +85,12 @@ export async function startServer(port: string | number) {
   try {
     // Initialize database
     await initializeDatabase();
-    await seedDatabase();
+    if (
+      process.env.NODE_ENV !== "production" ||
+      process.env.SEED_DEMO_DATA === "true"
+    ) {
+      await seedDatabase();
+    }
 
     app.listen(port, () => {
       console.log(`API Server running on port ${port}`);

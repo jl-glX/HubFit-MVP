@@ -35,9 +35,18 @@ export interface WaitlistEntry {
   promotedAt: number | null;
 }
 
+export interface Session {
+  id: string;
+  userId: string;
+  createdAt: number;
+  expiresAt: number;
+  revokedAt: number | null;
+}
+
 export interface Database {
   users: User;
   gymClasses: GymClass;
   bookings: Booking;
   waitlistEntries: WaitlistEntry;
+  sessions: Session;
 }

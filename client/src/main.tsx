@@ -4,6 +4,7 @@ import App from './App';
 import './i18n/config';
 
 import './index.css';
+import { AuthProvider } from './components/AuthProvider';
 
 const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
@@ -23,6 +24,8 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </React.StrictMode>,
 );

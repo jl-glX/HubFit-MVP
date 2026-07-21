@@ -1,5 +1,5 @@
 import { db } from "../db/client.js";
-import { hashPassword } from "./auth.js";
+import { hashPassword, isStrongPassword, logoutAll } from "./auth.js";
 import { randomBytes } from "crypto";
 
 export interface UserWithoutPassword {
@@ -41,8 +41,8 @@ export async function createUser(
     throw new Error("Email, name, and password are required");
   }
 
-  if (password.length < 6) {
-    throw new Error("Password must be at least 6 characters");
+  if (!isStrongPassword(password)) {
+    throw new Error("Password does not meet the security requirements");
   }
 
   if (!email.includes("@")) {
@@ -123,8 +123,8 @@ export async function updateUser(
   if (updates.role) updateValues.role = updates.role;
 
   if (updates.password) {
-    if (updates.password.length < 6) {
-      throw new Error("Password must be at least 6 characters");
+    if (!isStrongPassword(updates.password)) {
+      throw new Error("Password does not meet the security requirements");
     }
     updateValues.password = await hashPassword(updates.password);
   }
@@ -134,6 +134,10 @@ export async function updateUser(
     .set(updateValues)
     .where("id", "=", id)
     .execute();
+
+  if (updates.password) {
+    await logoutAll(id);
+  }
 
   const updatedUser = await db
     .selectFrom("users")
@@ -158,6 +162,8 @@ export async function deleteUser(id: string): Promise<void> {
   if (!user) {
     throw new Error("User not found");
   }
+
+  await logoutAll(id);
 
   // Delete user's bookings
   await db

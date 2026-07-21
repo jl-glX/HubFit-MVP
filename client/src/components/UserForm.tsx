@@ -25,6 +25,17 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
     setError(null);
 
     try {
+      if (
+        formData.password &&
+        (formData.password.length < 12 ||
+          !/[a-z]/.test(formData.password) ||
+          !/[A-Z]/.test(formData.password) ||
+          !/[0-9]/.test(formData.password))
+      ) {
+        setError("Password must contain at least 12 characters, uppercase, lowercase and a number");
+        return;
+      }
+
       if (user) {
         const updates: any = {
           email: formData.email,
