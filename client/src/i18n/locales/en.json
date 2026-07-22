@@ -43,6 +43,10 @@
     "security": "Security",
     "logout": "Log out"
   },
+  "accountMenu": {
+    "open": "Open account menu",
+    "manage": "Manage account and security"
+  },
   "auth": {
     "brandTagline": "Train. Connect. Progress.",
     "brandTitle": "Your gym life, all in one place.",

@@ -1,28 +1,23 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   BarChart3,
   Bookmark,
   CalendarDays,
   CreditCard,
   Home,
-  LogOut,
   Settings,
   Shield,
-  ShieldCheck,
   Building2,
-  UserRound,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
-import { Button } from "./ui/button";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "./BrandLogo";
 import { useFacilityProfile } from "../hooks/useFacilityProfile";
+import { AccountMenu } from "./AccountMenu";
 
 export function Navigation() {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { t } = useTranslation();
   const { profile } = useFacilityProfile();
 
@@ -40,25 +35,9 @@ export function Navigation() {
         ? "/trainer-analytics"
         : "/activity-dashboard";
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
-
-  const getRoleBadgeColor = () => {
-    switch (user?.role) {
-      case "admin":
-        return "bg-purple-100 text-purple-800";
-      case "trainer":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   return (
     <nav className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 shadow-xs backdrop-blur-xl">
-      <div className="mx-auto w-full max-w-7xl overflow-hidden px-2 sm:px-6">
+      <div className="mx-auto w-full max-w-7xl px-2 sm:px-6">
         <div className="flex min-h-18 min-w-0 items-center gap-2 sm:gap-5">
           <Link
             to="/"
@@ -164,57 +143,10 @@ export function Navigation() {
               <BarChart3 size={20} />
               <span>{t("nav.analytics")}</span>
             </Link>
-
-            <Link
-              to="/account/security"
-              className={`${navLinkClass} ${
-                isActive("/account/security") ? activeClass : inactiveClass
-              }`}
-            >
-              <ShieldCheck size={20} />
-              <span>{t("nav.security")}</span>
-            </Link>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 border-l border-slate-200 pl-2 sm:gap-3 sm:pl-4">
-            <LanguageSwitcher compact />
-            {user?.avatarDataUrl ? (
-              <img
-                src={user.avatarDataUrl}
-                alt={user.name}
-                className="hidden h-10 w-10 rounded-full border-2 border-white object-cover shadow ring-1 ring-slate-200 sm:block"
-              />
-            ) : (
-              <span className="hidden h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 ring-1 ring-slate-200 sm:flex">
-                <UserRound size={20} />
-              </span>
-            )}
-            <div className="hidden min-w-0 max-w-44 text-sm 2xl:block">
-              <div className="flex items-center gap-2">
-                <p className="truncate font-semibold text-slate-900">
-                  {user?.name}
-                </p>
-                <span
-                  className={`inline-flex shrink-0 items-center rounded-full px-2 py-1 text-xs font-semibold capitalize ${getRoleBadgeColor()}`}
-                >
-                  {user?.role ? t(`roles.${user.role}`) : ""}
-                </span>
-              </div>
-              <p className="mt-0.5 truncate text-xs text-slate-500">
-                {user?.email}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              aria-label={t("nav.logout")}
-              title={t("nav.logout")}
-              className="shrink-0 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600"
-            >
-              <LogOut size={18} />
-              <span className="hidden 2xl:inline">{t("nav.logout")}</span>
-            </Button>
+          <div className="shrink-0 border-l border-slate-200 pl-2 sm:pl-4">
+            <AccountMenu />
           </div>
         </div>
       </div>

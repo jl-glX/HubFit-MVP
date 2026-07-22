@@ -51,6 +51,10 @@
     "security": "Seguridad",
     "logout": "Cerrar sesión"
   },
+  "accountMenu": {
+    "open": "Abrir menú de cuenta",
+    "manage": "Gestionar cuenta y seguridad"
+  },
   "auth": {
     "brandTagline": "Entrena. Conecta. Progresa.",
     "brandTitle": "Tu gimnasio, todo en un mismo lugar.",
