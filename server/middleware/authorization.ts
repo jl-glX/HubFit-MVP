@@ -6,6 +6,7 @@ import { readSessionToken } from "../lib/session-cookie.js";
 export type UserRole = "member" | "trainer" | "admin";
 
 export interface AuthenticatedUser {
+  sessionId: string;
   userId: string;
   email: string;
   name: string;

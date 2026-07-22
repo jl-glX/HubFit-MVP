@@ -40,6 +40,21 @@ export const authenticationLimiter = rateLimit({
   },
 });
 
+export const feedbackLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  message: {
+    error: "Too many feedback submissions. Please try again later.",
+    code: "FEEDBACK_RATE_LIMITED",
+  },
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  validate: {
+    trustProxy: false,
+    xForwardedForHeader: false,
+  },
+});
+
 export function apiSecurityHeaders(
   _req: Request,
   res: Response,

@@ -12,7 +12,8 @@ export interface AuthContextValue {
   isLoading: boolean;
   error: string | null;
   signup: (email: string, name: string, password: string) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ mfaRequired: boolean }>;
+  verifyMfa: (code: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 

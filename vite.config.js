@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 
 export const vitePort = 3000;
 const configDirectory = path.dirname(fileURLToPath(import.meta.url));
+const apiPort = process.env.PORT ?? "3001";
 
 export default defineConfig({
   plugins: [
@@ -47,7 +48,7 @@ export default defineConfig({
     port: vitePort,
     proxy: {
       "/api/": {
-        target: "http://localhost:3001",
+        target: `http://127.0.0.1:${apiPort}`,
         changeOrigin: true,
       },
     },

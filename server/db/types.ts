@@ -39,8 +39,45 @@ interface Session {
   id: string;
   userId: string;
   createdAt: number;
+  lastSeenAt: number;
   expiresAt: number;
   revokedAt: number | null;
+  userAgent: string;
+}
+
+interface MfaCredential {
+  userId: string;
+  secretEncrypted: string;
+  recoveryCodeHashes: string;
+  createdAt: number;
+  updatedAt: number;
+  enabledAt: number | null;
+}
+
+interface AuthChallenge {
+  id: string;
+  userId: string;
+  createdAt: number;
+  expiresAt: number;
+  attempts: number;
+  consumedAt: number | null;
+}
+
+interface SecurityEvent {
+  id: string;
+  userId: string | null;
+  type: string;
+  createdAt: number;
+  metadata: string;
+}
+
+interface Feedback {
+  id: string;
+  userId: string | null;
+  category: "suggestion" | "problem" | "accessibility" | "other";
+  message: string;
+  status: "new" | "reviewed" | "closed";
+  createdAt: number;
 }
 
 export interface Database {
@@ -49,4 +86,8 @@ export interface Database {
   bookings: Booking;
   waitlistEntries: WaitlistEntry;
   sessions: Session;
+  mfaCredentials: MfaCredential;
+  authChallenges: AuthChallenge;
+  securityEvents: SecurityEvent;
+  feedback: Feedback;
 }

@@ -35,12 +35,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = (await response.json()) as {
         user?: AuthUser;
         error?: string;
+        mfaRequired?: boolean;
       };
-      if (!response.ok || !data.user)
-        throw new Error(data.error ?? "Login failed");
+      if (!response.ok) throw new Error(data.error ?? "Login failed");
+      if (data.mfaRequired) return { mfaRequired: true };
+      if (!data.user) throw new Error(data.error ?? "Login failed");
       setUser(data.user);
+      return { mfaRequired: false };
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Login failed";
+      setError(message);
+      throw cause;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const verifyMfa = useCallback(async (code: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await authFetch(`${API_BASE}/api/auth/mfa/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = (await response.json()) as {
+        user?: AuthUser;
+        error?: string;
+      };
+      if (!response.ok || !data.user)
+        throw new Error(data.error ?? "Verification failed");
+      setUser(data.user);
+    } catch (cause) {
+      const message =
+        cause instanceof Error ? cause.message : "Verification failed";
       setError(message);
       throw cause;
     } finally {
@@ -87,8 +116,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, isLoading, error, signup, login, logout }),
-    [user, isLoading, error, signup, login, logout],
+    () => ({ user, isLoading, error, signup, login, verifyMfa, logout }),
+    [user, isLoading, error, signup, login, verifyMfa, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

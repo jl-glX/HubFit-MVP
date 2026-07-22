@@ -1,11 +1,17 @@
 import { db } from "./client.js";
 import { hashPassword } from "../services/auth.js";
 
+const DEMO_PASSWORDS = {
+  admin: "HubFitAdmin123",
+  trainer: "HubFitTrainer123",
+  member: "HubFitMember123",
+} as const;
+
 const ADMIN_USER = {
   id: "admin-1",
   name: "Admin HubFit",
   email: "admin@hubfit.com",
-  password: "admin123",
+  password: DEMO_PASSWORDS.admin,
 };
 
 const TRAINERS = [
@@ -13,25 +19,25 @@ const TRAINERS = [
     id: "trainer-1",
     name: "Carlos Martínez",
     email: "carlos@hubfit.com",
-    password: "password123",
+    password: DEMO_PASSWORDS.trainer,
   },
   {
     id: "trainer-2",
     name: "Ana García",
     email: "ana@hubfit.com",
-    password: "password123",
+    password: DEMO_PASSWORDS.trainer,
   },
   {
     id: "trainer-3",
     name: "Jorge López",
     email: "jorge@hubfit.com",
-    password: "password123",
+    password: DEMO_PASSWORDS.trainer,
   },
   {
     id: "trainer-4",
     name: "Sofía Rodríguez",
     email: "sofia@hubfit.com",
-    password: "password123",
+    password: DEMO_PASSWORDS.trainer,
   },
 ];
 
@@ -51,31 +57,31 @@ const DEMO_USERS = [
   {
     email: "juan@example.com",
     name: "Juan Pérez",
-    password: "password123",
+    password: DEMO_PASSWORDS.member,
     role: "member" as const,
   },
   {
     email: "maria@example.com",
     name: "María González",
-    password: "password123",
+    password: DEMO_PASSWORDS.member,
     role: "member" as const,
   },
   {
     email: "carlos@example.com",
     name: "Carlos López",
-    password: "password123",
+    password: DEMO_PASSWORDS.member,
     role: "member" as const,
   },
   {
     email: "laura@example.com",
     name: "Laura Fernández",
-    password: "password123",
+    password: DEMO_PASSWORDS.member,
     role: "member" as const,
   },
   {
     email: "ana@example.com",
     name: "Ana Martínez",
-    password: "password123",
+    password: DEMO_PASSWORDS.member,
     role: "member" as const,
   },
 ];

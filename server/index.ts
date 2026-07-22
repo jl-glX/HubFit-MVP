@@ -13,6 +13,8 @@ import { bookingsRouter } from "./routes/bookings.js";
 import { usersRouter } from "./routes/users.js";
 import { adminClassesRouter } from "./routes/admin-classes.js";
 import { analyticsRouter } from "./routes/analytics.js";
+import { accountSecurityRouter } from "./routes/account-security.js";
+import { feedbackRouter } from "./routes/feedback.js";
 import { apiLimiter, apiSecurityHeaders } from "./middleware/security.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 
@@ -61,6 +63,8 @@ app.use("/api/bookings", bookingsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/admin/classes", adminClassesRouter);
 app.use("/api/analytics", analyticsRouter);
+app.use("/api/account/security", accountSecurityRouter);
+app.use("/api/feedback", feedbackRouter);
 
 // Health check endpoint
 app.get("/api/health", (req: express.Request, res: express.Response) => {
