@@ -10,6 +10,8 @@ import { authenticationLimiter } from "../middleware/security.js";
 import {
   loginValidation,
   mfaCodeValidation,
+  passkeyAuthenticationOptionsValidation,
+  passkeyResponseValidation,
   signupValidation,
 } from "../middleware/validation.js";
 import {
@@ -19,13 +21,26 @@ import {
 import {
   clearSessionCookie,
   clearMfaChallengeCookie,
+  clearPasskeyChallengeCookie,
   readMfaChallengeToken,
+  readPasskeyChallengeToken,
   readSessionToken,
   setMfaChallengeCookie,
+  setPasskeyChallengeCookie,
   setSessionCookie,
 } from "../lib/session-cookie.js";
+import {
+  beginPasskeyAuthentication,
+  finishPasskeyAuthentication,
+} from "../services/passkeys.js";
+import type { AuthenticationResponseJSON } from "@simplewebauthn/server";
 
 export const authRouter = express.Router();
+
+function webauthnContext(req: express.Request) {
+  const origin = req.get("Origin") ?? `${req.protocol}://${req.get("host")}`;
+  return { origin, rpID: new URL(origin).hostname };
+}
 
 authRouter.post(
   "/signup",
@@ -54,20 +69,75 @@ authRouter.post(
   loginValidation,
   async (req: express.Request, res: express.Response) => {
     try {
-      const { email, password } = req.body;
-      const result = await login(email, password, {
-        userAgent: req.get("User-Agent"),
-      });
+      const { identifier, password, accessPortal, rememberDevice } = req.body;
+      const result = await login(
+        identifier,
+        password,
+        accessPortal,
+        Boolean(rememberDevice),
+        { userAgent: req.get("User-Agent") },
+      );
       if ("challengeToken" in result) {
         setMfaChallengeCookie(res, result.challengeToken);
         res.status(200).json({ mfaRequired: true });
         return;
       }
 
-      setSessionCookie(res, result.sessionToken);
+      setSessionCookie(res, result.sessionToken, result.rememberDevice);
       res.status(200).json({ user: result.user, mfaRequired: false });
     } catch {
       res.status(401).json({ error: "Invalid email or password" });
+    }
+  },
+);
+
+authRouter.post(
+  "/passkey/options",
+  authenticationLimiter,
+  passkeyAuthenticationOptionsValidation,
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const { identifier, accessPortal, rememberDevice } = req.body;
+      const { rpID } = webauthnContext(req);
+      const result = await beginPasskeyAuthentication(
+        identifier,
+        accessPortal,
+        Boolean(rememberDevice),
+        rpID,
+      );
+      setPasskeyChallengeCookie(res, result.token);
+      res.json(result.options);
+    } catch {
+      res.status(401).json({ error: "Passkey access is not available" });
+    }
+  },
+);
+
+authRouter.post(
+  "/passkey/verify",
+  authenticationLimiter,
+  passkeyResponseValidation,
+  async (req: express.Request, res: express.Response) => {
+    const challengeToken = readPasskeyChallengeToken(req);
+    if (!challengeToken) {
+      res.status(401).json({ error: "Invalid or expired passkey challenge" });
+      return;
+    }
+    try {
+      const { origin, rpID } = webauthnContext(req);
+      const result = await finishPasskeyAuthentication(
+        challengeToken,
+        req.body.response as AuthenticationResponseJSON,
+        origin,
+        rpID,
+        { userAgent: req.get("User-Agent") },
+      );
+      clearPasskeyChallengeCookie(res);
+      setSessionCookie(res, result.sessionToken, result.rememberDevice);
+      res.json({ user: result.user });
+    } catch {
+      clearPasskeyChallengeCookie(res);
+      res.status(401).json({ error: "Passkey verification failed" });
     }
   },
 );
@@ -86,13 +156,13 @@ authRouter.post(
     }
 
     try {
-      const { sessionToken, user } = await completeMfaLogin(
+      const { sessionToken, user, rememberDevice } = await completeMfaLogin(
         challengeToken,
         req.body.code,
         { userAgent: req.get("User-Agent") },
       );
       clearMfaChallengeCookie(res);
-      setSessionCookie(res, sessionToken);
+      setSessionCookie(res, sessionToken, rememberDevice);
       res.status(200).json({ user });
     } catch {
       res.status(401).json({ error: "Invalid verification code" });

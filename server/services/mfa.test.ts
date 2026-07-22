@@ -84,6 +84,8 @@ describe("two-step verification", () => {
     const login = await auth.login(
       "mfa-member@example.com",
       "StrongPassword123",
+      "member",
+      false,
       { userAgent: "Android test browser" },
     );
     expect(login.mfaRequired).toBe(true);
@@ -108,6 +110,8 @@ describe("two-step verification", () => {
     const login = await auth.login(
       "mfa-member@example.com",
       "StrongPassword123",
+      "member",
+      false,
     );
     if (!login.mfaRequired) throw new Error("Expected an MFA challenge");
 

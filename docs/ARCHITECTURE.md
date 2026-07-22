@@ -24,6 +24,7 @@ Development uses a single launcher for Vite and Express. Production builds the c
 - Gym classes and trainer assignments.
 - Bookings, capacity and waitlist promotion.
 - Activity and administrative analytics.
+- Billing records adapted from App-ProTrack's budget and transaction domain.
 - Internationalized user interface.
 - Public legal information.
 
@@ -31,7 +32,7 @@ Development uses a single launcher for Vite and Express. Production builds the c
 
 - `member`: browses classes, manages personal bookings and sees personal analytics.
 - `trainer`: sees assigned classes, attendees, waitlists and trainer analytics.
-- `admin`: manages users and classes and sees system-wide analytics.
+- `admin`: manages users, classes, billing records and system-wide analytics; it does not reserve member places.
 
 Roles describe authorization. Authentication proves the current identity; server-side middleware decides which actions that identity may perform.
 
@@ -45,5 +46,6 @@ Known demo classes are localized at display time. User-created names and descrip
 
 - Replace ad-hoc table initialization with migrations before production.
 - Move from local SQLite to a production-grade database when concurrency and deployment require it.
-- Treat payments, notifications, community features and Gaia integration as separate modules.
+- Keep the HubFit billing ledger separate from future Stripe payment processing. The current module records operational status; it does not move money.
+- Continue adapting suitable App-ProTrack concepts instead of duplicating a second finance domain.
 - Keep HubFit functional when optional integrations are unavailable.

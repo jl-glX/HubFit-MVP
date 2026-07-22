@@ -174,13 +174,18 @@ export function AdminAnalyticsDashboardPage() {
               </div>
             </div>
 
-            {/* Popular Classes */}
+            {/* Attendance comparison */}
             {classPopularity && classPopularity.length > 0 && (
-              <div className="mb-8">
+              <div className="mb-8 grid gap-6 lg:grid-cols-2">
                 <ClassPopularityList
                   title={t("analytics.popularClasses")}
                   data={classPopularity}
-                  limit={10}
+                  limit={5}
+                />
+                <ClassPopularityList
+                  title={t("analytics.leastPopularClasses")}
+                  data={[...classPopularity].reverse()}
+                  limit={5}
                 />
               </div>
             )}

@@ -5,6 +5,7 @@ import { mfaStatus, verifyMfaCode } from "./mfa.js";
 import { recordSecurityEvent } from "./security-events.js";
 
 export const SESSION_DURATION = 24 * 60 * 60 * 1000;
+export const REMEMBERED_SESSION_DURATION = 30 * 24 * 60 * 60 * 1000;
 export const MFA_CHALLENGE_DURATION = 5 * 60 * 1000;
 const MFA_MAX_ATTEMPTS = 5;
 
@@ -20,6 +21,7 @@ export interface SessionData {
 
 export interface AuthResult {
   sessionToken: string;
+  rememberDevice: boolean;
   user: {
     id: string;
     email: string;
@@ -35,6 +37,8 @@ export type LoginResult =
 export interface SessionMetadata {
   userAgent?: string;
 }
+
+export type AccessPortal = "member" | "staff";
 
 export async function hashPassword(password: string): Promise<string> {
   return bcryptjs.hash(password, 12);
@@ -69,6 +73,7 @@ function sessionId(token: string): string {
 export async function createSession(
   user: AuthResult["user"],
   metadata: SessionMetadata = {},
+  rememberDevice = false,
 ): Promise<AuthResult> {
   const now = Date.now();
   const token = randomBytes(32).toString("hex");
@@ -81,13 +86,15 @@ export async function createSession(
       userId: user.id,
       createdAt: now,
       lastSeenAt: now,
-      expiresAt: now + SESSION_DURATION,
+      expiresAt:
+        now + (rememberDevice ? REMEMBERED_SESSION_DURATION : SESSION_DURATION),
       revokedAt: null,
       userAgent: (metadata.userAgent ?? "Unknown device").slice(0, 255),
+      remembered: rememberDevice ? 1 : 0,
     })
     .execute();
 
-  return { sessionToken: token, user };
+  return { sessionToken: token, user, rememberDevice };
 }
 
 export async function signup(
@@ -113,6 +120,7 @@ export async function signup(
   const user = {
     id: `user-${randomBytes(8).toString("hex")}`,
     email,
+    phone: null,
     name,
     role: "member" as const,
   };
@@ -130,19 +138,36 @@ export async function signup(
 }
 
 export async function login(
-  email: string,
+  identifier: string,
   password: string,
+  accessPortal: AccessPortal = "member",
+  rememberDevice = false,
   metadata: SessionMetadata = {},
 ): Promise<LoginResult> {
+  const normalizedIdentifier = identifier.trim().toLowerCase();
+  const normalizedPhone = identifier.replace(/[\s()-]/g, "");
   const user = await db
     .selectFrom("users")
     .selectAll()
-    .where("email", "=", email)
+    .where((expression) =>
+      expression.or([
+        expression("email", "=", normalizedIdentifier),
+        expression("phone", "=", normalizedPhone),
+      ]),
+    )
     .executeTakeFirst();
 
-  if (!user) {
+  const portalMatches =
+    user &&
+    (accessPortal === "member"
+      ? user.role === "member"
+      : user.role === "trainer" || user.role === "admin");
+
+  if (!user || !portalMatches) {
     await bcryptjs.hash(password, 12);
-    await recordSecurityEvent("login_failed", null);
+    await recordSecurityEvent("login_failed", user?.id ?? null, {
+      portal: accessPortal,
+    });
     throw new Error("Invalid email or password");
   }
 
@@ -168,6 +193,7 @@ export async function login(
         expiresAt: now + MFA_CHALLENGE_DURATION,
         attempts: 0,
         consumedAt: null,
+        rememberDevice: rememberDevice ? 1 : 0,
       })
       .execute();
     await recordSecurityEvent("mfa_challenge_created", user.id);
@@ -182,6 +208,7 @@ export async function login(
       role: user.role,
     },
     metadata,
+    rememberDevice,
   );
   await recordSecurityEvent("login_succeeded", user.id);
   return { mfaRequired: false, ...result };
@@ -202,6 +229,7 @@ export async function completeMfaLogin(
       "authChallenges.expiresAt",
       "authChallenges.attempts",
       "authChallenges.consumedAt",
+      "authChallenges.rememberDevice",
       "users.email",
       "users.name",
       "users.role",
@@ -246,6 +274,7 @@ export async function completeMfaLogin(
       role: challenge.role,
     },
     metadata,
+    challenge.rememberDevice === 1,
   );
   await recordSecurityEvent("mfa_succeeded", challenge.userId, {
     recoveryCode: verification.usedRecoveryCode,

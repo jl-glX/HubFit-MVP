@@ -3,9 +3,9 @@
 ## Account protection
 
 HubFit supports TOTP two-step verification with common authenticator apps,
-single-use recovery codes, revocable server-side sessions and a recent security
-activity log. MFA secrets are encrypted with AES-256-GCM and recovery codes are
-stored as keyed hashes. Production deployments must provide a unique
+single-use recovery codes, revocable server-side sessions, WebAuthn passkeys and
+a recent security activity log. MFA secrets are encrypted with AES-256-GCM and
+recovery codes are stored as keyed hashes. Production deployments must provide a unique
 `MFA_ENCRYPTION_KEY`; it must not be committed or shared between unrelated
 environments.
 
@@ -13,7 +13,17 @@ The implementation uses browser standards and responsive web controls, so the
 same flow is available in current browsers on Windows, macOS, Android and iOS.
 Physical-device and native-app verification is still required before claiming
 platform certification. HubFit does not store passwords or session tokens in
-browser storage and does not depend on a platform-specific authenticator API.
+browser storage. WebAuthn delegates biometric or PIN verification to the device;
+HubFit stores a public credential, never a fingerprint, face template or device PIN.
+
+## Authentication portals
+
+HubFit presents members and centre staff with separate sign-in portals. The
+member portal accepts only member accounts. The staff portal accepts trainer
+and administrator accounts and can identify a centre account by its corporate
+email address or registered centre phone number. This separation is enforced
+by the API as well as the interface; choosing a different portal cannot elevate
+an account's role or permissions.
 
 ## Implemented baseline
 
@@ -21,6 +31,8 @@ browser storage and does not depend on a platform-specific authenticator API.
 - Password policy of 12-128 characters with uppercase, lowercase and digits.
 - Opaque random session tokens; only their SHA-256 hashes are stored.
 - Persistent, expiring and revocable database sessions.
+- Browser-session cookies by default, plus optional remembered sessions with an explicit 30-day expiry and server-side revocation.
+- WebAuthn passkeys requiring user verification for passwordless sign-in.
 - `HttpOnly`, `SameSite=Strict` session cookies and `Secure` cookies in production.
 - Server-side authentication and role authorization.
 - Helmet protections, production CSP and HSTS.
@@ -33,7 +45,8 @@ browser storage and does not depend on a platform-specific authenticator API.
 ## Production work still required
 
 - Email verification and account recovery.
-- Passkey support and optional enforcement of 2FA for privileged roles.
+- Optional enforcement of 2FA or passkeys for privileged roles.
+- Physical verification of passkeys on representative Android, iOS and macOS devices.
 - CSRF review if cross-site deployment requirements change.
 - Deployment proxy and HTTPS configuration review.
 - Versioned database migrations, encrypted backups and retention rules.

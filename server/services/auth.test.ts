@@ -54,4 +54,70 @@ describe("persistent authentication sessions", () => {
     await auth.logout(result.sessionToken);
     expect(await auth.verifyToken(result.sessionToken)).toBeNull();
   });
+
+  it("separates member and staff portals and accepts a centre phone number", async () => {
+    const password = "StrongStaffPassword123";
+    await database.db
+      .insertInto("users")
+      .values({
+        id: "secure-admin",
+        email: "secure-admin@hubfit.test",
+        phone: "+34953000123",
+        name: "Secure Admin",
+        password: await auth.hashPassword(password),
+        role: "admin",
+        createdAt: Date.now(),
+      })
+      .execute();
+
+    await expect(
+      auth.login("secure-admin@hubfit.test", password, "member"),
+    ).rejects.toThrow("Invalid email or password");
+
+    const staffLogin = await auth.login("+34 953 000 123", password, "staff");
+    expect(staffLogin.mfaRequired).toBe(false);
+    if (!("user" in staffLogin)) throw new Error("Unexpected MFA challenge");
+    expect(staffLogin.user.role).toBe("admin");
+
+    const member = await auth.signup(
+      "portal-member@example.com",
+      "Portal Member",
+      "StrongPassword123",
+    );
+    await expect(
+      auth.login(member.user.email, "StrongPassword123", "staff"),
+    ).rejects.toThrow("Invalid email or password");
+  });
+
+  it("keeps an explicitly remembered device signed in for 30 days", async () => {
+    const password = "RememberedPassword123";
+    const member = await auth.signup(
+      "remembered-member@example.com",
+      "Remembered Member",
+      password,
+    );
+
+    const result = await auth.login(
+      member.user.email,
+      password,
+      "member",
+      true,
+      { userAgent: "Remembered test device" },
+    );
+    if (!("sessionToken" in result))
+      throw new Error("Unexpected MFA challenge");
+
+    const stored = await database.db
+      .selectFrom("sessions")
+      .select(["createdAt", "expiresAt", "remembered", "userAgent"])
+      .where("userId", "=", member.user.id)
+      .where("userAgent", "=", "Remembered test device")
+      .executeTakeFirstOrThrow();
+
+    expect(stored.remembered).toBe(1);
+    expect(stored.userAgent).toBe("Remembered test device");
+    expect(stored.expiresAt - stored.createdAt).toBe(
+      auth.REMEMBERED_SESSION_DURATION,
+    );
+  });
 });

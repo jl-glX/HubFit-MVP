@@ -36,12 +36,14 @@ export async function initializeDatabase() {
       CREATE TABLE users (
         id TEXT PRIMARY KEY,
         email TEXT NOT NULL UNIQUE,
+        phone TEXT UNIQUE,
         name TEXT NOT NULL,
         password TEXT NOT NULL DEFAULT '',
         role TEXT NOT NULL DEFAULT 'member',
         createdAt INTEGER NOT NULL
       );
       CREATE INDEX idx_users_email ON users(email);
+      CREATE UNIQUE INDEX idx_users_phone ON users(phone) WHERE phone IS NOT NULL;
       CREATE INDEX idx_users_role ON users(role);
     `);
   } else {
@@ -75,6 +77,22 @@ export async function initializeDatabase() {
       if (!indexes.some((idx) => idx.name === "idx_users_role")) {
         sqliteDb.exec("CREATE INDEX idx_users_role ON users(role)");
       }
+    }
+
+    if (!columnNames.includes("phone")) {
+      console.log("Adding phone column to users table...");
+      sqliteDb.exec("ALTER TABLE users ADD COLUMN phone TEXT");
+    }
+
+    const indexes = sqliteDb
+      .prepare(
+        "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='users'",
+      )
+      .all() as Array<{ name: string }>;
+    if (!indexes.some((idx) => idx.name === "idx_users_phone")) {
+      sqliteDb.exec(
+        "CREATE UNIQUE INDEX idx_users_phone ON users(phone) WHERE phone IS NOT NULL",
+      );
     }
   }
 
@@ -143,6 +161,7 @@ export async function initializeDatabase() {
         expiresAt INTEGER NOT NULL,
         revokedAt INTEGER,
         userAgent TEXT NOT NULL DEFAULT '',
+        remembered INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
       );
       CREATE INDEX idx_sessions_userId ON sessions(userId);
@@ -166,6 +185,12 @@ export async function initializeDatabase() {
     if (!sessionColumnNames.includes("userAgent")) {
       sqliteDb.exec(
         "ALTER TABLE sessions ADD COLUMN userAgent TEXT NOT NULL DEFAULT ''",
+      );
+    }
+
+    if (!sessionColumnNames.includes("remembered")) {
+      sqliteDb.exec(
+        "ALTER TABLE sessions ADD COLUMN remembered INTEGER NOT NULL DEFAULT 0",
       );
     }
   }
@@ -193,11 +218,21 @@ export async function initializeDatabase() {
         expiresAt INTEGER NOT NULL,
         attempts INTEGER NOT NULL DEFAULT 0,
         consumedAt INTEGER,
+        rememberDevice INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
       );
       CREATE INDEX idx_authChallenges_userId ON authChallenges(userId);
       CREATE INDEX idx_authChallenges_expiresAt ON authChallenges(expiresAt);
     `);
+  } else {
+    const challengeColumns = sqliteDb
+      .prepare("PRAGMA table_info(authChallenges)")
+      .all() as Array<{ name: string }>;
+    if (!challengeColumns.some((column) => column.name === "rememberDevice")) {
+      sqliteDb.exec(
+        "ALTER TABLE authChallenges ADD COLUMN rememberDevice INTEGER NOT NULL DEFAULT 0",
+      );
+    }
   }
 
   if (!tableNames.includes("securityEvents")) {
@@ -215,6 +250,41 @@ export async function initializeDatabase() {
     `);
   }
 
+  if (!tableNames.includes("passkeyCredentials")) {
+    sqliteDb.exec(`
+      CREATE TABLE passkeyCredentials (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        publicKey TEXT NOT NULL,
+        counter INTEGER NOT NULL DEFAULT 0,
+        transports TEXT NOT NULL DEFAULT '[]',
+        deviceType TEXT NOT NULL,
+        backedUp INTEGER NOT NULL DEFAULT 0,
+        createdAt INTEGER NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_passkeyCredentials_userId ON passkeyCredentials(userId);
+    `);
+  }
+
+  if (!tableNames.includes("webauthnChallenges")) {
+    sqliteDb.exec(`
+      CREATE TABLE webauthnChallenges (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        challenge TEXT NOT NULL,
+        type TEXT NOT NULL CHECK(type IN ('registration', 'authentication')),
+        rememberDevice INTEGER NOT NULL DEFAULT 0,
+        createdAt INTEGER NOT NULL,
+        expiresAt INTEGER NOT NULL,
+        consumedAt INTEGER,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_webauthnChallenges_userId ON webauthnChallenges(userId);
+      CREATE INDEX idx_webauthnChallenges_expiresAt ON webauthnChallenges(expiresAt);
+    `);
+  }
+
   if (!tableNames.includes("feedback")) {
     sqliteDb.exec(`
       CREATE TABLE feedback (
@@ -228,6 +298,32 @@ export async function initializeDatabase() {
       );
       CREATE INDEX idx_feedback_userId ON feedback(userId);
       CREATE INDEX idx_feedback_createdAt ON feedback(createdAt);
+    `);
+  }
+
+  if (!tableNames.includes("billingRecords")) {
+    sqliteDb.exec(`
+      CREATE TABLE billingRecords (
+        id TEXT PRIMARY KEY,
+        userId TEXT,
+        customerName TEXT NOT NULL,
+        customerEmail TEXT NOT NULL DEFAULT '',
+        concept TEXT NOT NULL,
+        billingCycle TEXT NOT NULL CHECK(billingCycle IN ('monthly', 'quarterly', 'semiannual', 'annual', 'trial_day', 'custom')),
+        amountCents INTEGER NOT NULL CHECK(amountCents >= 0),
+        currency TEXT NOT NULL DEFAULT 'EUR',
+        status TEXT NOT NULL CHECK(status IN ('paid', 'unpaid', 'pending')),
+        dueAt INTEGER,
+        paidAt INTEGER,
+        invoiceNumber TEXT,
+        notes TEXT NOT NULL DEFAULT '',
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE SET NULL
+      );
+      CREATE INDEX idx_billingRecords_userId ON billingRecords(userId);
+      CREATE INDEX idx_billingRecords_status ON billingRecords(status);
+      CREATE INDEX idx_billingRecords_dueAt ON billingRecords(dueAt);
     `);
   }
 

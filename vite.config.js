@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { fileURLToPath } from "url";
 
-export const vitePort = 3000;
+export const vitePort = Number.parseInt(process.env.VITE_PORT ?? "3000", 10);
 const configDirectory = path.dirname(fileURLToPath(import.meta.url));
 const apiPort = process.env.PORT ?? "3001";
 

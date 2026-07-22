@@ -88,14 +88,22 @@ export const signupValidation = validateRequest([
 ]);
 
 export const loginValidation = validateRequest([
-  strictBody(["email", "password"]),
-  body("email")
+  strictBody(["identifier", "password", "accessPortal", "rememberDevice"]),
+  body("identifier")
     .isString()
     .trim()
-    .isEmail()
-    .normalizeEmail()
-    .isLength({ max: 254 }),
+    .isLength({ min: 3, max: 254 })
+    .custom((value) => {
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      const isPhone = /^\+?[0-9\s()-]{7,20}$/.test(value);
+      if (!isEmail && !isPhone) {
+        throw new Error("Identifier must be an email address or phone number");
+      }
+      return true;
+    }),
   body("password").isString().isLength({ min: 1, max: 128 }),
+  body("accessPortal").isIn(["member", "staff"]),
+  body("rememberDevice").optional().isBoolean(),
 ]);
 
 export const mfaCodeValidation = validateRequest([
@@ -121,6 +129,18 @@ export const passwordConfirmationValidation = validateRequest([
   body("password").isString().isLength({ min: 1, max: 128 }),
 ]);
 
+export const passkeyAuthenticationOptionsValidation = validateRequest([
+  strictBody(["identifier", "accessPortal", "rememberDevice"]),
+  body("identifier").isString().trim().isLength({ min: 3, max: 254 }),
+  body("accessPortal").isIn(["member", "staff"]),
+  body("rememberDevice").optional().isBoolean(),
+]);
+
+export const passkeyResponseValidation = validateRequest([
+  strictBody(["response"]),
+  body("response").isObject(),
+]);
+
 export const sessionIdValidation = validateRequest([
   param("sessionId")
     .isString()
@@ -131,6 +151,90 @@ export const feedbackValidation = validateRequest([
   strictBody(["category", "message"]),
   body("category").isIn(["suggestion", "problem", "accessibility", "other"]),
   body("message").isString().trim().isLength({ min: 10, max: 2000 }),
+]);
+
+const billingFields = [
+  "userId",
+  "customerName",
+  "customerEmail",
+  "concept",
+  "billingCycle",
+  "amountCents",
+  "currency",
+  "status",
+  "dueAt",
+  "paidAt",
+  "invoiceNumber",
+  "notes",
+];
+
+export const createBillingRecordValidation = validateRequest([
+  strictBody(billingFields),
+  body("userId").optional({ nullable: true }).isString().matches(ID_PATTERN),
+  body("customerName").isString().trim().isLength({ min: 1, max: 120 }),
+  body("customerEmail")
+    .optional({ values: "falsy" })
+    .isEmail()
+    .normalizeEmail()
+    .isLength({ max: 254 }),
+  body("concept").isString().trim().isLength({ min: 1, max: 160 }),
+  body("billingCycle").isIn([
+    "monthly",
+    "quarterly",
+    "semiannual",
+    "annual",
+    "trial_day",
+    "custom",
+  ]),
+  body("amountCents").isInt({ min: 0, max: 100000000 }).toInt(),
+  body("currency").isString().trim().isLength({ min: 3, max: 3 }),
+  body("status").isIn(["paid", "unpaid", "pending"]),
+  body("dueAt").optional({ nullable: true }).isInt({ min: 0 }).toInt(),
+  body("paidAt").optional({ nullable: true }).isInt({ min: 0 }).toInt(),
+  body("invoiceNumber")
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 80 }),
+  body("notes").optional().isString().trim().isLength({ max: 1000 }),
+]);
+
+export const updateBillingRecordValidation = validateRequest([
+  param("id").isString().matches(ID_PATTERN),
+  strictBody(billingFields, true),
+  body("userId").optional({ nullable: true }).isString().matches(ID_PATTERN),
+  body("customerName")
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ min: 1, max: 120 }),
+  body("customerEmail")
+    .optional({ values: "falsy" })
+    .isEmail()
+    .normalizeEmail()
+    .isLength({ max: 254 }),
+  body("concept").optional().isString().trim().isLength({ min: 1, max: 160 }),
+  body("billingCycle")
+    .optional()
+    .isIn([
+      "monthly",
+      "quarterly",
+      "semiannual",
+      "annual",
+      "trial_day",
+      "custom",
+    ]),
+  body("amountCents").optional().isInt({ min: 0, max: 100000000 }).toInt(),
+  body("currency").optional().isString().trim().isLength({ min: 3, max: 3 }),
+  body("status").optional().isIn(["paid", "unpaid", "pending"]),
+  body("dueAt").optional({ nullable: true }).isInt({ min: 0 }).toInt(),
+  body("paidAt").optional({ nullable: true }).isInt({ min: 0 }).toInt(),
+  body("invoiceNumber")
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 80 }),
+  body("notes").optional().isString().trim().isLength({ max: 1000 }),
 ]);
 
 export const bookingValidation = validateRequest([

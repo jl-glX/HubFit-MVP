@@ -4,6 +4,9 @@ import {
   BarChart3,
   Bookmark,
   CalendarDays,
+  CreditCard,
+  Settings,
+  ShieldCheck,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -15,6 +18,7 @@ import { LegalFooter } from "../components/LegalFooter";
 export function HomePage() {
   const user = useCurrentUser();
   const { t } = useTranslation();
+  if (user?.role === "admin") return <AdminHome name={user.name} />;
   const features = [
     {
       icon: CalendarDays,
@@ -102,6 +106,82 @@ export function HomePage() {
         </div>
       </section>
 
+      <LegalFooter />
+    </main>
+  );
+}
+
+function AdminHome({ name }: { name: string }) {
+  const { t } = useTranslation();
+  const actions = [
+    {
+      to: "/classes",
+      icon: CalendarDays,
+      title: t("adminHome.classes"),
+      text: t("adminHome.classesDescription"),
+    },
+    {
+      to: "/admin-dashboard",
+      icon: Settings,
+      title: t("adminHome.management"),
+      text: t("adminHome.managementDescription"),
+    },
+    {
+      to: "/billing",
+      icon: CreditCard,
+      title: t("adminHome.billing"),
+      text: t("adminHome.billingDescription"),
+    },
+    {
+      to: "/admin-analytics",
+      icon: BarChart3,
+      title: t("adminHome.analytics"),
+      text: t("adminHome.analyticsDescription"),
+    },
+  ];
+
+  return (
+    <main className="min-h-[calc(100vh-4.5rem)] bg-slate-50 text-slate-950">
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
+        <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm sm:p-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700">
+                <ShieldCheck size={16} />
+                {t("adminHome.welcome", { name })}
+              </div>
+              <h1 className="max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
+                {t("adminHome.title")}
+              </h1>
+              <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
+                {t("adminHome.description")}
+              </p>
+            </div>
+            <Link to="/classes">
+              <Button className="h-12 gap-2 rounded-xl px-6">
+                <CalendarDays /> {t("adminHome.createClass")}
+                <ArrowRight size={18} />
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {actions.map(({ to, icon: Icon, title, text }) => (
+            <Link
+              key={to}
+              to={to}
+              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                <Icon size={21} />
+              </span>
+              <h2 className="mt-5 font-bold text-slate-950">{title}</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{text}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
       <LegalFooter />
     </main>
   );

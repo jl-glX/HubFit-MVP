@@ -70,6 +70,7 @@ export async function createUser(
     .values({
       id: userId,
       email,
+      phone: null,
       name,
       password: hashedPassword,
       role,

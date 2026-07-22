@@ -1,6 +1,7 @@
 interface User {
   id: string;
   email: string;
+  phone: string | null;
   name: string;
   password: string;
   role: "member" | "trainer" | "admin";
@@ -43,6 +44,7 @@ interface Session {
   expiresAt: number;
   revokedAt: number | null;
   userAgent: string;
+  remembered: number;
 }
 
 interface MfaCredential {
@@ -60,6 +62,29 @@ interface AuthChallenge {
   createdAt: number;
   expiresAt: number;
   attempts: number;
+  consumedAt: number | null;
+  rememberDevice: number;
+}
+
+interface PasskeyCredential {
+  id: string;
+  userId: string;
+  publicKey: string;
+  counter: number;
+  transports: string;
+  deviceType: string;
+  backedUp: number;
+  createdAt: number;
+}
+
+interface WebauthnChallenge {
+  id: string;
+  userId: string;
+  challenge: string;
+  type: "registration" | "authentication";
+  rememberDevice: number;
+  createdAt: number;
+  expiresAt: number;
   consumedAt: number | null;
 }
 
@@ -80,6 +105,25 @@ interface Feedback {
   createdAt: number;
 }
 
+interface BillingRecord {
+  id: string;
+  userId: string | null;
+  customerName: string;
+  customerEmail: string;
+  concept: string;
+  billingCycle:
+    "monthly" | "quarterly" | "semiannual" | "annual" | "trial_day" | "custom";
+  amountCents: number;
+  currency: string;
+  status: "paid" | "unpaid" | "pending";
+  dueAt: number | null;
+  paidAt: number | null;
+  invoiceNumber: string | null;
+  notes: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface Database {
   users: User;
   gymClasses: GymClass;
@@ -88,6 +132,9 @@ export interface Database {
   sessions: Session;
   mfaCredentials: MfaCredential;
   authChallenges: AuthChallenge;
+  passkeyCredentials: PasskeyCredential;
+  webauthnChallenges: WebauthnChallenge;
   securityEvents: SecurityEvent;
   feedback: Feedback;
+  billingRecords: BillingRecord;
 }

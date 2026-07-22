@@ -34,8 +34,9 @@ describe("API security baseline", () => {
     const response = await request(app)
       .post("/api/auth/login")
       .send({
-        email: sensitiveValue,
+        identifier: sensitiveValue,
         password: "secret-input-value",
+        accessPortal: "member",
         isAdmin: true,
       })
       .expect(400);
@@ -54,7 +55,11 @@ describe("API security baseline", () => {
       .expect(400);
     const oversized = await request(app)
       .post("/api/auth/login")
-      .send({ email: `${"a".repeat(33_000)}@example.com`, password: "secret" })
+      .send({
+        identifier: `${"a".repeat(33_000)}@example.com`,
+        password: "secret",
+        accessPortal: "member",
+      })
       .expect(413);
     const missing = await request(app).get("/api/not-real").expect(404);
 
@@ -67,9 +72,11 @@ describe("API security baseline", () => {
     let limitedStatus: number | undefined;
 
     for (let attempt = 0; attempt < 12; attempt += 1) {
-      const response = await request(app)
-        .post("/api/auth/login")
-        .send({ email: "invalid@example.com", password: "" });
+      const response = await request(app).post("/api/auth/login").send({
+        identifier: "invalid@example.com",
+        password: "",
+        accessPortal: "member",
+      });
 
       if (response.status === 429) {
         limitedStatus = response.status;

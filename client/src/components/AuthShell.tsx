@@ -2,13 +2,13 @@ import type { ReactNode } from "react";
 import { Activity, CalendarDays, ShieldCheck, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { LegalFooter } from "./LegalFooter";
 
 interface AuthShellProps {
   eyebrow: string;
   title: string;
   description: string;
   children: ReactNode;
+  utilityMenu?: ReactNode;
 }
 
 export function AuthShell({
@@ -16,6 +16,7 @@ export function AuthShell({
   title,
   description,
   children,
+  utilityMenu,
 }: AuthShellProps) {
   const { t } = useTranslation();
   const highlights = [
@@ -70,8 +71,9 @@ export function AuthShell({
       <section className="flex min-h-screen flex-col bg-slate-50">
         <div className="flex flex-1 items-center justify-center px-4 py-10 sm:px-8">
           <div className="w-full max-w-md">
-            <div className="mb-6 flex justify-end">
+            <div className="mb-6 flex items-center justify-end gap-2">
               <LanguageSwitcher />
+              {utilityMenu}
             </div>
             <div className="mb-8 flex items-center gap-3 lg:hidden">
               <span className="rounded-xl bg-linear-to-br from-blue-600 to-indigo-700 p-2.5 text-white shadow-lg shadow-blue-600/20">
@@ -95,7 +97,9 @@ export function AuthShell({
             </div>
           </div>
         </div>
-        <LegalFooter variant="light" />
+        <p className="px-4 pb-6 text-center text-xs text-slate-400 lg:hidden">
+          © {new Date().getFullYear()} HubFit
+        </p>
       </section>
     </main>
   );

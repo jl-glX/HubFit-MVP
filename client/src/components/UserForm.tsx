@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { useUsers, type User } from "../hooks/useUsers";
 import { useTranslation } from "react-i18next";
+import { PasswordInput } from "./PasswordInput";
 
 interface UserFormProps {
   user?: User | null;
@@ -112,14 +113,13 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {user ? t("admin.passwordOptional") : t("common.password")}
             </label>
-            <input
-              type="password"
+            <PasswordInput
               required={!user}
               value={formData.password}
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
             />
           </div>
 

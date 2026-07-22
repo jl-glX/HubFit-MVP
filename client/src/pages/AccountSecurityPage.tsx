@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   CheckCircle2,
   Copy,
+  Fingerprint,
   KeyRound,
   Laptop,
   LogOut,
@@ -15,6 +16,16 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { PasswordInput } from "../components/PasswordInput";
+import {
+  browserSupportsWebAuthn,
+  platformAuthenticatorIsAvailable,
+  startRegistration,
+} from "@simplewebauthn/browser";
+
+type RegistrationOptions = Parameters<
+  typeof startRegistration
+>[0]["optionsJSON"];
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
@@ -24,12 +35,14 @@ interface SecurityOverview {
     enabledAt: number | null;
     recoveryCodesRemaining: number;
   };
+  passkeys: { enabled: boolean; count: number };
   sessions: Array<{
     id: string;
     createdAt: number;
     lastSeenAt: number;
     expiresAt: number;
     userAgent: string;
+    remembered: number;
     current: boolean;
   }>;
   events: Array<{ id: string; type: string; createdAt: number }>;
@@ -70,6 +83,8 @@ export function AccountSecurityPage() {
   const [setup, setSetup] = useState<SetupData | null>(null);
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
   const [password, setPassword] = useState("");
+  const [passkeyPassword, setPasskeyPassword] = useState("");
+  const [passkeySupported, setPasskeySupported] = useState(false);
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -84,6 +99,13 @@ export function AccountSecurityPage() {
       setError(cause instanceof Error ? cause.message : String(cause)),
     );
   }, [load]);
+
+  useEffect(() => {
+    if (!browserSupportsWebAuthn()) return;
+    platformAuthenticatorIsAvailable()
+      .then(setPasskeySupported)
+      .catch(() => setPasskeySupported(false));
+  }, []);
 
   const action = async (work: () => Promise<void>, success: string) => {
     setBusy(true);
@@ -143,6 +165,32 @@ export function AccountSecurityPage() {
       setCode("");
       setRecoveryCodes([]);
     }, t("security.disabledSuccess"));
+
+  const enablePasskey = () =>
+    action(async () => {
+      const options = await api<RegistrationOptions>(
+        "/api/account/security/passkeys/options",
+        {
+          method: "POST",
+          body: JSON.stringify({ password: passkeyPassword }),
+        },
+      );
+      const response = await startRegistration({ optionsJSON: options });
+      await api<{ enabled: boolean }>("/api/account/security/passkeys/verify", {
+        method: "POST",
+        body: JSON.stringify({ response }),
+      });
+      setPasskeyPassword("");
+    }, t("security.passkeyEnabledSuccess"));
+
+  const disablePasskey = () =>
+    action(async () => {
+      await api<void>("/api/account/security/passkeys", {
+        method: "DELETE",
+        body: JSON.stringify({ password: passkeyPassword }),
+      });
+      setPasskeyPassword("");
+    }, t("security.passkeyDisabledSuccess"));
 
   const revokeSession = (sessionId: string) =>
     action(
@@ -230,9 +278,8 @@ export function AccountSecurityPage() {
                 <Label htmlFor="setup-password">
                   {t("security.confirmPassword")}
                 </Label>
-                <Input
+                <PasswordInput
                   id="setup-password"
-                  type="password"
                   autoComplete="current-password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
@@ -301,10 +348,9 @@ export function AccountSecurityPage() {
                     <Label htmlFor="security-password">
                       {t("security.confirmPassword")}
                     </Label>
-                    <Input
+                    <PasswordInput
                       id="security-password"
                       className="mt-2"
-                      type="password"
                       autoComplete="current-password"
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
@@ -367,6 +413,61 @@ export function AccountSecurityPage() {
           </Card>
 
           <Card className="rounded-3xl border-slate-200 p-6 shadow-sm sm:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="flex items-center gap-2 text-xl font-bold text-slate-950">
+                  <Fingerprint className="text-blue-600" />
+                  {t("security.passkeyTitle")}
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  {t("security.passkeyDescription")}
+                </p>
+              </div>
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-semibold ${overview?.passkeys.enabled ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700"}`}
+              >
+                {overview?.passkeys.enabled
+                  ? t("security.enabled")
+                  : t("security.disabled")}
+              </span>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-900">
+              {passkeySupported
+                ? t("security.passkeyPrivacy")
+                : t("security.passkeyUnavailable")}
+            </div>
+
+            <div className="mt-5 space-y-3">
+              <Label htmlFor="passkey-password">
+                {t("security.confirmPassword")}
+              </Label>
+              <PasswordInput
+                id="passkey-password"
+                autoComplete="current-password"
+                value={passkeyPassword}
+                onChange={(event) => setPasskeyPassword(event.target.value)}
+              />
+              {overview?.passkeys.enabled ? (
+                <Button
+                  variant="destructive"
+                  onClick={disablePasskey}
+                  disabled={busy || !passkeyPassword}
+                >
+                  {t("security.disablePasskey")}
+                </Button>
+              ) : (
+                <Button
+                  onClick={enablePasskey}
+                  disabled={busy || !passkeyPassword || !passkeySupported}
+                >
+                  <Fingerprint /> {t("security.enablePasskey")}
+                </Button>
+              )}
+            </div>
+          </Card>
+
+          <Card className="rounded-3xl border-slate-200 p-6 shadow-sm sm:p-8">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold text-slate-950">
@@ -414,6 +515,11 @@ export function AccountSecurityPage() {
                       {session.current && (
                         <span className="ml-2 text-xs text-emerald-600">
                           {t("security.current")}
+                        </span>
+                      )}
+                      {session.remembered === 1 && (
+                        <span className="ml-2 text-xs text-blue-600">
+                          {t("security.remembered")}
                         </span>
                       )}
                     </p>

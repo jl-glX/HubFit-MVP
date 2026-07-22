@@ -15,6 +15,7 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 import { groupClassesByDate } from "../lib/dateUtils";
 import { formatDate } from "../lib/dateUtils";
 import { useTranslation } from "react-i18next";
+import { ClassManagement } from "../components/ClassManagement";
 
 export function ClassesPage() {
   const user = useCurrentUser();
@@ -65,6 +66,29 @@ export function ClassesPage() {
         <Loader className="mr-2 animate-spin" />
         <span>{t("common.loading")}</span>
       </div>
+    );
+  }
+
+  if (user.role === "admin") {
+    return (
+      <main className="min-h-screen bg-slate-50">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+          <div className="mb-7">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600">
+              {t("admin.operations")}
+            </p>
+            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">
+              {t("admin.classManagementTitle")}
+            </h1>
+            <p className="mt-2 text-slate-600">
+              {t("admin.classManagementDescription")}
+            </p>
+          </div>
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+            <ClassManagement />
+          </div>
+        </div>
+      </main>
     );
   }
 

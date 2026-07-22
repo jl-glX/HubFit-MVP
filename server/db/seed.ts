@@ -11,6 +11,7 @@ const ADMIN_USER = {
   id: "admin-1",
   name: "Admin HubFit",
   email: "admin@hubfit.com",
+  phone: "+34953000000",
   password: DEMO_PASSWORDS.admin,
 };
 
@@ -108,6 +109,7 @@ export async function seedDatabase() {
             password: hashedPassword,
             role: "admin",
             name: ADMIN_USER.name,
+            phone: ADMIN_USER.phone,
           })
           .where("email", "=", ADMIN_USER.email)
           .execute();
@@ -117,6 +119,7 @@ export async function seedDatabase() {
           .values({
             id: ADMIN_USER.id,
             email: ADMIN_USER.email,
+            phone: ADMIN_USER.phone,
             name: ADMIN_USER.name,
             password: hashedPassword,
             role: "admin",
@@ -159,6 +162,7 @@ export async function seedDatabase() {
             .values({
               id: trainer.id,
               email: trainer.email,
+              phone: null,
               name: trainer.name,
               password: hashedPassword,
               role: "trainer",
@@ -204,6 +208,7 @@ export async function seedDatabase() {
             .values({
               id: userId,
               email: user.email,
+              phone: null,
               name: user.name,
               password: hashedPassword,
               role: user.role,

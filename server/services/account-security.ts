@@ -1,13 +1,22 @@
 import { db } from "../db/client.js";
 import { mfaStatus } from "./mfa.js";
 import { recordSecurityEvent } from "./security-events.js";
+import { passkeyStatus } from "./passkeys.js";
 
 export async function getSecurityOverview(userId: string, sessionId: string) {
-  const [mfa, sessions, events] = await Promise.all([
+  const [mfa, passkeys, sessions, events] = await Promise.all([
     mfaStatus(userId),
+    passkeyStatus(userId),
     db
       .selectFrom("sessions")
-      .select(["id", "createdAt", "lastSeenAt", "expiresAt", "userAgent"])
+      .select([
+        "id",
+        "createdAt",
+        "lastSeenAt",
+        "expiresAt",
+        "userAgent",
+        "remembered",
+      ])
       .where("userId", "=", userId)
       .where("revokedAt", "is", null)
       .where("expiresAt", ">", Date.now())
@@ -24,6 +33,7 @@ export async function getSecurityOverview(userId: string, sessionId: string) {
 
   return {
     mfa,
+    passkeys,
     sessions: sessions.map((session) => ({
       ...session,
       current: session.id === sessionId,

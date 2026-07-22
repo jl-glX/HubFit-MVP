@@ -5,6 +5,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { AuthShell } from "../components/AuthShell";
+import { PasswordInput } from "../components/PasswordInput";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -108,9 +109,8 @@ export function SignupPage() {
           <Label htmlFor="password" className="text-slate-700">
             {t("common.password")}
           </Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             name="password"
             placeholder="••••••••"
             value={formData.password}
@@ -124,9 +124,8 @@ export function SignupPage() {
           <Label htmlFor="confirmPassword" className="text-slate-700">
             {t("auth.confirmPassword")}
           </Label>
-          <Input
+          <PasswordInput
             id="confirmPassword"
-            type="password"
             name="confirmPassword"
             placeholder="••••••••"
             value={formData.confirmPassword}

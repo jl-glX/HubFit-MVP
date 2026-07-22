@@ -5,37 +5,50 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { AuthShell } from "../components/AuthShell";
-import { ArrowRight, Info, ShieldCheck, UserRound } from "lucide-react";
+import { AuthAccessMenu } from "../components/AuthAccessMenu";
+import { PasswordInput } from "../components/PasswordInput";
+import {
+  ArrowRight,
+  Fingerprint,
+  Info,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { browserSupportsWebAuthn } from "@simplewebauthn/browser";
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { login, verifyMfa, isLoading, error } = useAuth();
-  const [email, setEmail] = useState("");
+  const { login, loginWithPasskey, verifyMfa, isLoading, error } = useAuth();
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberDevice, setRememberDevice] = useState(false);
+  const [accessPortal, setAccessPortal] = useState<"member" | "staff">(
+    "member",
+  );
   const [validationError, setValidationError] = useState("");
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaCode, setMfaCode] = useState("");
   const { t } = useTranslation();
-  const demoAccounts = [
-    {
-      role: t("roles.member"),
-      description: t("auth.demoMemberDescription"),
-      email: "juan@example.com",
-      password: "HubFitMember123",
-      icon: UserRound,
-    },
-    {
-      role: t("roles.admin"),
-      description: t("auth.demoAdminDescription"),
-      email: "admin@hubfit.com",
-      password: "HubFitAdmin123",
-      icon: ShieldCheck,
-    },
-  ];
+  const demoAccount =
+    accessPortal === "member"
+      ? {
+          role: t("roles.member"),
+          description: t("auth.demoMemberDescription"),
+          email: "juan@example.com",
+          password: "HubFitMember123",
+          icon: UserRound,
+        }
+      : {
+          role: t("roles.admin"),
+          description: t("auth.demoAdminDescription"),
+          email: "admin@hubfit.com",
+          password: "HubFitAdmin123",
+          icon: ShieldCheck,
+        };
 
   const selectDemoAccount = (demoEmail: string, demoPassword: string) => {
-    setEmail(demoEmail);
+    setIdentifier(demoEmail);
     setPassword(demoPassword);
     setValidationError("");
   };
@@ -44,18 +57,29 @@ export function LoginPage() {
     e.preventDefault();
     setValidationError("");
 
-    if (!email || !password) {
-      setValidationError(t("auth.emailRequired"));
+    if (!identifier || !password) {
+      setValidationError(t("auth.credentialsRequired"));
       return;
     }
 
     try {
-      const result = await login(email, password);
+      const result = await login(
+        identifier,
+        password,
+        accessPortal,
+        rememberDevice,
+      );
       if (result.mfaRequired) {
         setMfaRequired(true);
         return;
       }
-      navigate("/classes");
+      navigate(
+        result.user?.role === "admin"
+          ? "/admin-dashboard"
+          : result.user?.role === "trainer"
+            ? "/trainer-dashboard"
+            : "/classes",
+      );
     } catch (err) {
       console.error("Login error:", err);
     }
@@ -64,18 +88,73 @@ export function LoginPage() {
   const handleMfaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await verifyMfa(mfaCode);
-      navigate("/classes");
+      const verifiedUser = await verifyMfa(mfaCode);
+      navigate(
+        verifiedUser.role === "admin"
+          ? "/admin-dashboard"
+          : verifiedUser.role === "trainer"
+            ? "/trainer-dashboard"
+            : "/classes",
+      );
     } catch (err) {
       console.error("MFA verification error:", err);
     }
   };
 
+  const navigateForRole = (role: "member" | "trainer" | "admin") =>
+    navigate(
+      role === "admin"
+        ? "/admin-dashboard"
+        : role === "trainer"
+          ? "/trainer-dashboard"
+          : "/classes",
+    );
+
+  const handlePasskeyLogin = async () => {
+    setValidationError("");
+    if (!identifier) {
+      setValidationError(t("auth.passkeyIdentifierRequired"));
+      return;
+    }
+    try {
+      navigateForRole(
+        (await loginWithPasskey(identifier, accessPortal, rememberDevice)).role,
+      );
+    } catch (err) {
+      console.error("Passkey login error:", err);
+    }
+  };
+
   return (
     <AuthShell
-      eyebrow={t("auth.welcomeBack")}
-      title={t("auth.signInTitle")}
-      description={t("auth.signInDescription")}
+      eyebrow={
+        accessPortal === "member"
+          ? t("auth.welcomeBack")
+          : t("auth.staffEyebrow")
+      }
+      title={
+        accessPortal === "member"
+          ? t("auth.memberSignInTitle")
+          : t("auth.staffSignInTitle")
+      }
+      description={
+        accessPortal === "member"
+          ? t("auth.memberSignInDescription")
+          : t("auth.staffSignInDescription")
+      }
+      utilityMenu={
+        <AuthAccessMenu
+          accessPortal={accessPortal}
+          onAccessPortalChange={(portal) => {
+            setAccessPortal(portal);
+            setIdentifier("");
+            setPassword("");
+            setMfaRequired(false);
+            setMfaCode("");
+            setValidationError("");
+          }}
+        />
+      }
     >
       {(error || validationError) && (
         <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-3.5">
@@ -119,19 +198,43 @@ export function LoginPage() {
           >
             {t("auth.useDifferentAccount")}
           </Button>
+
+          {browserSupportsWebAuthn() && (
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11 w-full rounded-xl border-slate-300"
+              disabled={isLoading}
+              onClick={handlePasskeyLogin}
+            >
+              <Fingerprint /> {t("auth.signInWithPasskey")}
+            </Button>
+          )}
+          {browserSupportsWebAuthn() && (
+            <p className="text-center text-xs leading-relaxed text-slate-500">
+              {t("auth.passkeyHelp")}
+            </p>
+          )}
         </form>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-slate-700">
-              {t("auth.emailAddress")}
+            <Label htmlFor="identifier" className="text-slate-700">
+              {accessPortal === "member"
+                ? t("auth.emailAddress")
+                : t("auth.centerIdentifier")}
             </Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="juan@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="identifier"
+              type={accessPortal === "member" ? "email" : "text"}
+              autoComplete="username"
+              placeholder={
+                accessPortal === "member"
+                  ? "juan@example.com"
+                  : "centro@hubfit.com / +34 953 000 000"
+              }
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               disabled={isLoading}
               className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
             />
@@ -141,9 +244,8 @@ export function LoginPage() {
             <Label htmlFor="password" className="text-slate-700">
               {t("common.password")}
             </Label>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -151,6 +253,23 @@ export function LoginPage() {
               className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
             />
           </div>
+
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              checked={rememberDevice}
+              onChange={(event) => setRememberDevice(event.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span>
+              <span className="block font-semibold">
+                {t("auth.rememberDevice")}
+              </span>
+              <span className="mt-0.5 block text-xs leading-relaxed text-slate-500">
+                {t("auth.rememberDeviceHelp")}
+              </span>
+            </span>
+          </label>
 
           <Button
             type="submit"
@@ -169,17 +288,19 @@ export function LoginPage() {
         </form>
       )}
 
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
-          {t("auth.noAccount")}{" "}
-          <Link
-            to="/signup"
-            className="font-semibold text-blue-600 hover:text-blue-700 hover:underline"
-          >
-            {t("auth.signUp")}
-          </Link>
-        </p>
-      </div>
+      {accessPortal === "member" && (
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            {t("auth.noAccount")}{" "}
+            <Link
+              to="/signup"
+              className="font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+            >
+              {t("auth.signUp")}
+            </Link>
+          </p>
+        </div>
+      )}
 
       {!mfaRequired && import.meta.env.DEV && (
         <section
@@ -201,32 +322,30 @@ export function LoginPage() {
             </div>
           </div>
 
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            {demoAccounts.map((account) => {
-              const Icon = account.icon;
-
+          <div className="mt-3">
+            {(() => {
+              const Icon = demoAccount.icon;
               return (
                 <button
-                  key={account.email}
                   type="button"
                   onClick={() =>
-                    selectDemoAccount(account.email, account.password)
+                    selectDemoAccount(demoAccount.email, demoAccount.password)
                   }
-                  className="rounded-xl border border-blue-200 bg-white p-3 text-left transition hover:border-blue-400 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="w-full rounded-xl border border-blue-200 bg-white p-3 text-left transition hover:border-blue-400 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 >
                   <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">
                     <Icon size={16} className="text-blue-600" />
-                    {account.role}
+                    {demoAccount.role}
                   </span>
                   <span className="mt-1 block text-xs text-slate-600">
-                    {account.description}
+                    {demoAccount.description}
                   </span>
                   <span className="mt-2 block text-[11px] font-medium text-blue-700">
                     {t("auth.useDemoAccount")}
                   </span>
                 </button>
               );
-            })}
+            })()}
           </div>
         </section>
       )}

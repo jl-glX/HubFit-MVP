@@ -5,6 +5,7 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { useAuth } from "./hooks/useAuth";
 import { HomePage } from "./pages/HomePage";
 import { ClassesPage } from "./pages/ClassesPage";
@@ -26,6 +27,12 @@ import {
 } from "./pages/LegalPage";
 import { AccountSecurityPage } from "./pages/AccountSecurityPage";
 import { FeedbackPage } from "./pages/FeedbackPage";
+
+const BillingPage = lazy(() =>
+  import("./pages/BillingPage").then((module) => ({
+    default: module.BillingPage,
+  })),
+);
 
 type UserRole = "member" | "trainer" | "admin";
 
@@ -115,6 +122,22 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <AccountSecurityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/billing"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Suspense
+                fallback={
+                  <div className="flex min-h-screen items-center justify-center text-slate-600">
+                    {t("common.loading")}
+                  </div>
+                }
+              >
+                <BillingPage />
+              </Suspense>
             </ProtectedRoute>
           }
         />

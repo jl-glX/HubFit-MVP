@@ -1,8 +1,12 @@
 import { Request, Response } from "express";
-import { MFA_CHALLENGE_DURATION, SESSION_DURATION } from "../services/auth.js";
+import {
+  MFA_CHALLENGE_DURATION,
+  REMEMBERED_SESSION_DURATION,
+} from "../services/auth.js";
 
 const SESSION_COOKIE_NAME = "hubfit_session";
 const MFA_CHALLENGE_COOKIE_NAME = "hubfit_mfa_challenge";
+const PASSKEY_CHALLENGE_COOKIE_NAME = "hubfit_passkey_challenge";
 
 function readCookie(req: Request, name: string): string | null {
   const cookies = req.get("Cookie")?.split(";") ?? [];
@@ -23,12 +27,20 @@ export function readMfaChallengeToken(req: Request): string | null {
   return readCookie(req, MFA_CHALLENGE_COOKIE_NAME);
 }
 
-export function setSessionCookie(res: Response, token: string): void {
+export function readPasskeyChallengeToken(req: Request): string | null {
+  return readCookie(req, PASSKEY_CHALLENGE_COOKIE_NAME);
+}
+
+export function setSessionCookie(
+  res: Response,
+  token: string,
+  rememberDevice = false,
+): void {
   res.cookie(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: SESSION_DURATION,
+    ...(rememberDevice ? { maxAge: REMEMBERED_SESSION_DURATION } : {}),
     path: "/",
   });
 }
@@ -40,6 +52,25 @@ export function setMfaChallengeCookie(res: Response, token: string): void {
     sameSite: "strict",
     maxAge: MFA_CHALLENGE_DURATION,
     path: "/api/auth/mfa",
+  });
+}
+
+export function setPasskeyChallengeCookie(res: Response, token: string): void {
+  res.cookie(PASSKEY_CHALLENGE_COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: MFA_CHALLENGE_DURATION,
+    path: "/api",
+  });
+}
+
+export function clearPasskeyChallengeCookie(res: Response): void {
+  res.clearCookie(PASSKEY_CHALLENGE_COOKIE_NAME, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/api",
   });
 }
 

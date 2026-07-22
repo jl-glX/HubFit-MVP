@@ -7,10 +7,16 @@ import { authenticationLimiter } from "../middleware/security.js";
 import {
   accountMfaConfirmationValidation,
   mfaCodeValidation,
+  passkeyResponseValidation,
   passwordConfirmationValidation,
   sessionIdValidation,
 } from "../middleware/validation.js";
-import { clearSessionCookie } from "../lib/session-cookie.js";
+import {
+  clearPasskeyChallengeCookie,
+  clearSessionCookie,
+  readPasskeyChallengeToken,
+  setPasskeyChallengeCookie,
+} from "../lib/session-cookie.js";
 import {
   getSecurityOverview,
   revokeOtherSessions,
@@ -24,9 +30,20 @@ import {
   verifyMfaCode,
 } from "../services/mfa.js";
 import { verifyUserPassword } from "../services/auth.js";
+import {
+  beginPasskeyRegistration,
+  finishPasskeyRegistration,
+  removePasskeys,
+} from "../services/passkeys.js";
+import type { RegistrationResponseJSON } from "@simplewebauthn/server";
 
 export const accountSecurityRouter = express.Router();
 accountSecurityRouter.use(authenticate);
+
+function webauthnContext(req: express.Request) {
+  const origin = req.get("Origin") ?? `${req.protocol}://${req.get("host")}`;
+  return { origin, rpID: new URL(origin).hostname };
+}
 
 accountSecurityRouter.get("/", async (_req, res, next) => {
   try {
@@ -36,6 +53,90 @@ accountSecurityRouter.get("/", async (_req, res, next) => {
     next(error);
   }
 });
+
+accountSecurityRouter.post(
+  "/passkeys/options",
+  authenticationLimiter,
+  passwordConfirmationValidation,
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      const auth = getAuthenticatedUser(res);
+      if (!(await verifyUserPassword(auth.userId, req.body.password))) {
+        res.status(401).json({ error: "Invalid security confirmation" });
+        return;
+      }
+      const { rpID } = webauthnContext(req);
+      const result = await beginPasskeyRegistration(
+        { id: auth.userId, email: auth.email, name: auth.name },
+        rpID,
+      );
+      setPasskeyChallengeCookie(res, result.token);
+      res.json(result.options);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+accountSecurityRouter.post(
+  "/passkeys/verify",
+  authenticationLimiter,
+  passkeyResponseValidation,
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    const token = readPasskeyChallengeToken(req);
+    if (!token) {
+      res.status(401).json({ error: "Invalid or expired passkey challenge" });
+      return;
+    }
+    try {
+      const auth = getAuthenticatedUser(res);
+      const { origin, rpID } = webauthnContext(req);
+      await finishPasskeyRegistration(
+        auth.userId,
+        token,
+        req.body.response as RegistrationResponseJSON,
+        origin,
+        rpID,
+      );
+      clearPasskeyChallengeCookie(res);
+      res.status(201).json({ enabled: true });
+    } catch (error) {
+      clearPasskeyChallengeCookie(res);
+      next(error);
+    }
+  },
+);
+
+accountSecurityRouter.delete(
+  "/passkeys",
+  authenticationLimiter,
+  passwordConfirmationValidation,
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      const auth = getAuthenticatedUser(res);
+      if (!(await verifyUserPassword(auth.userId, req.body.password))) {
+        res.status(401).json({ error: "Invalid security confirmation" });
+        return;
+      }
+      await removePasskeys(auth.userId);
+      res.status(204).end();
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 accountSecurityRouter.post(
   "/mfa/setup",

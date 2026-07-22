@@ -9,6 +9,9 @@ export type SecurityEventType =
   | "mfa_succeeded"
   | "mfa_enabled"
   | "mfa_disabled"
+  | "passkey_registered"
+  | "passkey_removed"
+  | "passkey_login_succeeded"
   | "recovery_codes_regenerated"
   | "session_revoked"
   | "all_other_sessions_revoked";

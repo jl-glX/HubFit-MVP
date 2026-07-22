@@ -4,6 +4,7 @@ import {
   BarChart3,
   Bookmark,
   CalendarDays,
+  CreditCard,
   Home,
   LogOut,
   Settings,
@@ -86,15 +87,27 @@ export function Navigation() {
               <span>{t("nav.classes")}</span>
             </Link>
 
-            <Link
-              to="/my-bookings"
-              className={`${navLinkClass} ${
-                isActive("/my-bookings") ? activeClass : inactiveClass
-              }`}
-            >
-              <Bookmark size={20} />
-              <span>{t("nav.bookings")}</span>
-            </Link>
+            {user?.role === "admin" ? (
+              <Link
+                to="/billing"
+                className={`${navLinkClass} ${
+                  isActive("/billing") ? activeClass : inactiveClass
+                }`}
+              >
+                <CreditCard size={20} />
+                <span>{t("nav.billing")}</span>
+              </Link>
+            ) : (
+              <Link
+                to="/my-bookings"
+                className={`${navLinkClass} ${
+                  isActive("/my-bookings") ? activeClass : inactiveClass
+                }`}
+              >
+                <Bookmark size={20} />
+                <span>{t("nav.bookings")}</span>
+              </Link>
+            )}
 
             {user?.role === "trainer" && (
               <Link
