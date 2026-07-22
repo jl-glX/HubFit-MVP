@@ -4,8 +4,8 @@ import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Card } from "../components/ui/card";
-import { Calendar } from "lucide-react";
+import { AuthShell } from "../components/AuthShell";
+import { ArrowRight } from "lucide-react";
 
 export function SignupPage() {
   const navigate = useNavigate();
@@ -60,26 +60,16 @@ export function SignupPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
-      <Card className="w-full max-w-md p-8">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="rounded-lg bg-blue-600 p-2">
-            <Calendar size={24} className="text-white" />
-          </div>
-          <h1 className="text-2xl font-bold">HubFit</h1>
-        </div>
-
-        <h2 className="text-xl font-semibold mb-6">Create Account</h2>
-
+    <AuthShell eyebrow="Join HubFit" title="Create your account" description="Set up your profile and start planning your next training sessions.">
         {(error || validationError) && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+          <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-3.5">
             <p className="text-sm text-red-600">{error || validationError}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-slate-700">Email address</Label>
             <Input
               id="email"
               type="email"
@@ -88,11 +78,12 @@ export function SignupPage() {
               value={formData.email}
               onChange={handleChange}
               disabled={isLoading}
+              className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
             />
           </div>
 
-          <div>
-            <Label htmlFor="name">Full Name</Label>
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-slate-700">Full name</Label>
             <Input
               id="name"
               type="text"
@@ -101,11 +92,12 @@ export function SignupPage() {
               value={formData.name}
               onChange={handleChange}
               disabled={isLoading}
+              className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
             />
           </div>
 
-          <div>
-            <Label htmlFor="password">Password</Label>
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-slate-700">Password</Label>
             <Input
               id="password"
               type="password"
@@ -114,11 +106,12 @@ export function SignupPage() {
               value={formData.password}
               onChange={handleChange}
               disabled={isLoading}
+              className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
             />
           </div>
 
-          <div>
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword" className="text-slate-700">Confirm password</Label>
             <Input
               id="confirmPassword"
               type="password"
@@ -127,27 +120,27 @@ export function SignupPage() {
               value={formData.confirmPassword}
               onChange={handleChange}
               disabled={isLoading}
+              className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
             />
           </div>
 
           <Button
             type="submit"
-            className="w-full"
+            className="h-11 w-full rounded-xl bg-blue-600 shadow-md shadow-blue-600/15 hover:bg-blue-700"
             disabled={isLoading}
           >
-            {isLoading ? "Creating account..." : "Sign up"}
+            {isLoading ? "Creating account..." : <><span>Create account</span><ArrowRight /></>}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
-            <Link to="/login" className="text-blue-600 hover:underline font-medium">
+            <Link to="/login" className="font-semibold text-blue-600 hover:text-blue-700 hover:underline">
               Login
             </Link>
           </p>
         </div>
-      </Card>
-    </div>
+    </AuthShell>
   );
 }

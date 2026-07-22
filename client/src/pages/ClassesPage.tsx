@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertCircle, Loader, RefreshCw } from "lucide-react";
+import { AlertCircle, CalendarDays, Loader, RefreshCw, Sparkles, Users } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { ClassCard } from "../components/ClassCard";
 import { useClasses } from "../hooks/useClasses";
@@ -17,6 +17,8 @@ export function ClassesPage() {
   const userBookedClassIds = new Set(bookings.map((b) => b.classId));
   const groupedClasses = groupClassesByDate(classes);
   const sortedDates = Object.keys(groupedClasses).sort();
+  const availableClasses = classes.filter((gymClass) => gymClass.availablePlaces > 0).length;
+  const totalPlaces = classes.reduce((total, gymClass) => total + gymClass.availablePlaces, 0);
 
   const handleBook = async (classId: string) => {
     if (!user?.id) return;
@@ -44,23 +46,47 @@ export function ClassesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-slate-900">Available Classes</h1>
-            <p className="mt-2 text-gray-600">Book your gym classes</p>
+    <main className="min-h-screen">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
+        <section className="relative mb-10 overflow-hidden rounded-3xl bg-slate-950 px-6 py-8 text-white shadow-2xl shadow-slate-900/10 sm:px-9 sm:py-10">
+          <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-500/25 blur-3xl" />
+          <div className="absolute -bottom-24 left-1/3 h-52 w-52 rounded-full bg-emerald-400/15 blur-3xl" />
+          <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm text-blue-100">
+                <Sparkles size={15} />
+                Your weekly training agenda
+              </div>
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Find your next class</h1>
+              <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
+                Choose a session, check live availability and secure your place in a few seconds.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3 backdrop-blur-sm">
+                <p className="text-2xl font-bold">{classes.length}</p>
+                <p className="text-xs text-slate-300">Scheduled</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3 backdrop-blur-sm">
+                <p className="text-2xl font-bold text-emerald-300">{availableClasses}</p>
+                <p className="text-xs text-slate-300">Available</p>
+              </div>
+              <div className="col-span-2 rounded-2xl border border-white/10 bg-white/8 px-4 py-3 backdrop-blur-sm sm:col-span-1">
+                <p className="text-2xl font-bold text-blue-300">{totalPlaces}</p>
+                <p className="text-xs text-slate-300">Open spots</p>
+              </div>
+            </div>
           </div>
-          <Button
-            onClick={refreshClasses}
-            disabled={classesLoading}
-            variant="outline"
-            size="lg"
-            className="gap-2"
-          >
-            <RefreshCw size={18} />
-            Refresh
+        </section>
+
+        <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600">Class schedule</p>
+            <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">Upcoming sessions</h2>
+          </div>
+          <Button onClick={refreshClasses} disabled={classesLoading} variant="outline" size="lg" className="gap-2 rounded-xl border-slate-200 bg-white shadow-sm hover:border-blue-200 hover:bg-blue-50">
+            <RefreshCw size={18} className={classesLoading ? "animate-spin" : ""} />
+            Refresh schedule
           </Button>
         </div>
 
@@ -91,11 +117,20 @@ export function ClassesPage() {
             <p className="text-gray-600">No classes available</p>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-10">
             {sortedDates.map((date) => (
               <div key={date}>
-                <h2 className="mb-4 text-2xl font-bold text-slate-800">{date}</h2>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="mb-5 flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
+                    <CalendarDays size={19} />
+                  </span>
+                  <h3 className="text-xl font-bold capitalize text-slate-900">{date}</h3>
+                  <div className="h-px flex-1 bg-slate-200" />
+                  <span className="hidden items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-500 shadow-sm ring-1 ring-slate-200 sm:flex">
+                    <Users size={14} /> {groupedClasses[date].length} classes
+                  </span>
+                </div>
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                   {groupedClasses[date].map((gymClass) => (
                     <ClassCard
                       key={gymClass.id}
@@ -119,6 +154,6 @@ export function ClassesPage() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

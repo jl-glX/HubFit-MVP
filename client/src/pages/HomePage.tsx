@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Calendar, Bookmark, Users } from "lucide-react";
+import { ArrowRight, BarChart3, Bookmark, CalendarDays, Sparkles, Users } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 
@@ -7,42 +7,32 @@ export function HomePage() {
   const user = useCurrentUser();
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-      {/* Header */}
-      <header className="border-b border-slate-700">
-        <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-blue-600 p-2">
-              <Calendar size={24} />
-            </div>
-            <h1 className="text-2xl font-bold">HubFit</h1>
-          </div>
-          {user && <p className="text-slate-300">Welcome, {user.name}!</p>}
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section className="mx-auto max-w-6xl px-4 py-20">
-        <div className="grid gap-12 md:grid-cols-2 md:items-center">
+    <main className="min-h-[calc(100vh-4.5rem)] overflow-hidden bg-slate-950 text-white">
+      <section className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+        <div className="absolute -right-44 top-0 h-96 w-96 rounded-full bg-blue-600/25 blur-3xl" />
+        <div className="absolute -left-40 bottom-0 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
+        <div className="relative grid gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
-            <h2 className="text-5xl font-bold leading-tight">
-              Manage Your Gym Classes
-            </h2>
-            <p className="mt-6 text-xl text-slate-300">
+            {user && <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-sm text-blue-100"><Sparkles size={15} /> Welcome back, {user.name}</div>}
+            <h1 className="max-w-3xl text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
+              Your training week, <span className="bg-linear-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">under control.</span>
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl">
               Book classes, manage your schedule, and join waitlists. Get
               promoted automatically when spots open up.
             </p>
-            <div className="mt-8 flex gap-4">
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link to="/classes">
-                <Button className="gap-2 bg-blue-600 hover:bg-blue-700" size="lg">
-                  <Calendar size={20} />
+                <Button className="h-12 w-full gap-2 rounded-xl bg-blue-600 px-6 shadow-lg shadow-blue-600/25 hover:bg-blue-500 sm:w-auto" size="lg">
+                  <CalendarDays size={20} />
                   Browse Classes
+                  <ArrowRight size={18} />
                 </Button>
               </Link>
               <Link to="/my-bookings">
                 <Button
                   variant="outline"
-                  className="gap-2 border-slate-400 text-white hover:bg-slate-800"
+                  className="h-12 w-full gap-2 rounded-xl border-white/20 bg-white/5 px-6 text-white hover:bg-white/10 hover:text-white sm:w-auto"
                   size="lg"
                 >
                   <Bookmark size={20} />
@@ -52,45 +42,22 @@ export function HomePage() {
             </div>
           </div>
 
-          {/* Features */}
-          <div className="space-y-4">
-            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-6 backdrop-blur-sm">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600">
-                <Calendar size={24} />
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[{ icon: CalendarDays, title: "Class calendar", text: "Find every session by date and time." }, { icon: Users, title: "Smart waitlists", text: "Move up automatically when a place opens." }, { icon: Bookmark, title: "Simple bookings", text: "Review and manage your schedule anytime." }, { icon: BarChart3, title: "Progress insights", text: "Understand your activity at a glance." }].map(({ icon: Icon, title, text }, index) => (
+              <div key={title} className={`rounded-2xl border border-white/10 bg-white/6 p-5 backdrop-blur-sm transition-transform hover:-translate-y-1 ${index % 2 === 1 ? "sm:translate-y-6" : ""}`}>
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/15 text-blue-300 ring-1 ring-blue-400/20"><Icon size={22} /></div>
+                <h2 className="font-semibold">{title}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-slate-400">{text}</p>
               </div>
-              <h3 className="text-lg font-semibold">Class Calendar</h3>
-              <p className="mt-2 text-slate-300">
-                Browse and book classes organized by date and time
-              </p>
-            </div>
-
-            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-6 backdrop-blur-sm">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600">
-                <Users size={24} />
-              </div>
-              <h3 className="text-lg font-semibold">Smart Waitlists</h3>
-              <p className="mt-2 text-slate-300">
-                Join waitlists and get automatically promoted when spots open
-              </p>
-            </div>
-
-            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-6 backdrop-blur-sm">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600">
-                <Bookmark size={24} />
-              </div>
-              <h3 className="text-lg font-semibold">Easy Management</h3>
-              <p className="mt-2 text-slate-300">
-                View and cancel your bookings anytime
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-700 py-8 text-center text-slate-400">
-        <p>© 2024 HubFit. All rights reserved.</p>
+      <footer className="border-t border-white/10 py-7 text-center text-sm text-slate-500">
+        <p>© {new Date().getFullYear()} HubFit. All rights reserved.</p>
       </footer>
-    </div>
+    </main>
   );
 }
