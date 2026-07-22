@@ -43,9 +43,9 @@ interface ProtectedRouteProps {
 
 function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
   const { t } = useTranslation();
-  const { user, isLoading } = useAuth();
+  const { user, isInitializing } = useAuth();
 
-  if (isLoading) {
+  if (isInitializing) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-gray-600">{t("common.loading")}</div>
@@ -77,7 +77,7 @@ function App() {
 
 function AppContent() {
   const { t } = useTranslation();
-  const { user, isLoading } = useAuth();
+  const { user, isInitializing } = useAuth();
   const { pathname } = useLocation();
   const isLegalPage = [
     "/legal-notice",
@@ -85,7 +85,7 @@ function AppContent() {
     "/conditions-of-use",
   ].includes(pathname);
 
-  if (isLoading) {
+  if (isInitializing) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-gray-600">{t("common.loading")}</div>

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   CheckCircle2,
   Copy,
+  Download,
   Fingerprint,
   KeyRound,
   Laptop,
@@ -222,7 +223,31 @@ export function AccountSecurityPage() {
       document.execCommand("copy");
       area.remove();
     }
+    setRecoveryCodes([]);
     setNotice(t("security.codesCopied"));
+  };
+
+  const downloadRecoveryCodes = () => {
+    const date = new Date().toISOString().slice(0, 10);
+    const content = [
+      t("security.downloadHeading"),
+      t("security.downloadWarning"),
+      "",
+      ...recoveryCodes,
+      "",
+    ].join("\n");
+    const url = URL.createObjectURL(
+      new Blob([content], { type: "text/plain;charset=utf-8" }),
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `hubfit-recovery-codes-${date}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setRecoveryCodes([]);
+    setNotice(t("security.codesDownloaded"));
   };
 
   return (
@@ -404,13 +429,14 @@ export function AccountSecurityPage() {
                     <span key={item}>{item}</span>
                   ))}
                 </div>
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={copyRecoveryCodes}
-                >
-                  <Copy /> {t("security.copyCodes")}
-                </Button>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Button variant="outline" onClick={copyRecoveryCodes}>
+                    <Copy /> {t("security.copyCodes")}
+                  </Button>
+                  <Button variant="outline" onClick={downloadRecoveryCodes}>
+                    <Download /> {t("security.downloadCodes")}
+                  </Button>
+                </div>
               </div>
             )}
           </Card>

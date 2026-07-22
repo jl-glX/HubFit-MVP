@@ -11,6 +11,7 @@ export interface AuthUser {
 export interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
+  isInitializing: boolean;
   error: string | null;
   signup: (email: string, name: string, password: string) => Promise<void>;
   login: (
