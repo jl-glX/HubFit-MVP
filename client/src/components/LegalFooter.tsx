@@ -43,6 +43,12 @@ export function LegalFooter({ variant = "dark" }: LegalFooterProps) {
           >
             {t("legal.footer.use")}
           </Link>
+          <Link
+            className="transition-colors hover:text-blue-500"
+            to="/feedback"
+          >
+            {t("feedback.footer")}
+          </Link>
         </nav>
       </div>
     </footer>

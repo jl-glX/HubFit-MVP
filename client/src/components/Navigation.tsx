@@ -8,6 +8,7 @@ import {
   LogOut,
   Settings,
   Shield,
+  ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "./ui/button";
@@ -52,8 +53,8 @@ export function Navigation() {
 
   return (
     <nav className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 shadow-xs backdrop-blur-xl">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex min-h-18 items-center gap-5">
+      <div className="mx-auto w-full max-w-7xl overflow-hidden px-2 sm:px-6">
+        <div className="flex min-h-18 min-w-0 items-center gap-2 sm:gap-5">
           <Link
             to="/"
             className="flex shrink-0 items-center gap-2.5 font-bold text-xl tracking-tight text-slate-950"
@@ -61,7 +62,7 @@ export function Navigation() {
             <div className="rounded-xl bg-linear-to-br from-blue-600 to-indigo-700 p-2 shadow-lg shadow-blue-600/20">
               <Activity size={21} className="text-white" />
             </div>
-            <span>HubFit</span>
+            <span className="hidden sm:inline">HubFit</span>
           </Link>
 
           <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -127,6 +128,16 @@ export function Navigation() {
             >
               <BarChart3 size={20} />
               <span>{t("nav.analytics")}</span>
+            </Link>
+
+            <Link
+              to="/account/security"
+              className={`${navLinkClass} ${
+                isActive("/account/security") ? activeClass : inactiveClass
+              }`}
+            >
+              <ShieldCheck size={20} />
+              <span>{t("nav.security")}</span>
             </Link>
 
             <div className="ml-auto flex shrink-0 items-center gap-3 border-l border-slate-200 pl-4">

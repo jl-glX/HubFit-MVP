@@ -1,5 +1,20 @@
 # Security
 
+## Account protection
+
+HubFit supports TOTP two-step verification with common authenticator apps,
+single-use recovery codes, revocable server-side sessions and a recent security
+activity log. MFA secrets are encrypted with AES-256-GCM and recovery codes are
+stored as keyed hashes. Production deployments must provide a unique
+`MFA_ENCRYPTION_KEY`; it must not be committed or shared between unrelated
+environments.
+
+The implementation uses browser standards and responsive web controls, so the
+same flow is available in current browsers on Windows, macOS, Android and iOS.
+Physical-device and native-app verification is still required before claiming
+platform certification. HubFit does not store passwords or session tokens in
+browser storage and does not depend on a platform-specific authenticator API.
+
 ## Implemented baseline
 
 - Password hashing with bcrypt and a cost factor of 12.
@@ -18,7 +33,7 @@
 ## Production work still required
 
 - Email verification and account recovery.
-- Optional TOTP 2FA for trainers and administrators, including encrypted secrets and recovery codes.
+- Passkey support and optional enforcement of 2FA for privileged roles.
 - CSRF review if cross-site deployment requirements change.
 - Deployment proxy and HTTPS configuration review.
 - Versioned database migrations, encrypted backups and retention rules.

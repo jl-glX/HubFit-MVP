@@ -1,10 +1,15 @@
 import { createHash, randomBytes } from "node:crypto";
 import bcryptjs from "bcryptjs";
 import { db } from "../db/client.js";
+import { mfaStatus, verifyMfaCode } from "./mfa.js";
+import { recordSecurityEvent } from "./security-events.js";
 
 export const SESSION_DURATION = 24 * 60 * 60 * 1000;
+export const MFA_CHALLENGE_DURATION = 5 * 60 * 1000;
+const MFA_MAX_ATTEMPTS = 5;
 
 export interface SessionData {
+  sessionId: string;
   userId: string;
   email: string;
   name: string;
@@ -23,6 +28,14 @@ export interface AuthResult {
   };
 }
 
+export type LoginResult =
+  | ({ mfaRequired: false } & AuthResult)
+  | { mfaRequired: true; challengeToken: string };
+
+export interface SessionMetadata {
+  userAgent?: string;
+}
+
 export async function hashPassword(password: string): Promise<string> {
   return bcryptjs.hash(password, 12);
 }
@@ -37,11 +50,26 @@ export function isStrongPassword(password: string): boolean {
   );
 }
 
+export async function verifyUserPassword(
+  userId: string,
+  password: string,
+): Promise<boolean> {
+  const user = await db
+    .selectFrom("users")
+    .select("password")
+    .where("id", "=", userId)
+    .executeTakeFirst();
+  return user ? bcryptjs.compare(password, user.password) : false;
+}
+
 function sessionId(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
-async function createSession(user: AuthResult["user"]): Promise<AuthResult> {
+export async function createSession(
+  user: AuthResult["user"],
+  metadata: SessionMetadata = {},
+): Promise<AuthResult> {
   const now = Date.now();
   const token = randomBytes(32).toString("hex");
 
@@ -52,8 +80,10 @@ async function createSession(user: AuthResult["user"]): Promise<AuthResult> {
       id: sessionId(token),
       userId: user.id,
       createdAt: now,
+      lastSeenAt: now,
       expiresAt: now + SESSION_DURATION,
       revokedAt: null,
+      userAgent: (metadata.userAgent ?? "Unknown device").slice(0, 255),
     })
     .execute();
 
@@ -64,6 +94,7 @@ export async function signup(
   email: string,
   name: string,
   password: string,
+  metadata: SessionMetadata = {},
 ): Promise<AuthResult> {
   if (!isStrongPassword(password)) {
     throw new Error("Password does not meet the security requirements");
@@ -95,13 +126,14 @@ export async function signup(
     })
     .execute();
 
-  return createSession(user);
+  return createSession(user, metadata);
 }
 
 export async function login(
   email: string,
   password: string,
-): Promise<AuthResult> {
+  metadata: SessionMetadata = {},
+): Promise<LoginResult> {
   const user = await db
     .selectFrom("users")
     .selectAll()
@@ -110,19 +142,115 @@ export async function login(
 
   if (!user) {
     await bcryptjs.hash(password, 12);
+    await recordSecurityEvent("login_failed", null);
     throw new Error("Invalid email or password");
   }
 
   if (!(await bcryptjs.compare(password, user.password))) {
+    await recordSecurityEvent("login_failed", user.id);
     throw new Error("Invalid email or password");
   }
 
-  return createSession({
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
+  const status = await mfaStatus(user.id);
+  if (status.enabled) {
+    const now = Date.now();
+    const challengeToken = randomBytes(32).toString("hex");
+    await db
+      .deleteFrom("authChallenges")
+      .where("expiresAt", "<", now)
+      .execute();
+    await db
+      .insertInto("authChallenges")
+      .values({
+        id: sessionId(challengeToken),
+        userId: user.id,
+        createdAt: now,
+        expiresAt: now + MFA_CHALLENGE_DURATION,
+        attempts: 0,
+        consumedAt: null,
+      })
+      .execute();
+    await recordSecurityEvent("mfa_challenge_created", user.id);
+    return { mfaRequired: true, challengeToken };
+  }
+
+  const result = await createSession(
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    },
+    metadata,
+  );
+  await recordSecurityEvent("login_succeeded", user.id);
+  return { mfaRequired: false, ...result };
+}
+
+export async function completeMfaLogin(
+  challengeToken: string,
+  code: string,
+  metadata: SessionMetadata = {},
+): Promise<AuthResult> {
+  const now = Date.now();
+  const challengeId = sessionId(challengeToken);
+  const challenge = await db
+    .selectFrom("authChallenges")
+    .innerJoin("users", "users.id", "authChallenges.userId")
+    .select([
+      "authChallenges.userId",
+      "authChallenges.expiresAt",
+      "authChallenges.attempts",
+      "authChallenges.consumedAt",
+      "users.email",
+      "users.name",
+      "users.role",
+    ])
+    .where("authChallenges.id", "=", challengeId)
+    .executeTakeFirst();
+
+  if (
+    !challenge ||
+    challenge.consumedAt !== null ||
+    challenge.expiresAt <= now ||
+    challenge.attempts >= MFA_MAX_ATTEMPTS
+  ) {
+    throw new Error("Invalid or expired verification challenge");
+  }
+
+  const verification = await verifyMfaCode(
+    challenge.userId,
+    challenge.email,
+    code,
+  );
+  if (!verification.valid) {
+    await db
+      .updateTable("authChallenges")
+      .set({ attempts: challenge.attempts + 1 })
+      .where("id", "=", challengeId)
+      .execute();
+    await recordSecurityEvent("mfa_challenge_failed", challenge.userId);
+    throw new Error("Invalid verification code");
+  }
+
+  await db
+    .updateTable("authChallenges")
+    .set({ consumedAt: now })
+    .where("id", "=", challengeId)
+    .execute();
+  const result = await createSession(
+    {
+      id: challenge.userId,
+      email: challenge.email,
+      name: challenge.name,
+      role: challenge.role,
+    },
+    metadata,
+  );
+  await recordSecurityEvent("mfa_succeeded", challenge.userId, {
+    recoveryCode: verification.usedRecoveryCode,
   });
+  return result;
 }
 
 export async function verifyToken(token: string): Promise<SessionData | null> {
@@ -139,6 +267,7 @@ export async function verifyToken(token: string): Promise<SessionData | null> {
       "sessions.createdAt",
       "sessions.expiresAt",
       "sessions.revokedAt",
+      "sessions.lastSeenAt",
       "users.email",
       "users.name",
       "users.role",
@@ -150,6 +279,14 @@ export async function verifyToken(token: string): Promise<SessionData | null> {
     return null;
   }
 
+  if (now - record.lastSeenAt > 5 * 60 * 1000) {
+    await db
+      .updateTable("sessions")
+      .set({ lastSeenAt: now })
+      .where("id", "=", sessionId(token))
+      .execute();
+  }
+
   return {
     userId: record.userId,
     email: record.email,
@@ -157,6 +294,7 @@ export async function verifyToken(token: string): Promise<SessionData | null> {
     role: record.role,
     createdAt: record.createdAt,
     expiresAt: record.expiresAt,
+    sessionId: sessionId(token),
   };
 }
 

@@ -139,12 +139,95 @@ export async function initializeDatabase() {
         id TEXT PRIMARY KEY,
         userId TEXT NOT NULL,
         createdAt INTEGER NOT NULL,
+        lastSeenAt INTEGER NOT NULL,
         expiresAt INTEGER NOT NULL,
         revokedAt INTEGER,
+        userAgent TEXT NOT NULL DEFAULT '',
         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
       );
       CREATE INDEX idx_sessions_userId ON sessions(userId);
       CREATE INDEX idx_sessions_expiresAt ON sessions(expiresAt);
+    `);
+  } else {
+    const sessionColumns = sqliteDb
+      .prepare("PRAGMA table_info(sessions)")
+      .all() as Array<{ name: string }>;
+    const sessionColumnNames = sessionColumns.map((column) => column.name);
+
+    if (!sessionColumnNames.includes("lastSeenAt")) {
+      sqliteDb.exec(
+        "ALTER TABLE sessions ADD COLUMN lastSeenAt INTEGER NOT NULL DEFAULT 0",
+      );
+      sqliteDb.exec(
+        "UPDATE sessions SET lastSeenAt = createdAt WHERE lastSeenAt = 0",
+      );
+    }
+
+    if (!sessionColumnNames.includes("userAgent")) {
+      sqliteDb.exec(
+        "ALTER TABLE sessions ADD COLUMN userAgent TEXT NOT NULL DEFAULT ''",
+      );
+    }
+  }
+
+  if (!tableNames.includes("mfaCredentials")) {
+    sqliteDb.exec(`
+      CREATE TABLE mfaCredentials (
+        userId TEXT PRIMARY KEY,
+        secretEncrypted TEXT NOT NULL,
+        recoveryCodeHashes TEXT NOT NULL DEFAULT '[]',
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        enabledAt INTEGER,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+    `);
+  }
+
+  if (!tableNames.includes("authChallenges")) {
+    sqliteDb.exec(`
+      CREATE TABLE authChallenges (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        createdAt INTEGER NOT NULL,
+        expiresAt INTEGER NOT NULL,
+        attempts INTEGER NOT NULL DEFAULT 0,
+        consumedAt INTEGER,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_authChallenges_userId ON authChallenges(userId);
+      CREATE INDEX idx_authChallenges_expiresAt ON authChallenges(expiresAt);
+    `);
+  }
+
+  if (!tableNames.includes("securityEvents")) {
+    sqliteDb.exec(`
+      CREATE TABLE securityEvents (
+        id TEXT PRIMARY KEY,
+        userId TEXT,
+        type TEXT NOT NULL,
+        createdAt INTEGER NOT NULL,
+        metadata TEXT NOT NULL DEFAULT '{}',
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE SET NULL
+      );
+      CREATE INDEX idx_securityEvents_userId ON securityEvents(userId);
+      CREATE INDEX idx_securityEvents_createdAt ON securityEvents(createdAt);
+    `);
+  }
+
+  if (!tableNames.includes("feedback")) {
+    sqliteDb.exec(`
+      CREATE TABLE feedback (
+        id TEXT PRIMARY KEY,
+        userId TEXT,
+        category TEXT NOT NULL CHECK(category IN ('suggestion', 'problem', 'accessibility', 'other')),
+        message TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'new' CHECK(status IN ('new', 'reviewed', 'closed')),
+        createdAt INTEGER NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_feedback_userId ON feedback(userId);
+      CREATE INDEX idx_feedback_createdAt ON feedback(createdAt);
     `);
   }
 

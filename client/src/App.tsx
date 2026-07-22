@@ -24,6 +24,8 @@ import {
   LegalNoticePage,
   TermsAndConditionsPage,
 } from "./pages/LegalPage";
+import { AccountSecurityPage } from "./pages/AccountSecurityPage";
+import { FeedbackPage } from "./pages/FeedbackPage";
 
 type UserRole = "member" | "trainer" | "admin";
 
@@ -108,6 +110,15 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/account/security"
+          element={
+            <ProtectedRoute>
+              <AccountSecurityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/feedback" element={<FeedbackPage />} />
         <Route
           path="/trainer-dashboard"
           element={

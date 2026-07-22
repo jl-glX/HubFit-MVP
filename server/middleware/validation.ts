@@ -98,6 +98,41 @@ export const loginValidation = validateRequest([
   body("password").isString().isLength({ min: 1, max: 128 }),
 ]);
 
+export const mfaCodeValidation = validateRequest([
+  strictBody(["code"]),
+  body("code")
+    .isString()
+    .trim()
+    .matches(/^(?:\d{6}|[A-Fa-f0-9]{6}-?[A-Fa-f0-9]{6})$/)
+    .withMessage("Code must be a 6-digit TOTP or a recovery code"),
+]);
+
+export const accountMfaConfirmationValidation = validateRequest([
+  strictBody(["password", "code"]),
+  body("password").isString().isLength({ min: 1, max: 128 }),
+  body("code")
+    .isString()
+    .trim()
+    .matches(/^(?:\d{6}|[A-Fa-f0-9]{6}-?[A-Fa-f0-9]{6})$/),
+]);
+
+export const passwordConfirmationValidation = validateRequest([
+  strictBody(["password"]),
+  body("password").isString().isLength({ min: 1, max: 128 }),
+]);
+
+export const sessionIdValidation = validateRequest([
+  param("sessionId")
+    .isString()
+    .matches(/^[a-f0-9]{64}$/i),
+]);
+
+export const feedbackValidation = validateRequest([
+  strictBody(["category", "message"]),
+  body("category").isIn(["suggestion", "problem", "accessibility", "other"]),
+  body("message").isString().trim().isLength({ min: 10, max: 2000 }),
+]);
+
 export const bookingValidation = validateRequest([
   strictBody(["classId", "userId"]),
   body("classId").isString().matches(ID_PATTERN),
