@@ -9,8 +9,10 @@ import { AuthAccessMenu } from "../components/AuthAccessMenu";
 import { PasswordInput } from "../components/PasswordInput";
 import {
   ArrowRight,
+  ChevronDown,
   Fingerprint,
   Info,
+  KeyRound,
   ShieldCheck,
   UserRound,
 } from "lucide-react";
@@ -29,6 +31,7 @@ export function LoginPage() {
   const [validationError, setValidationError] = useState("");
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaCode, setMfaCode] = useState("");
+  const [showAlternativeSignIn, setShowAlternativeSignIn] = useState(false);
   const { t } = useTranslation();
   const demoAccount =
     accessPortal === "member"
@@ -71,6 +74,9 @@ export function LoginPage() {
       );
       if (result.mfaRequired) {
         setMfaRequired(true);
+        if (mfaCode.trim()) {
+          navigateForRole((await verifyMfa(mfaCode.trim())).role);
+        }
         return;
       }
       navigate(
@@ -151,6 +157,7 @@ export function LoginPage() {
             setPassword("");
             setMfaRequired(false);
             setMfaCode("");
+            setShowAlternativeSignIn(false);
             setValidationError("");
           }}
         />
@@ -285,6 +292,64 @@ export function LoginPage() {
               </>
             )}
           </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-11 w-full rounded-xl text-slate-700"
+            aria-expanded={showAlternativeSignIn}
+            aria-controls="alternative-sign-in"
+            onClick={() => setShowAlternativeSignIn((current) => !current)}
+          >
+            {showAlternativeSignIn
+              ? t("auth.hideAlternativeSignIn")
+              : t("auth.alternativeSignIn")}
+            <ChevronDown
+              className={`transition ${showAlternativeSignIn ? "rotate-180" : ""}`}
+            />
+          </Button>
+
+          {showAlternativeSignIn && (
+            <div
+              id="alternative-sign-in"
+              className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
+            >
+              <div className="space-y-2">
+                <Label
+                  htmlFor="alternative-code"
+                  className="flex items-center gap-2 text-slate-700"
+                >
+                  <KeyRound size={16} /> {t("auth.verificationCode")}
+                </Label>
+                <Input
+                  id="alternative-code"
+                  inputMode="text"
+                  autoCapitalize="characters"
+                  autoComplete="one-time-code"
+                  value={mfaCode}
+                  onChange={(event) => setMfaCode(event.target.value)}
+                  placeholder={t("auth.verificationCodePlaceholder")}
+                  disabled={isLoading}
+                  className="h-11 rounded-xl border-slate-200 bg-white px-3"
+                />
+                <p className="text-xs leading-relaxed text-slate-500">
+                  {t("auth.alternativeCodeHelp")}
+                </p>
+              </div>
+
+              {browserSupportsWebAuthn() && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 w-full rounded-xl border-slate-300 bg-white"
+                  disabled={isLoading}
+                  onClick={handlePasskeyLogin}
+                >
+                  <Fingerprint /> {t("auth.signInWithPasskey")}
+                </Button>
+              )}
+            </div>
+          )}
         </form>
       )}
 

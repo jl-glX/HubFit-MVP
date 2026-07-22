@@ -397,6 +397,12 @@ export function AccountSecurityPage() {
                     />
                   </div>
                 </div>
+                <p className="text-xs leading-relaxed text-slate-500">
+                  {t("security.disableHelp")}
+                </p>
+                <p className="text-xs leading-relaxed text-amber-700">
+                  {t("security.lostAccessHelp")}
+                </p>
                 <div className="flex flex-wrap gap-3">
                   <Button
                     variant="outline"
