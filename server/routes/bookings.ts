@@ -35,7 +35,7 @@ bookingsRouter.get(
       console.error("Error fetching user bookings:", error);
       res.status(500).json({ error: "Failed to fetch bookings" });
     }
-  }
+  },
 );
 
 // Get class bookings (for admin/trainer view)
@@ -51,7 +51,7 @@ bookingsRouter.get(
       console.error("Error fetching class bookings:", error);
       res.status(500).json({ error: "Failed to fetch bookings" });
     }
-  }
+  },
 );
 
 // Export class attendees as CSV
@@ -65,14 +65,14 @@ bookingsRouter.get(
       res.setHeader("Content-Type", "text/csv;charset=utf-8");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="attendees-${req.params.classId}.csv"`
+        `attachment; filename="attendees-${req.params.classId}.csv"`,
       );
       res.send(csv);
     } catch (error) {
       console.error("Error exporting CSV:", error);
       res.status(500).json({ error: "Failed to export CSV" });
     }
-  }
+  },
 );
 
 // Create booking
@@ -96,7 +96,7 @@ bookingsRouter.post(
       console.error("Error creating booking:", error);
       res.status(400).json({ error: message });
     }
-  }
+  },
 );
 
 // Cancel booking
@@ -120,7 +120,7 @@ bookingsRouter.delete(
       console.error("Error cancelling booking:", error);
       res.status(400).json({ error: message });
     }
-  }
+  },
 );
 
 // Get class waitlist
@@ -136,5 +136,5 @@ bookingsRouter.get(
       console.error("Error fetching waitlist:", error);
       res.status(500).json({ error: "Failed to fetch waitlist" });
     }
-  }
+  },
 );

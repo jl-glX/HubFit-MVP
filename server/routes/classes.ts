@@ -24,7 +24,7 @@ classesRouter.get("/", async (req: express.Request, res: express.Response) => {
       classes.map(async (gymClass) => {
         const withAvailability = await getClassWithAvailability(gymClass.id);
         return withAvailability;
-      })
+      }),
     );
 
     res.json(classesWithAvailability);
@@ -53,7 +53,7 @@ classesRouter.get(
         classes.map(async (gymClass) => {
           const withAvailability = await getClassWithAvailability(gymClass.id);
           return withAvailability;
-        })
+        }),
       );
 
       res.json(classesWithAvailability);
@@ -61,7 +61,7 @@ classesRouter.get(
       console.error("Error fetching trainer classes:", error);
       res.status(500).json({ error: "Failed to fetch trainer classes" });
     }
-  }
+  },
 );
 
 // Get single class with availability
@@ -82,5 +82,5 @@ classesRouter.get(
       console.error("Error fetching class:", error);
       res.status(500).json({ error: "Failed to fetch class" });
     }
-  }
+  },
 );

@@ -20,7 +20,9 @@ export async function getAllUsers(): Promise<UserWithoutPassword[]> {
   return users;
 }
 
-export async function getUserById(id: string): Promise<UserWithoutPassword | null> {
+export async function getUserById(
+  id: string,
+): Promise<UserWithoutPassword | null> {
   const user = await db
     .selectFrom("users")
     .select(["id", "email", "name", "role", "createdAt"])
@@ -34,7 +36,7 @@ export async function createUser(
   email: string,
   name: string,
   password: string,
-  role: "member" | "trainer" | "admin" = "member"
+  role: "member" | "trainer" | "admin" = "member",
 ): Promise<UserWithoutPassword> {
   // Validate input
   if (!email || !name || !password) {
@@ -91,7 +93,7 @@ export async function updateUser(
     name?: string;
     password?: string;
     role?: "member" | "trainer" | "admin";
-  }
+  },
 ): Promise<UserWithoutPassword> {
   const user = await db
     .selectFrom("users")
@@ -166,22 +168,13 @@ export async function deleteUser(id: string): Promise<void> {
   await logoutAll(id);
 
   // Delete user's bookings
-  await db
-    .deleteFrom("bookings")
-    .where("userId", "=", id)
-    .execute();
+  await db.deleteFrom("bookings").where("userId", "=", id).execute();
 
   // Delete user's waitlist entries
-  await db
-    .deleteFrom("waitlistEntries")
-    .where("userId", "=", id)
-    .execute();
+  await db.deleteFrom("waitlistEntries").where("userId", "=", id).execute();
 
   // Delete user
-  await db
-    .deleteFrom("users")
-    .where("id", "=", id)
-    .execute();
+  await db.deleteFrom("users").where("id", "=", id).execute();
 }
 
 export async function deleteMultipleUsers(userIds: string[]): Promise<void> {
@@ -196,7 +189,7 @@ export async function deleteMultipleUsers(userIds: string[]): Promise<void> {
 
 export async function updateUserRole(
   id: string,
-  role: "member" | "trainer" | "admin"
+  role: "member" | "trainer" | "admin",
 ): Promise<UserWithoutPassword> {
   return updateUser(id, { role });
 }

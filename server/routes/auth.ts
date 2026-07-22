@@ -2,7 +2,10 @@ import express from "express";
 import { login, logout, logoutAll, signup } from "../services/auth.js";
 import { authenticationLimiter } from "../middleware/security.js";
 import { loginValidation, signupValidation } from "../middleware/validation.js";
-import { authenticate, getAuthenticatedUser } from "../middleware/authorization.js";
+import {
+  authenticate,
+  getAuthenticatedUser,
+} from "../middleware/authorization.js";
 import {
   clearSessionCookie,
   readSessionToken,
@@ -27,7 +30,7 @@ authRouter.post(
         error: error instanceof Error ? error.message : "Signup failed",
       });
     }
-  }
+  },
 );
 
 authRouter.post(
@@ -43,7 +46,7 @@ authRouter.post(
     } catch {
       res.status(401).json({ error: "Invalid email or password" });
     }
-  }
+  },
 );
 
 authRouter.get(
@@ -59,7 +62,7 @@ authRouter.get(
         role: session.role,
       },
     });
-  }
+  },
 );
 
 authRouter.post(
@@ -72,7 +75,7 @@ authRouter.post(
     }
     clearSessionCookie(res);
     res.json({ message: "Logged out successfully" });
-  }
+  },
 );
 
 authRouter.post(
@@ -82,5 +85,5 @@ authRouter.post(
     await logoutAll(getAuthenticatedUser(res).userId);
     clearSessionCookie(res);
     res.json({ message: "All sessions revoked" });
-  }
+  },
 );

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { SESSION_DURATION } from "../services/auth.js";
 
-export const SESSION_COOKIE_NAME = "hubfit_session";
+const SESSION_COOKIE_NAME = "hubfit_session";
 
 export function readSessionToken(req: Request): string | null {
   const cookies = req.get("Cookie")?.split(";") ?? [];

@@ -1,4 +1,5 @@
 import { Button } from "./ui/button";
+import { useTranslation } from "react-i18next";
 
 type PeriodType = "day" | "week" | "month";
 
@@ -11,10 +12,11 @@ export function PeriodSelector({
   selectedPeriod,
   onPeriodChange,
 }: PeriodSelectorProps) {
+  const { t } = useTranslation();
   const periods: { value: PeriodType; label: string }[] = [
-    { value: "day", label: "Daily" },
-    { value: "week", label: "Weekly" },
-    { value: "month", label: "Monthly" },
+    { value: "day", label: t("analytics.daily") },
+    { value: "week", label: t("analytics.weekly") },
+    { value: "month", label: t("analytics.monthly") },
   ];
 
   return (

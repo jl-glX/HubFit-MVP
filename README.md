@@ -1,185 +1,73 @@
-# HubFit - Gym Class Reservation System v1.0
+# HubFit
 
-A modern, responsive web application for managing gym class bookings, waitlists, and automatic promotion.
+HubFit is a modular gym-management application for classes, bookings, waitlists, users, trainers and activity analytics. The interface is responsive and available in Spanish and English.
 
-## Quick Start
+> Project status: active MVP development. HubFit is not yet ready for commercial production or real payments.
+
+## Current capabilities
+
+- Account registration and persistent, revocable sessions.
+- Member, trainer and administrator permissions enforced by the API.
+- Class calendar, capacity, bookings and FIFO waitlist promotion.
+- Member, trainer and administrator dashboards.
+- User and class administration.
+- Attendance export to CSV.
+- Spanish and English interface with persisted language selection.
+- Public legal notice, terms and conditions, and conditions of use drafts.
+- Security headers, restricted CORS, request limits, rate limiting and input validation.
+
+## Technology
+
+- React 19, TypeScript 6, Vite 8 and Tailwind CSS 4.
+- Node.js 20+, Express 5 and Kysely.
+- SQLite for local development.
+- Vitest, ESLint and Prettier.
+
+## Start locally
 
 ```bash
-# Start development servers
-npm start
-
-# Build for production
-npm run build
-
-# Lint, type-check, and build
-npm run check
+npm ci
+npm run dev
 ```
 
-**Demo user:** Juan Perez (juan@example.com)
+One command starts both the frontend and API. By default:
 
----
+- Frontend: <http://127.0.0.1:3000>
+- API: <http://127.0.0.1:3001>
+
+Copy `.env.example` to `.env` only when local overrides are needed.
+
+## Quality checks
+
+```bash
+npm run format       # apply Prettier
+npm run format:check # verify formatting without changing files
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+npm run check        # run the complete validation sequence
+```
 
 ## Documentation
 
-- [QUICKSTART.md](./QUICKSTART.md) - 5 min intro for users
-- [DEVELOPMENT.md](./DEVELOPMENT.md) - Complete developer guide
-- [HUBFIT_SUMMARY.md](./HUBFIT_SUMMARY.md) - Architecture and overview
-- [PROJECT_COMPLETION_CHECKLIST.md](./PROJECT_COMPLETION_CHECKLIST.md) - What's implemented
+- [Development guide](./DEVELOPMENT.md)
+- [Architecture](./docs/ARCHITECTURE.md)
+- [Security](./docs/SECURITY.md)
+- [Legal readiness checklist](./docs/LEGAL-READINESS.md)
 
----
+## Demo data
 
-## Features
+Development mode seeds demonstration accounts and classes. Demo credentials are shown on the sign-in page and must never be enabled in production. `SEED_DEMO_DATA` defaults to `false` in `.env.example`.
 
-### Core Functionality
-- Class Calendar - Browse classes organized by date and time
-- Booking System - Reserve spots instantly when available
-- Smart Waitlist - Automatically join waitlist when full
-- Auto-Promotion - First in waitlist promoted when spots open
-- Booking Management - View and cancel reservations
-- Authentication with member, trainer, and administrator roles
-- Role-based management and analytics dashboards
+## Known limitations
 
-### Technical
-- TypeScript 6 client and server validation
-- ESLint 10 with React and TypeScript rules
-- Modular architecture
-- React 19 + Vite 8 frontend
-- Tailwind CSS 4
-- Express 5 API backend
-- SQLite database
-- Responsive design
-- Progressive Web App
+- SQLite is intended for local development; production storage and migrations are not yet defined.
+- Password recovery, email verification and optional two-factor authentication are pending.
+- Payments, subscriptions and refunds are not implemented.
+- Legal pages are drafts and still require real contact, tax and business information plus professional review.
+- Notifications and real-time updates are not implemented.
 
----
+## Ownership and licence
 
-## Architecture
-
-### Tech Stack
-- Frontend: React 19, TypeScript 6, Vite 8, Tailwind CSS 4, shadcn/ui
-- Backend: Node.js, Express 5, TypeScript
-- Database: SQLite with Kysely query builder
-
-### Folder Structure
-```
-client/src/               Frontend application
-  pages/                 Page components
-  components/            UI components
-  hooks/                 Custom hooks
-  lib/                   Utilities
-
-server/                   Backend application
-  db/                    Database layer
-  routes/                API endpoints
-  services/              Business logic
-
-data/                     Database storage
-  database.sqlite        Generated SQLite file (not versioned)
-```
-
----
-
-## API Endpoints
-
-Classes:
-- GET /api/classes - Get all classes
-- GET /api/classes/:id - Get single class
-
-Bookings:
-- POST /api/bookings - Create booking
-- DELETE /api/bookings/:id - Cancel booking
-- GET /api/bookings/user/:id - Get user bookings
-- GET /api/bookings/class/:id - Get class attendees
-
-Analytics:
-- GET /api/analytics/daily - Daily booking and occupancy metrics
-- GET /api/analytics/weekly - Weekly metrics
-- GET /api/analytics/monthly - Monthly metrics
-- GET /api/analytics/class-popularity - Class popularity
-- GET /api/analytics/peak-hours - Peak usage hours
-
----
-
-## Demo Data
-
-- 5 Demo Users (Juan, Maria, Carlos, Laura, Ana)
-- 7 Days of Classes (175 total)
-- 6 Class Types (Yoga, HIIT, Pilates, Spinning, Boxing, Zumba)
-- 4 Trainers
-- Pre-booked Classes
-
----
-
-## Project Status
-
-Status: PRODUCTION READY v1.0
-
-All features implemented:
-- Class calendar with bookings
-- Booking system with instant confirmation
-- Waitlist management with FIFO
-- Automatic promotion on cancellation
-- Responsive mobile-first UI
-- Full TypeScript coverage
-- Complete API implementation
-- SQLite database with proper schema
-- Error handling throughout
-
----
-
-## Key Files
-
-Frontend:
-- client/src/App.tsx - Router setup
-- client/src/pages/ClassesPage.tsx - Main feature
-- client/src/components/ClassCard.tsx - Class display
-- client/src/hooks/useBookings.ts - Booking logic
-
-Backend:
-- server/index.ts - Express setup
-- server/services/booking.ts - Business logic
-- server/routes/bookings.ts - API endpoints
-- server/db/client.ts - Database setup
-
----
-
-## Development
-
-```bash
-npm run dev            # Frontend and API together in development
-npm start              # Same combined development launcher (legacy alias)
-npm run build         # Production build
-npm run lint          # ESLint
-npm run typecheck     # Client and server TypeScript
-npm run check         # Full local verification
-```
-
----
-
-## Security Configuration
-
-Copy `.env.example` to `.env` when local overrides are needed.
-
-- `CLIENT_ORIGIN` - Comma-separated browser origins allowed to call the API
-- `MAX_REQUEST_SIZE` - Maximum JSON and form request size (default `32kb`)
-- `RATE_LIMIT_WINDOW_MINUTES` - General API rate-limit window
-- `RATE_LIMIT_MAX_REQUESTS` - General requests allowed per window
-- `AUTH_RATE_LIMIT_MAX_REQUESTS` - Login and signup attempts allowed per window
-
-In production, requests are same-origin by default. Set `CLIENT_ORIGIN` explicitly
-when the browser application and API are deployed on different origins.
-
----
-
-## Limitations (v1.0)
-
-- Sessions are stored in memory and reset when the server restarts
-- No real-time notifications
-- No email/SMS alerts
-
-See PROJECT_COMPLETION_CHECKLIST.md for future features.
-
----
-
-## Support
-
-For detailed information, see the documentation files above.
+HubFit is owned and operated by Javier López Díaz. The repository currently has no open-source licence; reuse rights are not granted by default.

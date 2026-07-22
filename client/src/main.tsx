@@ -1,25 +1,25 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom/client';
-import App from './App';
-import './i18n/config';
+import * as React from "react";
+import * as ReactDOM from "react-dom/client";
+import App from "./App";
+import "./i18n/config";
 
-import './index.css';
-import { AuthProvider } from './components/AuthProvider';
+import "./index.css";
+import { AuthProvider } from "./components/AuthProvider";
 
-const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
 function updateDarkClass(e = null) {
   const isDark = e ? e.matches : darkQuery.matches;
-  document.documentElement.classList.toggle('dark', isDark);
+  document.documentElement.classList.toggle("dark", isDark);
 }
 
 updateDarkClass();
-darkQuery.addEventListener('change', updateDarkClass);
+darkQuery.addEventListener("change", updateDarkClass);
 
-const rootElement = document.getElementById('root');
+const rootElement = document.getElementById("root");
 
 if (!rootElement) {
-  throw new Error('Root element not found');
+  throw new Error("Root element not found");
 }
 
 ReactDOM.createRoot(rootElement).render(

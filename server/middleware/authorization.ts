@@ -16,7 +16,10 @@ function unauthorized(res: Response, message = "Authentication required") {
   res.status(401).json({ error: message, code: "UNAUTHENTICATED" });
 }
 
-function forbidden(res: Response, message = "You do not have permission to perform this action") {
+function forbidden(
+  res: Response,
+  message = "You do not have permission to perform this action",
+) {
   res.status(403).json({ error: message, code: "FORBIDDEN" });
 }
 
@@ -24,7 +27,11 @@ export function getAuthenticatedUser(res: Response): AuthenticatedUser {
   return res.locals.auth as AuthenticatedUser;
 }
 
-export async function authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function authenticate(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   const token = readSessionToken(req);
   if (!token) {
     unauthorized(res);
@@ -56,7 +63,10 @@ export function requireRole(...roles: UserRole[]) {
   };
 }
 
-export function requireSelfParamOrRole(paramName: string, ...roles: UserRole[]) {
+export function requireSelfParamOrRole(
+  paramName: string,
+  ...roles: UserRole[]
+) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const auth = getAuthenticatedUser(res);
     if (req.params[paramName] !== auth.userId && !roles.includes(auth.role)) {
@@ -78,8 +88,15 @@ export function requireSelfBodyOrRole(bodyName: string, ...roles: UserRole[]) {
   };
 }
 
-export function requireTrainerClassOrRole(classParamName: string, ...roles: UserRole[]) {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export function requireTrainerClassOrRole(
+  classParamName: string,
+  ...roles: UserRole[]
+) {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const auth = getAuthenticatedUser(res);
       if (roles.includes(auth.role)) {

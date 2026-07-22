@@ -1,4 +1,4 @@
-export interface User {
+interface User {
   id: string;
   email: string;
   name: string;
@@ -7,7 +7,7 @@ export interface User {
   createdAt: number;
 }
 
-export interface GymClass {
+interface GymClass {
   id: string;
   name: string;
   description: string;
@@ -17,7 +17,7 @@ export interface GymClass {
   scheduledAt: number;
 }
 
-export interface Booking {
+interface Booking {
   id: string;
   classId: string;
   userId: string;
@@ -26,7 +26,7 @@ export interface Booking {
   cancelledAt: number | null;
 }
 
-export interface WaitlistEntry {
+interface WaitlistEntry {
   id: string;
   classId: string;
   userId: string;
@@ -35,7 +35,7 @@ export interface WaitlistEntry {
   promotedAt: number | null;
 }
 
-export interface Session {
+interface Session {
   id: string;
   userId: string;
   createdAt: number;

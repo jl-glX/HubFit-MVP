@@ -11,12 +11,14 @@ import { MetricCard } from "../components/MetricCard";
 import { PeriodSelector } from "../components/PeriodSelector";
 import { PeakHoursChart } from "../components/PeakHoursChart";
 import { ClassPopularityList } from "../components/ClassPopularityList";
+import { useTranslation } from "react-i18next";
 
 type PeriodType = "day" | "week" | "month";
 
 export function AdminAnalyticsDashboardPage() {
   const user = useCurrentUser();
   const [period, setPeriod] = useState<PeriodType>("month");
+  const { t } = useTranslation();
   const { data: memberMetrics, loading: membersLoading } = useMemberMetrics();
   const { data: classPopularity, loading: popularityLoading } =
     useClassPopularity();
@@ -28,14 +30,14 @@ export function AdminAnalyticsDashboardPage() {
   const month = now.getMonth() + 1;
   const { data: monthlyMetrics, loading: monthlyLoading } = useMonthlyMetrics(
     year,
-    month
+    month,
   );
 
   if (!user) {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader className="mr-2 animate-spin" />
-        <span>Loading...</span>
+        <span>{t("common.loading")}</span>
       </div>
     );
   }
@@ -46,9 +48,11 @@ export function AdminAnalyticsDashboardPage() {
         <div className="mx-auto max-w-6xl px-4 py-8">
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 text-center">
             <AlertCircle className="mx-auto mb-4 text-amber-600" size={48} />
-            <p className="text-amber-800 font-medium">Access Denied</p>
+            <p className="text-amber-800 font-medium">
+              {t("unauthorized.title")}
+            </p>
             <p className="mt-2 text-sm text-amber-700">
-              Only administrators can access this dashboard
+              {t("analytics.adminOnly")}
             </p>
           </div>
         </div>
@@ -65,10 +69,10 @@ export function AdminAnalyticsDashboardPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Admin Analytics Dashboard
+            {t("analytics.adminTitle")}
           </h1>
           <p className="mt-2 text-gray-600">
-            System-wide metrics, usage and performance insights
+            {t("analytics.adminDescription")}
           </p>
         </div>
 
@@ -80,31 +84,31 @@ export function AdminAnalyticsDashboardPage() {
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader className="mr-2 animate-spin" />
-            <span>Loading analytics...</span>
+            <span>{t("common.loadingAnalytics")}</span>
           </div>
         ) : (
           <>
             {/* Member Metrics */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
               <MetricCard
-                title="Total Members"
+                title={t("analytics.totalMembers")}
                 value={memberMetrics?.totalMembers || 0}
-                subtitle="Registered users"
+                subtitle={t("analytics.registeredUsers")}
               />
               <MetricCard
-                title="Active Members"
+                title={t("analytics.activeMembers")}
                 value={memberMetrics?.activeMembers || 0}
-                subtitle="Last 30 days"
+                subtitle={t("analytics.last30Days")}
               />
               <MetricCard
-                title="Joined This Week"
+                title={t("analytics.joinedWeek")}
                 value={memberMetrics?.memberJoinedThisWeek || 0}
-                subtitle="New members"
+                subtitle={t("analytics.newMembers")}
               />
               <MetricCard
-                title="Joined This Month"
+                title={t("analytics.joinedMonth")}
                 value={memberMetrics?.memberJoinedThisMonth || 0}
-                subtitle="This month"
+                subtitle={t("analytics.thisMonth")}
               />
             </div>
 
@@ -112,24 +116,26 @@ export function AdminAnalyticsDashboardPage() {
             {monthlyMetrics && (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
                 <MetricCard
-                  title="Total Bookings"
+                  title={t("analytics.totalBookings")}
                   value={monthlyMetrics.totalBookings}
-                  subtitle={`This month (${monthlyMetrics.month})`}
+                  subtitle={t("analytics.thisMonthNumber", {
+                    month: monthlyMetrics.month,
+                  })}
                 />
                 <MetricCard
-                  title="Cancellations"
+                  title={t("analytics.cancellations")}
                   value={monthlyMetrics.totalCancellations}
-                  subtitle={`This month`}
+                  subtitle={t("analytics.thisMonth")}
                 />
                 <MetricCard
-                  title="Total Classes"
+                  title={t("analytics.totalClasses")}
                   value={monthlyMetrics.totalClasses}
-                  subtitle={`This month`}
+                  subtitle={t("analytics.thisMonth")}
                 />
                 <MetricCard
-                  title="Avg. Occupancy"
+                  title={t("analytics.avgOccupancy")}
                   value={`${monthlyMetrics.averageOccupancy}%`}
-                  subtitle={`This month`}
+                  subtitle={t("analytics.thisMonth")}
                 />
               </div>
             )}
@@ -138,24 +144,30 @@ export function AdminAnalyticsDashboardPage() {
             <div className="grid gap-6 lg:grid-cols-2 mb-8">
               {/* Peak Hours */}
               <PeakHoursChart
-                title="Gym Peak Hours"
+                title={t("analytics.gymPeakHours")}
                 data={peakHours || []}
               />
 
               {/* Placeholder for other metrics */}
               <div className="rounded-lg border border-gray-200 bg-white p-6">
-                <h3 className="text-lg font-semibold mb-4">System Status</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  {t("analytics.systemStatus")}
+                </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">API Health</span>
+                    <span className="text-sm text-gray-600">
+                      {t("analytics.apiHealth")}
+                    </span>
                     <span className="text-xs font-medium text-green-600 px-2 py-1 bg-green-50 rounded">
-                      Operational
+                      {t("analytics.operational")}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Database</span>
+                    <span className="text-sm text-gray-600">
+                      {t("analytics.database")}
+                    </span>
                     <span className="text-xs font-medium text-green-600 px-2 py-1 bg-green-50 rounded">
-                      Connected
+                      {t("analytics.connected")}
                     </span>
                   </div>
                 </div>
@@ -166,7 +178,7 @@ export function AdminAnalyticsDashboardPage() {
             {classPopularity && classPopularity.length > 0 && (
               <div className="mb-8">
                 <ClassPopularityList
-                  title="Most Popular Classes"
+                  title={t("analytics.popularClasses")}
                   data={classPopularity}
                   limit={10}
                 />
@@ -176,12 +188,15 @@ export function AdminAnalyticsDashboardPage() {
             {/* No Data State */}
             {(!memberMetrics || memberMetrics.totalMembers === 0) && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 text-center">
-                <AlertCircle className="mx-auto mb-4 text-amber-600" size={40} />
+                <AlertCircle
+                  className="mx-auto mb-4 text-amber-600"
+                  size={40}
+                />
                 <p className="text-amber-800 font-medium">
-                  No system data yet
+                  {t("analytics.noSystemData")}
                 </p>
                 <p className="mt-2 text-sm text-amber-700">
-                  Analytics will appear as users register and book classes
+                  {t("analytics.systemDataHint")}
                 </p>
               </div>
             )}

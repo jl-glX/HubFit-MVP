@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { authFetch } from "../lib/api";
+import i18n from "../i18n/config";
 
 export interface GymClass {
   id: string;
@@ -30,13 +31,14 @@ export function useClasses() {
       const response = await authFetch("/api/classes");
 
       if (!response.ok) {
-        throw new Error("Failed to fetch classes");
+        throw new Error(i18n.t("errors.fetchClasses"));
       }
 
       const data = await response.json();
       setClasses(data);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
+      const message =
+        err instanceof Error ? err.message : i18n.t("common.unknownError");
       setError(message);
       console.error("Error fetching classes:", err);
     } finally {

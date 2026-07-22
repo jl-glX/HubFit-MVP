@@ -5,7 +5,7 @@ const localeByLanguage: Record<string, string> = {
   es: "es-ES",
 };
 
-export function getLocale(language = i18n.resolvedLanguage): string {
+function getLocale(language = i18n.resolvedLanguage): string {
   const normalizedLanguage = language?.split("-")[0] ?? "es";
   return localeByLanguage[normalizedLanguage] ?? "es-ES";
 }
@@ -36,26 +36,22 @@ export function formatDateTime(timestamp: number): string {
   });
 }
 
-export function formatNumber(
-  value: number,
-  options?: Intl.NumberFormatOptions,
-): string {
-  return new Intl.NumberFormat(getLocale(), options).format(value);
-}
-
-export function formatCurrency(value: number, currency = "EUR"): string {
-  return formatNumber(value, { style: "currency", currency });
-}
-
-export function groupClassesByDate<T extends { scheduledAt: number }>(classes: T[]) {
+export function groupClassesByDate<T extends { scheduledAt: number }>(
+  classes: T[],
+) {
   const grouped: Record<string, T[]> = {};
 
   classes.forEach((cls) => {
-    const date = formatDate(cls.scheduledAt);
-    if (!grouped[date]) {
-      grouped[date] = [];
+    const date = new Date(cls.scheduledAt);
+    const key = [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, "0"),
+      String(date.getDate()).padStart(2, "0"),
+    ].join("-");
+    if (!grouped[key]) {
+      grouped[key] = [];
     }
-    grouped[date].push(cls);
+    grouped[key].push(cls);
   });
 
   return grouped;

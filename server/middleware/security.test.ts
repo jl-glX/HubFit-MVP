@@ -24,7 +24,7 @@ describe("API security baseline", () => {
       .expect(200);
 
     expect(allowed.headers["access-control-allow-origin"]).toBe(
-      "http://localhost:3000"
+      "http://localhost:3000",
     );
     expect(denied.headers["access-control-allow-origin"]).toBeUndefined();
   });
@@ -97,7 +97,7 @@ describe("API security baseline", () => {
         .expect(200);
 
       expect(allowed.headers["access-control-allow-origin"]).toBe(
-        "https://hubfit.example"
+        "https://hubfit.example",
       );
       expect(allowed.headers["strict-transport-security"]).toBeDefined();
       expect(allowed.headers["content-security-policy"]).toBeDefined();

@@ -2,6 +2,8 @@ import { Clock, Users, AlertCircle } from "lucide-react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { formatDate, formatTime } from "../lib/dateUtils";
+import { useTranslation } from "react-i18next";
+import { localizeClass } from "../lib/classLocalization";
 
 interface TrainerClassCardProps {
   id: string;
@@ -23,7 +25,9 @@ export function TrainerClassCard({
   waitlistCount,
   onClick,
 }: TrainerClassCardProps) {
+  const { t } = useTranslation();
   const isFull = availablePlaces === 0;
+  const localizedName = localizeClass(name, undefined, t).name;
 
   return (
     <Card className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
@@ -40,7 +44,7 @@ export function TrainerClassCard({
       >
         <div className="flex items-start justify-between gap-2 mb-3">
           <h3 className="font-semibold text-lg text-slate-900 line-clamp-2">
-            {name}
+            {localizedName}
           </h3>
           {isFull && (
             <div className="shrink-0 rounded-full bg-red-100 p-2">
@@ -53,22 +57,28 @@ export function TrainerClassCard({
           <div className="flex items-center gap-2">
             <Clock size={16} className="shrink-0" />
             <span>
-              {formatDate(scheduledAt)} at {formatTime(scheduledAt)}
+              {formatDate(scheduledAt)} {t("common.at")}{" "}
+              {formatTime(scheduledAt)}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
             <Users size={16} className="shrink-0" />
             <span>
-              {bookedCount}/{maxCapacity} attendees
+              {t("classes.attendees", {
+                booked: bookedCount,
+                capacity: maxCapacity,
+              })}
             </span>
           </div>
         </div>
 
         <div className="mt-4 space-y-2">
           <div className="flex justify-between text-xs font-medium text-slate-700">
-            <span>Capacity</span>
-            <span>{bookedCount}/{maxCapacity}</span>
+            <span>{t("common.capacity")}</span>
+            <span>
+              {bookedCount}/{maxCapacity}
+            </span>
           </div>
           <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
             <div
@@ -87,8 +97,7 @@ export function TrainerClassCard({
         {waitlistCount > 0 && (
           <div className="mt-3 p-2 bg-amber-50 rounded-md">
             <p className="text-xs text-amber-800">
-              {waitlistCount} {waitlistCount === 1 ? "person" : "people"} on
-              waitlist
+              {t("classes.onWaitlist", { count: waitlistCount })}
             </p>
           </div>
         )}
@@ -99,7 +108,7 @@ export function TrainerClassCard({
           variant="outline"
           size="sm"
         >
-          View Details
+          {t("classes.viewDetails")}
         </Button>
       </div>
     </Card>

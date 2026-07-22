@@ -11,17 +11,22 @@ import {
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "./ui/button";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 export function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
 
   const isActive = (path: string) => location.pathname === path;
 
   const activeClass = "bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-100";
-  const inactiveClass = "text-slate-600 hover:bg-slate-100 hover:text-slate-950";
-  const navLinkClass = "flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all";
+  const inactiveClass =
+    "text-slate-600 hover:bg-slate-100 hover:text-slate-950";
+  const navLinkClass =
+    "flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all";
   const analyticsPath =
     user?.role === "admin"
       ? "/admin-analytics"
@@ -49,7 +54,10 @@ export function Navigation() {
     <nav className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 shadow-xs backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-18 items-center gap-5">
-          <Link to="/" className="flex shrink-0 items-center gap-2.5 font-bold text-xl tracking-tight text-slate-950">
+          <Link
+            to="/"
+            className="flex shrink-0 items-center gap-2.5 font-bold text-xl tracking-tight text-slate-950"
+          >
             <div className="rounded-xl bg-linear-to-br from-blue-600 to-indigo-700 p-2 shadow-lg shadow-blue-600/20">
               <Activity size={21} className="text-white" />
             </div>
@@ -64,7 +72,7 @@ export function Navigation() {
               }`}
             >
               <Home size={20} />
-              <span>Home</span>
+              <span>{t("nav.home")}</span>
             </Link>
 
             <Link
@@ -74,7 +82,7 @@ export function Navigation() {
               }`}
             >
               <CalendarDays size={20} />
-              <span>Classes</span>
+              <span>{t("nav.classes")}</span>
             </Link>
 
             <Link
@@ -84,7 +92,7 @@ export function Navigation() {
               }`}
             >
               <Bookmark size={20} />
-              <span>My Bookings</span>
+              <span>{t("nav.bookings")}</span>
             </Link>
 
             {user?.role === "trainer" && (
@@ -95,7 +103,7 @@ export function Navigation() {
                 }`}
               >
                 <Settings size={20} />
-                <span>Dashboard</span>
+                <span>{t("nav.dashboard")}</span>
               </Link>
             )}
 
@@ -107,7 +115,7 @@ export function Navigation() {
                 }`}
               >
                 <Shield size={20} />
-                <span>Admin</span>
+                <span>{t("nav.admin")}</span>
               </Link>
             )}
 
@@ -118,17 +126,18 @@ export function Navigation() {
               }`}
             >
               <BarChart3 size={20} />
-              <span>Analytics</span>
+              <span>{t("nav.analytics")}</span>
             </Link>
 
             <div className="ml-auto flex shrink-0 items-center gap-3 border-l border-slate-200 pl-4">
+              <LanguageSwitcher compact />
               <div className="hidden text-sm lg:block">
                 <div className="flex items-center gap-2">
                   <p className="font-semibold text-slate-900">{user?.name}</p>
                   <span
                     className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold capitalize ${getRoleBadgeColor()}`}
                   >
-                    {user?.role}
+                    {user?.role ? t(`roles.${user.role}`) : ""}
                   </span>
                 </div>
                 <p className="mt-0.5 text-xs text-slate-500">{user?.email}</p>
@@ -137,7 +146,8 @@ export function Navigation() {
                 variant="ghost"
                 size="sm"
                 onClick={handleLogout}
-                aria-label="Log out"
+                aria-label={t("nav.logout")}
+                title={t("nav.logout")}
                 className="rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600"
               >
                 <LogOut size={18} />

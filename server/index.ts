@@ -13,14 +13,8 @@ import { bookingsRouter } from "./routes/bookings.js";
 import { usersRouter } from "./routes/users.js";
 import { adminClassesRouter } from "./routes/admin-classes.js";
 import { analyticsRouter } from "./routes/analytics.js";
-import {
-  apiLimiter,
-  apiSecurityHeaders,
-} from "./middleware/security.js";
-import {
-  errorHandler,
-  notFoundHandler,
-} from "./middleware/error-handler.js";
+import { apiLimiter, apiSecurityHeaders } from "./middleware/security.js";
+import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 
 dotenv.config();
 
@@ -40,7 +34,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
     maxAge: 600,
-  })
+  }),
 );
 app.use(
   helmet({
@@ -49,7 +43,7 @@ app.use(
     crossOriginEmbedderPolicy: false,
     strictTransportSecurity:
       process.env.NODE_ENV === "production" ? undefined : false,
-  })
+  }),
 );
 
 app.use("/api", apiSecurityHeaders);

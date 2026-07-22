@@ -73,7 +73,7 @@ export function useUsers() {
       name?: string;
       password?: string;
       role?: "member" | "trainer" | "admin";
-    }
+    },
   ): Promise<User> => {
     try {
       const response = await authFetch(`/api/users/${id}`, {
@@ -98,7 +98,7 @@ export function useUsers() {
 
   const updateUserRole = async (
     id: string,
-    role: "member" | "trainer" | "admin"
+    role: "member" | "trainer" | "admin",
   ): Promise<User> => {
     try {
       const response = await authFetch(`/api/users/${id}/role`, {

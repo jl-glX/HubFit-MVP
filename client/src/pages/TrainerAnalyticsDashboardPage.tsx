@@ -10,8 +10,10 @@ import { MetricCard } from "../components/MetricCard";
 import { UpcomingBookingsList } from "../components/UpcomingBookingsList";
 import { PeakHoursChart } from "../components/PeakHoursChart";
 import { ClassPopularityList } from "../components/ClassPopularityList";
+import { useTranslation } from "react-i18next";
 
 export function TrainerAnalyticsDashboardPage() {
+  const { t } = useTranslation();
   const user = useCurrentUser();
   const { data: trainerMetrics, loading: metricsLoading } =
     useTrainerActivityMetrics(user?.id || "");
@@ -25,7 +27,7 @@ export function TrainerAnalyticsDashboardPage() {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader className="mr-2 animate-spin" />
-        <span>Loading...</span>
+        <span>{t("common.loading")}</span>
       </div>
     );
   }
@@ -36,9 +38,11 @@ export function TrainerAnalyticsDashboardPage() {
         <div className="mx-auto max-w-6xl px-4 py-8">
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 text-center">
             <AlertCircle className="mx-auto mb-4 text-amber-600" size={48} />
-            <p className="text-amber-800 font-medium">Access Denied</p>
+            <p className="text-amber-800 font-medium">
+              {t("unauthorized.title")}
+            </p>
             <p className="mt-2 text-sm text-amber-700">
-              Only trainers can access this dashboard
+              {t("analytics.trainerOnly")}
             </p>
           </div>
         </div>
@@ -53,7 +57,7 @@ export function TrainerAnalyticsDashboardPage() {
   const trainerPopularClasses =
     allClassPopularity?.filter((cls) => {
       const upcomingClass = upcomingClasses?.find(
-        (uc) => uc.id === cls.classId
+        (uc) => uc.id === cls.classId,
       );
       return upcomingClass !== undefined;
     }) || [];
@@ -64,41 +68,41 @@ export function TrainerAnalyticsDashboardPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Trainer Analytics
+            {t("analytics.trainerTitle")}
           </h1>
           <p className="mt-2 text-gray-600">
-            Your classes, attendance and gym insights
+            {t("analytics.trainerDescription")}
           </p>
         </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader className="mr-2 animate-spin" />
-            <span>Loading analytics...</span>
+            <span>{t("common.loadingAnalytics")}</span>
           </div>
         ) : (
           <>
             {/* Key Metrics */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
               <MetricCard
-                title="Total Classes"
+                title={t("analytics.totalClasses")}
                 value={trainerMetrics?.totalClasses || 0}
-                subtitle="All classes created"
+                subtitle={t("analytics.allClasses")}
               />
               <MetricCard
-                title="Total Bookings"
+                title={t("analytics.totalBookings")}
                 value={trainerMetrics?.totalBookings || 0}
-                subtitle="Across all classes"
+                subtitle={t("analytics.acrossClasses")}
               />
               <MetricCard
-                title="Avg. Occupancy"
+                title={t("analytics.avgOccupancy")}
                 value={`${trainerMetrics?.averageOccupancy || 0}%`}
-                subtitle="Class capacity"
+                subtitle={t("analytics.classCapacity")}
               />
               <MetricCard
-                title="Unique Members"
+                title={t("analytics.uniqueMembers")}
                 value={trainerMetrics?.totalMembers || 0}
-                subtitle="Registered participants"
+                subtitle={t("analytics.registeredParticipants")}
               />
             </div>
 
@@ -106,7 +110,7 @@ export function TrainerAnalyticsDashboardPage() {
             <div className="grid gap-6 lg:grid-cols-2 mb-8">
               {/* Upcoming Classes */}
               <UpcomingBookingsList
-                title="Your Next Classes"
+                title={t("analytics.yourNextClasses")}
                 data={
                   upcomingClasses?.map((cls) => ({
                     ...cls,
@@ -119,7 +123,7 @@ export function TrainerAnalyticsDashboardPage() {
 
               {/* Peak Hours */}
               <PeakHoursChart
-                title="Gym Peak Hours"
+                title={t("analytics.gymPeakHours")}
                 data={peakHours || []}
               />
             </div>
@@ -128,7 +132,7 @@ export function TrainerAnalyticsDashboardPage() {
             {trainerPopularClasses.length > 0 && (
               <div className="mb-8">
                 <ClassPopularityList
-                  title="Your Most Popular Classes"
+                  title={t("analytics.yourPopularClasses")}
                   data={trainerPopularClasses}
                   limit={5}
                 />
@@ -138,12 +142,15 @@ export function TrainerAnalyticsDashboardPage() {
             {/* No Data State */}
             {(!trainerMetrics || trainerMetrics.totalClasses === 0) && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 text-center">
-                <AlertCircle className="mx-auto mb-4 text-amber-600" size={40} />
+                <AlertCircle
+                  className="mx-auto mb-4 text-amber-600"
+                  size={40}
+                />
                 <p className="text-amber-800 font-medium">
-                  No classes created yet
+                  {t("analytics.noClasses")}
                 </p>
                 <p className="mt-2 text-sm text-amber-700">
-                  Create classes to see analytics and attendance metrics
+                  {t("analytics.createClasses")}
                 </p>
               </div>
             )}

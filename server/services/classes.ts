@@ -24,16 +24,14 @@ export async function getAllClasses(): Promise<ClassWithAvailability[]> {
   const withAvailability = await Promise.all(
     classes.map(async (gymClass) => {
       return getClassWithAvailability(gymClass.id);
-    })
+    }),
   );
 
-  return withAvailability.filter(
-    (c) => c !== null
-  ) as ClassWithAvailability[];
+  return withAvailability.filter((c) => c !== null) as ClassWithAvailability[];
 }
 
 export async function getClassWithAvailability(
-  classId: string
+  classId: string,
 ): Promise<ClassWithAvailability | null> {
   const gymClass = await db
     .selectFrom("gymClasses")
@@ -122,7 +120,7 @@ export async function updateClass(
     trainerName?: string;
     maxCapacity?: number;
     scheduledAt?: number;
-  }
+  },
 ): Promise<ClassWithAvailability> {
   const gymClass = await db
     .selectFrom("gymClasses")
@@ -177,10 +175,7 @@ export async function deleteClass(classId: string): Promise<void> {
   }
 
   // Delete associated bookings
-  await db
-    .deleteFrom("bookings")
-    .where("classId", "=", classId)
-    .execute();
+  await db.deleteFrom("bookings").where("classId", "=", classId).execute();
 
   // Delete associated waitlist entries
   await db
@@ -189,29 +184,5 @@ export async function deleteClass(classId: string): Promise<void> {
     .execute();
 
   // Delete class
-  await db
-    .deleteFrom("gymClasses")
-    .where("id", "=", classId)
-    .execute();
-}
-
-export async function getTrainerClasses(
-  trainerId: string
-): Promise<ClassWithAvailability[]> {
-  const classes = await db
-    .selectFrom("gymClasses")
-    .selectAll()
-    .where("trainerId", "=", trainerId)
-    .orderBy("scheduledAt", "asc")
-    .execute();
-
-  const withAvailability = await Promise.all(
-    classes.map(async (gymClass) => {
-      return getClassWithAvailability(gymClass.id);
-    })
-  );
-
-  return withAvailability.filter(
-    (c) => c !== null
-  ) as ClassWithAvailability[];
+  await db.deleteFrom("gymClasses").where("id", "=", classId).execute();
 }

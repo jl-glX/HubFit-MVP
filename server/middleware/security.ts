@@ -43,12 +43,12 @@ export const authenticationLimiter = rateLimit({
 export function apiSecurityHeaders(
   _req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader(
     "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
   );
   next();
 }

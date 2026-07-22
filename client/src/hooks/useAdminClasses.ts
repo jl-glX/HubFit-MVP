@@ -82,7 +82,7 @@ export function useAdminClasses() {
       trainerName?: string;
       maxCapacity?: number;
       scheduledAt?: number;
-    }
+    },
   ): Promise<AdminClass> => {
     try {
       const response = await authFetch(`/api/admin/classes/${id}`, {

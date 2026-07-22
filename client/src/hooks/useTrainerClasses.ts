@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { authFetch } from "../lib/api";
+import i18n from "../i18n/config";
 
-export interface TrainerClass {
+interface TrainerClass {
   id: string;
   name: string;
   description: string;
@@ -21,8 +22,7 @@ interface TrainerClassesState {
 }
 
 const API_BASE =
-  typeof window !== "undefined" &&
-  window.location.hostname === "localhost"
+  typeof window !== "undefined" && window.location.hostname === "localhost"
     ? "http://localhost:3001"
     : "";
 
@@ -38,18 +38,18 @@ export function useTrainerClasses(trainerId: string) {
 
     try {
       const res = await authFetch(
-        `${API_BASE}/api/classes/trainer/${trainerId}`
+        `${API_BASE}/api/classes/trainer/${trainerId}`,
       );
 
       if (!res.ok) {
-        throw new Error("Failed to fetch trainer classes");
+        throw new Error(i18n.t("errors.fetchTrainerClasses"));
       }
 
       const classes = await res.json();
       setState({ classes, loading: false, error: null });
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Failed to fetch classes";
+        err instanceof Error ? err.message : i18n.t("errors.fetchClasses");
       setState({ classes: [], loading: false, error: message });
     }
   }, [trainerId]);

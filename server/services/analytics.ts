@@ -1,27 +1,5 @@
 import { db } from "../db/client.js";
 
-export interface DailyMetrics {
-  date: string;
-  confirmedBookings: number;
-  cancelledBookings: number;
-  classesOccupancy: {
-    classId: string;
-    className: string;
-    occupancyPercent: number;
-    booked: number;
-    capacity: number;
-  }[];
-}
-
-export interface WeeklyMetrics {
-  startDate: string;
-  endDate: string;
-  totalBookings: number;
-  totalCancellations: number;
-  totalClasses: number;
-  averageOccupancy: number;
-}
-
 export interface MonthlyMetrics {
   month: string;
   totalBookings: number;
@@ -62,137 +40,10 @@ export interface MemberMetrics {
   memberJoinedThisMonth: number;
 }
 
-// Get daily metrics for a specific date range
-export async function getDailyMetrics(
-  startDate: number,
-  endDate: number
-): Promise<DailyMetrics[]> {
-  const bookings = await db
-    .selectFrom("bookings")
-    .selectAll()
-    .where("createdAt", ">=", startDate)
-    .where("createdAt", "<=", endDate)
-    .execute();
-
-  const classes = await db
-    .selectFrom("gymClasses")
-    .selectAll()
-    .where("scheduledAt", ">=", startDate)
-    .where("scheduledAt", "<=", endDate)
-    .execute();
-
-  const dateMap = new Map<string, DailyMetrics>();
-
-  // Initialize with all dates
-  for (let time = startDate; time <= endDate; time += 86400000) {
-    const date = new Date(time).toISOString().split("T")[0];
-    dateMap.set(date, {
-      date,
-      confirmedBookings: 0,
-      cancelledBookings: 0,
-      classesOccupancy: [],
-    });
-  }
-
-  // Count bookings by date
-  for (const booking of bookings) {
-    const date = new Date(booking.createdAt).toISOString().split("T")[0];
-    const metrics = dateMap.get(date);
-    if (metrics) {
-      if (booking.status === "confirmed") {
-        metrics.confirmedBookings++;
-      } else if (booking.status === "cancelled") {
-        metrics.cancelledBookings++;
-      }
-    }
-  }
-
-  // Calculate occupancy for each class
-  for (const gymClass of classes) {
-    const classDate = new Date(gymClass.scheduledAt).toISOString().split("T")[0];
-    const classBookings = bookings.filter(
-      (b) => b.classId === gymClass.id && b.status === "confirmed"
-    );
-    const booked = classBookings.length;
-    const capacity = gymClass.maxCapacity;
-    const occupancyPercent =
-      capacity > 0 ? Math.round((booked / capacity) * 100) : 0;
-
-    const metrics = dateMap.get(classDate);
-    if (metrics) {
-      metrics.classesOccupancy.push({
-        classId: gymClass.id,
-        className: gymClass.name,
-        occupancyPercent,
-        booked,
-        capacity,
-      });
-    }
-  }
-
-  return Array.from(dateMap.values());
-}
-
-// Get weekly metrics
-export async function getWeeklyMetrics(
-  startDate: number,
-  endDate: number
-): Promise<WeeklyMetrics> {
-  const bookings = await db
-    .selectFrom("bookings")
-    .selectAll()
-    .where("createdAt", ">=", startDate)
-    .where("createdAt", "<=", endDate)
-    .execute();
-
-  const classes = await db
-    .selectFrom("gymClasses")
-    .selectAll()
-    .where("scheduledAt", ">=", startDate)
-    .where("scheduledAt", "<=", endDate)
-    .execute();
-
-  const confirmedCount = bookings.filter(
-    (b) => b.status === "confirmed"
-  ).length;
-  const cancelledCount = bookings.filter(
-    (b) => b.status === "cancelled"
-  ).length;
-
-  let totalOccupancy = 0;
-  let classesWithOccupancy = 0;
-
-  for (const gymClass of classes) {
-    const classBookings = bookings.filter(
-      (b) => b.classId === gymClass.id && b.status === "confirmed"
-    );
-    const booked = classBookings.length;
-    const capacity = gymClass.maxCapacity;
-    if (capacity > 0) {
-      totalOccupancy += (booked / capacity) * 100;
-      classesWithOccupancy++;
-    }
-  }
-
-  const averageOccupancy =
-    classesWithOccupancy > 0
-      ? Math.round(totalOccupancy / classesWithOccupancy)
-      : 0;
-
-  return {
-    startDate: new Date(startDate).toISOString().split("T")[0],
-    endDate: new Date(endDate).toISOString().split("T")[0],
-    totalBookings: confirmedCount,
-    totalCancellations: cancelledCount,
-    totalClasses: classes.length,
-    averageOccupancy,
-  };
-}
-
 // Get monthly metrics
 export async function getMonthlyMetrics(
   year: number,
-  month: number
+  month: number,
 ): Promise<MonthlyMetrics> {
   const startDate = new Date(year, month - 1, 1).getTime();
   const endDate = new Date(year, month, 0, 23, 59, 59).getTime();
@@ -212,10 +63,10 @@ export async function getMonthlyMetrics(
     .execute();
 
   const confirmedCount = bookings.filter(
-    (b) => b.status === "confirmed"
+    (b) => b.status === "confirmed",
   ).length;
   const cancelledCount = bookings.filter(
-    (b) => b.status === "cancelled"
+    (b) => b.status === "cancelled",
   ).length;
 
   let totalOccupancy = 0;
@@ -223,7 +74,7 @@ export async function getMonthlyMetrics(
 
   for (const gymClass of classes) {
     const classBookings = bookings.filter(
-      (b) => b.classId === gymClass.id && b.status === "confirmed"
+      (b) => b.classId === gymClass.id && b.status === "confirmed",
     );
     const booked = classBookings.length;
     const capacity = gymClass.maxCapacity;
@@ -289,7 +140,10 @@ export async function getClassPopularity(): Promise<ClassPopularity[]> {
 export async function getPeakHours(): Promise<PeakHours[]> {
   const classes = await db.selectFrom("gymClasses").selectAll().execute();
 
-  const hourMap = new Map<number, { bookingCount: number; classCount: number }>();
+  const hourMap = new Map<
+    number,
+    { bookingCount: number; classCount: number }
+  >();
 
   for (const gymClass of classes) {
     const hour = Math.floor((gymClass.scheduledAt % 86400000) / 3600000);
@@ -311,7 +165,7 @@ export async function getPeakHours(): Promise<PeakHours[]> {
     ([hour, data]) => ({
       hour,
       ...data,
-    })
+    }),
   );
 
   return peakHours.sort((a, b) => b.bookingCount - a.bookingCount);
@@ -319,7 +173,7 @@ export async function getPeakHours(): Promise<PeakHours[]> {
 
 // Get user activity metrics
 export async function getUserActivityMetrics(
-  userId: string
+  userId: string,
 ): Promise<UserActivityMetrics | null> {
   const user = await db
     .selectFrom("users")
@@ -338,10 +192,10 @@ export async function getUserActivityMetrics(
     .execute();
 
   const confirmedCount = bookings.filter(
-    (b) => b.status === "confirmed"
+    (b) => b.status === "confirmed",
   ).length;
   const cancelledCount = bookings.filter(
-    (b) => b.status === "cancelled"
+    (b) => b.status === "cancelled",
   ).length;
   const upcomingBookings = await db
     .selectFrom("bookings")
@@ -364,9 +218,7 @@ export async function getUserActivityMetrics(
 }
 
 // Get trainer activity metrics
-export async function getTrainerActivityMetrics(
-  trainerId: string
-): Promise<{
+export async function getTrainerActivityMetrics(trainerId: string): Promise<{
   trainerId: string;
   totalClasses: number;
   totalBookings: number;
@@ -402,9 +254,7 @@ export async function getTrainerActivityMetrics(
   }
 
   const averageOccupancy =
-    classes.length > 0
-      ? Math.round(totalOccupancy / classes.length)
-      : 0;
+    classes.length > 0 ? Math.round(totalOccupancy / classes.length) : 0;
 
   return {
     trainerId,

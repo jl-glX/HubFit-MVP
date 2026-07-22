@@ -27,7 +27,7 @@ describe("persistent authentication sessions", () => {
     const result = await auth.signup(
       "secure-member@example.com",
       "Secure Member",
-      "StrongPassword123"
+      "StrongPassword123",
     );
 
     const stored = await database.db
@@ -47,7 +47,9 @@ describe("persistent authentication sessions", () => {
       .set({ role: "trainer" })
       .where("id", "=", result.user.id)
       .execute();
-    expect(await auth.verifyToken(result.sessionToken)).toMatchObject({ role: "trainer" });
+    expect(await auth.verifyToken(result.sessionToken)).toMatchObject({
+      role: "trainer",
+    });
 
     await auth.logout(result.sessionToken);
     expect(await auth.verifyToken(result.sessionToken)).toBeNull();

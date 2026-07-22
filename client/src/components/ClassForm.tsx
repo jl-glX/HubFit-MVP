@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { useAdminClasses, type AdminClass } from "../hooks/useAdminClasses";
 import { useUsers } from "../hooks/useUsers";
+import { useTranslation } from "react-i18next";
 
 interface ClassFormProps {
   gymClass?: AdminClass | null;
@@ -10,6 +11,7 @@ interface ClassFormProps {
 }
 
 export function ClassForm({ gymClass, onClose, onSuccess }: ClassFormProps) {
+  const { t } = useTranslation();
   const { createClass, updateClass } = useAdminClasses();
   const { users } = useUsers();
   const [loading, setLoading] = useState(false);
@@ -20,10 +22,14 @@ export function ClassForm({ gymClass, onClose, onSuccess }: ClassFormProps) {
   const [formData, setFormData] = useState({
     name: gymClass?.name || "",
     description: gymClass?.description || "",
-    trainerId: gymClass?.trainerId || (trainers.length > 0 ? trainers[0].id : ""),
-    trainerName: gymClass?.trainerName || (trainers.length > 0 ? trainers[0].name : ""),
+    trainerId:
+      gymClass?.trainerId || (trainers.length > 0 ? trainers[0].id : ""),
+    trainerName:
+      gymClass?.trainerName || (trainers.length > 0 ? trainers[0].name : ""),
     maxCapacity: gymClass?.maxCapacity || 20,
-    scheduledAt: gymClass ? new Date(gymClass.scheduledAt).toISOString().slice(0, 16) : "",
+    scheduledAt: gymClass
+      ? new Date(gymClass.scheduledAt).toISOString().slice(0, 16)
+      : "",
   });
 
   useEffect(() => {
@@ -42,7 +48,7 @@ export function ClassForm({ gymClass, onClose, onSuccess }: ClassFormProps) {
 
     try {
       if (!formData.scheduledAt) {
-        setError("Date and time are required");
+        setError(t("admin.dateRequired"));
         setLoading(false);
         return;
       }
@@ -70,7 +76,7 @@ export function ClassForm({ gymClass, onClose, onSuccess }: ClassFormProps) {
       }
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(err instanceof Error ? err.message : t("common.unknownError"));
     } finally {
       setLoading(false);
     }
@@ -79,34 +85,50 @@ export function ClassForm({ gymClass, onClose, onSuccess }: ClassFormProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <h2 className="text-xl font-bold mb-4">{gymClass ? "Edit Class" : "Create Class"}</h2>
+        <h2 className="text-xl font-bold mb-4">
+          {gymClass ? t("admin.editClass") : t("admin.createClass")}
+        </h2>
 
-        {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded text-sm">{error}</div>}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded text-sm">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Class Name *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("admin.className")}
+            </label>
             <input
               type="text"
               required
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("common.description")}
+            </label>
             <textarea
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Trainer *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("common.trainer")} *
+            </label>
             <select
               required
               value={formData.trainerId}
@@ -120,7 +142,7 @@ export function ClassForm({ gymClass, onClose, onSuccess }: ClassFormProps) {
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
             >
-              <option value="">Select a trainer</option>
+              <option value="">{t("admin.selectTrainer")}</option>
               {trainers.map((trainer) => (
                 <option key={trainer.id} value={trainer.id}>
                   {trainer.name}
@@ -131,24 +153,35 @@ export function ClassForm({ gymClass, onClose, onSuccess }: ClassFormProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date & Time *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("common.dateTime")} *
+              </label>
               <input
                 type="datetime-local"
                 required
                 value={formData.scheduledAt}
-                onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, scheduledAt: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Max Capacity *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("admin.maxCapacity")}
+              </label>
               <input
                 type="number"
                 required
                 min="1"
                 value={formData.maxCapacity}
-                onChange={(e) => setFormData({ ...formData, maxCapacity: Number(e.target.value) })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    maxCapacity: Number(e.target.value),
+                  })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
               />
             </div>
@@ -156,10 +189,10 @@ export function ClassForm({ gymClass, onClose, onSuccess }: ClassFormProps) {
 
           <div className="flex gap-2 justify-end pt-4">
             <Button variant="outline" onClick={onClose} disabled={loading}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button disabled={loading}>
-              {loading ? "Saving..." : "Save"}
+              {loading ? t("common.saving") : t("common.save")}
             </Button>
           </div>
         </form>

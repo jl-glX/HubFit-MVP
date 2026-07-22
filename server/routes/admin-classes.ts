@@ -27,7 +27,7 @@ adminClassesRouter.get(
       console.error("Error fetching classes:", error);
       res.status(500).json({ error: "Failed to fetch classes" });
     }
-  }
+  },
 );
 
 // Get single class
@@ -46,7 +46,7 @@ adminClassesRouter.get(
       console.error("Error fetching class:", error);
       res.status(500).json({ error: "Failed to fetch class" });
     }
-  }
+  },
 );
 
 // Create class
@@ -55,7 +55,14 @@ adminClassesRouter.post(
   createClassValidation,
   async (req: express.Request, res: express.Response) => {
     try {
-      const { name, description, trainerId, trainerName, maxCapacity, scheduledAt } = req.body;
+      const {
+        name,
+        description,
+        trainerId,
+        trainerName,
+        maxCapacity,
+        scheduledAt,
+      } = req.body;
 
       if (!name || !trainerId || !maxCapacity || !scheduledAt) {
         res.status(400).json({ error: "Missing required fields" });
@@ -77,7 +84,7 @@ adminClassesRouter.post(
       console.error("Error creating class:", error);
       res.status(400).json({ error: message });
     }
-  }
+  },
 );
 
 // Update class
@@ -86,7 +93,14 @@ adminClassesRouter.put(
   updateClassValidation,
   async (req: express.Request, res: express.Response) => {
     try {
-      const { name, description, trainerId, trainerName, maxCapacity, scheduledAt } = req.body;
+      const {
+        name,
+        description,
+        trainerId,
+        trainerName,
+        maxCapacity,
+        scheduledAt,
+      } = req.body;
 
       const updatedClass = await updateClass(req.params.id, {
         name,
@@ -103,7 +117,7 @@ adminClassesRouter.put(
       console.error("Error updating class:", error);
       res.status(400).json({ error: message });
     }
-  }
+  },
 );
 
 // Delete class
@@ -119,5 +133,5 @@ adminClassesRouter.delete(
       console.error("Error deleting class:", error);
       res.status(400).json({ error: message });
     }
-  }
+  },
 );

@@ -1,5 +1,7 @@
 import { Card } from "./ui/card";
 import { formatDate, formatTime } from "../lib/dateUtils";
+import { useTranslation } from "react-i18next";
+import { localizeClass } from "../lib/classLocalization";
 
 interface UpcomingBooking {
   id: string;
@@ -26,13 +28,14 @@ export function UpcomingBookingsList({
   data,
   limit = 5,
 }: UpcomingBookingsListProps) {
+  const { t } = useTranslation();
   const bookings = data.slice(0, limit);
 
   return (
     <Card className="p-6">
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
       {bookings.length === 0 ? (
-        <p className="text-sm text-gray-400">No upcoming bookings</p>
+        <p className="text-sm text-gray-400">{t("bookings.upcomingNone")}</p>
       ) : (
         <div className="space-y-3">
           {bookings.map((booking, index) => (
@@ -41,21 +44,26 @@ export function UpcomingBookingsList({
               className="flex items-start justify-between pb-3 border-b border-gray-200 last:border-0"
             >
               <div className="flex-1">
-                <p className="font-medium text-sm">{booking.name}</p>
+                <p className="font-medium text-sm">
+                  {
+                    localizeClass(booking.name ?? "", booking.description, t)
+                      .name
+                  }
+                </p>
                 {booking.scheduledAt && (
                   <p className="text-xs text-gray-500">
-                    {formatDate(booking.scheduledAt)} at{" "}
+                    {formatDate(booking.scheduledAt)} {t("common.at")}{" "}
                     {formatTime(booking.scheduledAt)}
                   </p>
                 )}
                 {booking.trainerName && (
                   <p className="text-xs text-gray-400">
-                    Trainer: {booking.trainerName}
+                    {t("common.trainer")}: {booking.trainerName}
                   </p>
                 )}
               </div>
               <span className="text-xs font-medium text-blue-600 px-2 py-1 bg-blue-50 rounded">
-                Confirmed
+                {t("bookings.confirmed")}
               </span>
             </div>
           ))}

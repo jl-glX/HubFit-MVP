@@ -267,7 +267,9 @@ export async function getClassWaitlist(classId: string) {
   return waitlist;
 }
 
-export async function exportClassAttendeesCsv(classId: string): Promise<string> {
+export async function exportClassAttendeesCsv(
+  classId: string,
+): Promise<string> {
   const gymClass = await db
     .selectFrom("gymClasses")
     .selectAll()
@@ -284,9 +286,7 @@ export async function exportClassAttendeesCsv(classId: string): Promise<string> 
   const rows: string[] = [];
 
   // CSV Header
-  rows.push(
-    '"Name","Email","Status","Waitlist Position"'
-  );
+  rows.push('"Name","Email","Status","Waitlist Position"');
 
   // Confirmed attendees
   attendees.forEach((attendee) => {

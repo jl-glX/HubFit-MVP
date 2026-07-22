@@ -43,9 +43,14 @@ const users = {
 function createTestApp() {
   const app = express();
   app.use(express.json());
-  app.get("/profile/:userId", authenticate, requireSelfParamOrRole("userId", "admin"), (_req, res) => {
-    res.json({ userId: getAuthenticatedUser(res).userId });
-  });
+  app.get(
+    "/profile/:userId",
+    authenticate,
+    requireSelfParamOrRole("userId", "admin"),
+    (_req, res) => {
+      res.json({ userId: getAuthenticatedUser(res).userId });
+    },
+  );
   app.get("/admin", authenticate, requireRole("admin"), (_req, res) => {
     res.json({ ok: true });
   });
@@ -54,13 +59,18 @@ function createTestApp() {
 
 describe("server authorization", () => {
   beforeEach(() => {
-    verifyToken.mockImplementation((token: string) => users[token as keyof typeof users] ?? null);
+    verifyToken.mockImplementation(
+      (token: string) => users[token as keyof typeof users] ?? null,
+    );
   });
 
   it("rejects missing and invalid cookie sessions", async () => {
     const app = createTestApp();
     await request(app).get("/admin").expect(401);
-    await request(app).get("/admin").set("Cookie", "hubfit_session=invalid").expect(401);
+    await request(app)
+      .get("/admin")
+      .set("Cookie", "hubfit_session=invalid")
+      .expect(401);
   });
 
   it("prevents a member from escalating into an administrator route", async () => {

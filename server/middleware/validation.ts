@@ -18,7 +18,7 @@ const strictBody = (allowedFields: string[], requireAtLeastOne = false) =>
 
     const fields = Object.keys(value);
     const unknownFields = fields.filter(
-      (field) => !allowedFields.includes(field)
+      (field) => !allowedFields.includes(field),
     );
 
     if (unknownFields.length > 0) {
@@ -32,9 +32,11 @@ const strictBody = (allowedFields: string[], requireAtLeastOne = false) =>
     return true;
   });
 
-export function validateRequest(
-  validations: ValidationChain[]
-): Array<ValidationChain | ((req: Request, res: Response, next: NextFunction) => void)> {
+function validateRequest(
+  validations: ValidationChain[],
+): Array<
+  ValidationChain | ((req: Request, res: Response, next: NextFunction) => void)
+> {
   return [
     ...validations,
     (req: Request, res: Response, next: NextFunction) => {
@@ -118,16 +120,9 @@ const classFields = [
     "scheduledAt",
   ]),
   body("name").isString().trim().isLength({ min: 1, max: 100 }),
-  body("description")
-    .optional()
-    .isString()
-    .trim()
-    .isLength({ max: 1000 }),
+  body("description").optional().isString().trim().isLength({ max: 1000 }),
   body("trainerId").isString().matches(ID_PATTERN),
-  body("trainerName")
-    .isString()
-    .trim()
-    .isLength({ max: 100 }),
+  body("trainerName").isString().trim().isLength({ max: 100 }),
   body("maxCapacity").isInt({ min: 1, max: 10000 }).toInt(),
   body("scheduledAt").isInt({ min: 1 }).toInt(),
 ];
@@ -145,28 +140,17 @@ export const updateClassValidation = validateRequest([
       "maxCapacity",
       "scheduledAt",
     ],
-    true
+    true,
   ),
-  body("name")
-    .optional()
-    .isString()
-    .trim()
-    .isLength({ min: 1, max: 100 }),
-  body("description")
-    .optional()
-    .isString()
-    .trim()
-    .isLength({ max: 1000 }),
+  body("name").optional().isString().trim().isLength({ min: 1, max: 100 }),
+  body("description").optional().isString().trim().isLength({ max: 1000 }),
   body("trainerId").optional().isString().matches(ID_PATTERN),
   body("trainerName")
     .optional()
     .isString()
     .trim()
     .isLength({ min: 1, max: 100 }),
-  body("maxCapacity")
-    .optional()
-    .isInt({ min: 1, max: 10000 })
-    .toInt(),
+  body("maxCapacity").optional().isInt({ min: 1, max: 10000 }).toInt(),
   body("scheduledAt").optional().isInt({ min: 1 }).toInt(),
 ]);
 
@@ -198,11 +182,7 @@ export const updateUserValidation = validateRequest([
     .isEmail()
     .normalizeEmail()
     .isLength({ max: 254 }),
-  body("name")
-    .optional()
-    .isString()
-    .trim()
-    .isLength({ min: 1, max: 100 }),
+  body("name").optional().isString().trim().isLength({ min: 1, max: 100 }),
   body("password")
     .optional()
     .isString()
@@ -225,20 +205,6 @@ export const bulkDeleteUsersValidation = validateRequest([
     .isArray({ min: 1, max: 100 })
     .withMessage("userIds must contain between 1 and 100 identifiers"),
   body("userIds.*").isString().matches(ID_PATTERN),
-]);
-
-export const dateRangeValidation = validateRequest([
-  query("startDate").isInt({ min: 1 }).toInt(),
-  query("endDate")
-    .isInt({ min: 1 })
-    .toInt()
-    .custom((endDate, { req }) => {
-      const startDate = Number(req.query?.startDate);
-      if (Number(endDate) < startDate) {
-        throw new Error("endDate must be greater than or equal to startDate");
-      }
-      return true;
-    }),
 ]);
 
 export const monthValidation = validateRequest([

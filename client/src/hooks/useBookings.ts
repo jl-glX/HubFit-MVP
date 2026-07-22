@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { authFetch } from "../lib/api";
+import i18n from "../i18n/config";
 
 export interface UserBooking {
   id: string;
@@ -28,13 +29,14 @@ export function useBookings(userId: string) {
       const response = await authFetch(`/api/bookings/user/${userId}`);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch bookings");
+        throw new Error(i18n.t("bookings.fetchFailed"));
       }
 
       const data = await response.json();
       setBookings(data);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
+      const message =
+        err instanceof Error ? err.message : i18n.t("common.unknownError");
       setError(message);
       console.error("Error fetching bookings:", err);
     } finally {
@@ -55,14 +57,15 @@ export function useBookings(userId: string) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to book class");
+        throw new Error(errorData.error || i18n.t("errors.bookClass"));
       }
 
       const result = await response.json();
       await fetchBookings();
       return result;
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
+      const message =
+        err instanceof Error ? err.message : i18n.t("common.unknownError");
       setError(message);
       throw err;
     }
@@ -81,12 +84,13 @@ export function useBookings(userId: string) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to cancel booking");
+        throw new Error(errorData.error || i18n.t("bookings.cancelFailed"));
       }
 
       await fetchBookings();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
+      const message =
+        err instanceof Error ? err.message : i18n.t("common.unknownError");
       setError(message);
       throw err;
     }

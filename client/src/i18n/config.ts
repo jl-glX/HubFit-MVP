@@ -4,7 +4,7 @@ import { initReactI18next } from "react-i18next";
 import en from "./locales/en.json";
 import es from "./locales/es.json";
 
-export const supportedLanguages = ["es", "en"] as const;
+const supportedLanguages = ["es", "en"] as const;
 
 void i18n
   .use(LanguageDetector)
@@ -25,6 +25,9 @@ void i18n
     interpolation: {
       escapeValue: false,
     },
+  })
+  .then(() => {
+    document.documentElement.lang = i18n.resolvedLanguage ?? "es";
   });
 
 i18n.on("languageChanged", (language) => {

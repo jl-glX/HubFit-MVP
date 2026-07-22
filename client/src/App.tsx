@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import { HomePage } from "./pages/HomePage";
 import { ClassesPage } from "./pages/ClassesPage";
@@ -12,6 +18,12 @@ import { TrainerAnalyticsDashboardPage } from "./pages/TrainerAnalyticsDashboard
 import { AdminAnalyticsDashboardPage } from "./pages/AdminAnalyticsDashboardPage";
 import { Navigation } from "./components/Navigation";
 import { UnauthorizedPage } from "./pages/UnauthorizedPage";
+import { useTranslation } from "react-i18next";
+import {
+  ConditionsOfUsePage,
+  LegalNoticePage,
+  TermsAndConditionsPage,
+} from "./pages/LegalPage";
 
 type UserRole = "member" | "trainer" | "admin";
 
@@ -21,12 +33,13 @@ interface ProtectedRouteProps {
 }
 
 function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
+  const { t } = useTranslation();
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-600">Loading...</div>
+        <div className="text-gray-600">{t("common.loading")}</div>
       </div>
     );
   }
@@ -46,25 +59,38 @@ function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
 }
 
 function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  );
+}
+
+function AppContent() {
+  const { t } = useTranslation();
   const { user, isLoading } = useAuth();
+  const { pathname } = useLocation();
+  const isLegalPage = [
+    "/legal-notice",
+    "/terms-and-conditions",
+    "/conditions-of-use",
+  ].includes(pathname);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-600">Loading...</div>
+        <div className="text-gray-600">{t("common.loading")}</div>
       </div>
     );
   }
 
   return (
-    <BrowserRouter>
-      {user && <Navigation />}
+    <>
+      {user && !isLegalPage && <Navigation />}
       <Routes>
         <Route
           path="/"
-          element={
-            user ? <HomePage /> : <Navigate to="/login" replace />
-          }
+          element={user ? <HomePage /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/classes"
@@ -125,12 +151,18 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        <Route path="/legal-notice" element={<LegalNoticePage />} />
+        <Route
+          path="/terms-and-conditions"
+          element={<TermsAndConditionsPage />}
+        />
+        <Route path="/conditions-of-use" element={<ConditionsOfUsePage />} />
         <Route
           path="*"
           element={<Navigate to={user ? "/" : "/login"} replace />}
         />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 }
 

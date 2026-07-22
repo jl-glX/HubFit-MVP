@@ -60,7 +60,11 @@ async function createSession(user: AuthResult["user"]): Promise<AuthResult> {
   return { sessionToken: token, user };
 }
 
-export async function signup(email: string, name: string, password: string): Promise<AuthResult> {
+export async function signup(
+  email: string,
+  name: string,
+  password: string,
+): Promise<AuthResult> {
   if (!isStrongPassword(password)) {
     throw new Error("Password does not meet the security requirements");
   }
@@ -94,7 +98,10 @@ export async function signup(email: string, name: string, password: string): Pro
   return createSession(user);
 }
 
-export async function login(email: string, password: string): Promise<AuthResult> {
+export async function login(
+  email: string,
+  password: string,
+): Promise<AuthResult> {
   const user = await db
     .selectFrom("users")
     .selectAll()

@@ -1,4 +1,5 @@
 import { Card } from "./ui/card";
+import { useTranslation } from "react-i18next";
 
 interface PeakHourData {
   hour: number;
@@ -12,6 +13,7 @@ interface PeakHoursChartProps {
 }
 
 export function PeakHoursChart({ title, data }: PeakHoursChartProps) {
+  const { t } = useTranslation();
   const sortedData = [...data].sort((a, b) => a.hour - b.hour);
   const maxBookings = Math.max(...sortedData.map((d) => d.bookingCount), 1);
 
@@ -23,7 +25,7 @@ export function PeakHoursChart({ title, data }: PeakHoursChartProps) {
     <Card className="p-6">
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
       {sortedData.length === 0 ? (
-        <p className="text-sm text-gray-400">No data available</p>
+        <p className="text-sm text-gray-400">{t("common.noData")}</p>
       ) : (
         <div className="flex items-end gap-1 h-32">
           {sortedData.map((item, index) => (
@@ -37,7 +39,10 @@ export function PeakHoursChart({ title, data }: PeakHoursChartProps) {
                   height: `${(item.bookingCount / maxBookings) * 120}px`,
                   minHeight: "4px",
                 }}
-                title={`${item.bookingCount} bookings at ${formatHour(item.hour)}`}
+                title={t("analytics.bookingsAt", {
+                  count: item.bookingCount,
+                  hour: formatHour(item.hour),
+                })}
               />
               <span className="text-xs text-gray-500">
                 {formatHour(item.hour)}

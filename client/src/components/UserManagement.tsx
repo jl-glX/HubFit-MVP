@@ -4,28 +4,47 @@ import { Button } from "./ui/button";
 import { useUsers, type User } from "../hooks/useUsers";
 import { UserForm } from "./UserForm";
 import { formatDate } from "../lib/dateUtils";
+import { useTranslation } from "react-i18next";
 
 export function UserManagement() {
-  const { users, loading, error, deleteUser, deleteMultipleUsers, updateUserRole, refreshUsers } = useUsers();
+  const { t } = useTranslation();
+  const {
+    users,
+    loading,
+    error,
+    deleteUser,
+    deleteMultipleUsers,
+    updateUserRole,
+    refreshUsers,
+  } = useUsers();
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [filterRole, setFilterRole] = useState<"all" | "member" | "trainer" | "admin">("all");
+  const [filterRole, setFilterRole] = useState<
+    "all" | "member" | "trainer" | "admin"
+  >("all");
 
-  const filteredUsers = filterRole === "all" ? users : users.filter((u) => u.role === filterRole);
+  const filteredUsers =
+    filterRole === "all" ? users : users.filter((u) => u.role === filterRole);
 
   const handleSelectUser = (userId: string) => {
     setSelectedUsers((prev) =>
-      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId],
     );
   };
 
   const handleSelectAll = () => {
-    setSelectedUsers(selectedUsers.length === filteredUsers.length ? [] : filteredUsers.map((u) => u.id));
+    setSelectedUsers(
+      selectedUsers.length === filteredUsers.length
+        ? []
+        : filteredUsers.map((u) => u.id),
+    );
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (confirm("Are you sure you want to delete this user?")) {
+    if (confirm(t("admin.deleteUserConfirm"))) {
       try {
         await deleteUser(userId);
       } catch (err) {
@@ -36,7 +55,9 @@ export function UserManagement() {
 
   const handleDeleteSelected = async () => {
     if (selectedUsers.length === 0) return;
-    if (confirm(`Delete ${selectedUsers.length} users?`)) {
+    if (
+      confirm(t("admin.deleteUsersConfirm", { count: selectedUsers.length }))
+    ) {
       try {
         await deleteMultipleUsers(selectedUsers);
         setSelectedUsers([]);
@@ -46,7 +67,10 @@ export function UserManagement() {
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: "member" | "trainer" | "admin") => {
+  const handleRoleChange = async (
+    userId: string,
+    newRole: "member" | "trainer" | "admin",
+  ) => {
     try {
       await updateUserRole(userId, newRole);
     } catch (err) {
@@ -65,39 +89,53 @@ export function UserManagement() {
   };
 
   if (loading) {
-    return <div className="text-center py-8 text-gray-600">Loading users...</div>;
+    return (
+      <div className="text-center py-8 text-gray-600">
+        {t("common.loading")}
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-center py-8 text-red-600">Error: {error}</div>;
+    return (
+      <div className="text-center py-8 text-red-600">
+        {t("common.errorPrefix", { error })}
+      </div>
+    );
   }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex gap-2 items-center">
-          <label className="text-sm font-medium text-gray-700">Filter by role:</label>
+          <label className="text-sm font-medium text-gray-700">
+            {t("admin.filterRole")}
+          </label>
           <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value as any)}
             className="px-3 py-2 border border-gray-300 rounded-md text-sm"
           >
-            <option value="all">All Roles</option>
-            <option value="member">Members</option>
-            <option value="trainer">Trainers</option>
-            <option value="admin">Admins</option>
+            <option value="all">{t("admin.allRoles")}</option>
+            <option value="member">{t("admin.members")}</option>
+            <option value="trainer">{t("admin.trainers")}</option>
+            <option value="admin">{t("admin.admins")}</option>
           </select>
         </div>
 
         <div className="flex gap-2">
           {selectedUsers.length > 0 && (
-            <Button variant="destructive" size="sm" onClick={handleDeleteSelected}>
-              Delete {selectedUsers.length}
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDeleteSelected}
+            >
+              {t("admin.deleteSelected", { count: selectedUsers.length })}
             </Button>
           )}
           <Button size="sm" onClick={() => setShowForm(true)}>
             <Plus size={16} className="mr-1" />
-            New User
+            {t("admin.newUser")}
           </Button>
         </div>
       </div>
@@ -111,7 +149,9 @@ export function UserManagement() {
       )}
 
       {filteredUsers.length === 0 ? (
-        <div className="text-center py-8 text-gray-600">No users found</div>
+        <div className="text-center py-8 text-gray-600">
+          {t("admin.noUsers")}
+        </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -120,16 +160,29 @@ export function UserManagement() {
                 <th className="px-4 py-3 text-left font-semibold text-gray-900">
                   <input
                     type="checkbox"
-                    checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                    checked={
+                      selectedUsers.length === filteredUsers.length &&
+                      filteredUsers.length > 0
+                    }
                     onChange={handleSelectAll}
                     className="rounded"
                   />
                 </th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-900">Name</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-900">Email</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-900">Role</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-900">Created</th>
-                <th className="px-4 py-3 text-right font-semibold text-gray-900">Actions</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-900">
+                  {t("common.name")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-900">
+                  {t("common.email")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-900">
+                  {t("common.role")}
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-900">
+                  {t("common.created")}
+                </th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-900">
+                  {t("common.actions")}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -148,15 +201,19 @@ export function UserManagement() {
                   <td className="px-4 py-3">
                     <select
                       value={user.role}
-                      onChange={(e) => handleRoleChange(user.id, e.target.value as any)}
+                      onChange={(e) =>
+                        handleRoleChange(user.id, e.target.value as any)
+                      }
                       className="px-2 py-1 border border-gray-300 rounded text-sm"
                     >
-                      <option value="member">Member</option>
-                      <option value="trainer">Trainer</option>
-                      <option value="admin">Admin</option>
+                      <option value="member">{t("roles.member")}</option>
+                      <option value="trainer">{t("roles.trainer")}</option>
+                      <option value="admin">{t("roles.admin")}</option>
                     </select>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{formatDate(user.createdAt)}</td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {formatDate(user.createdAt)}
+                  </td>
                   <td className="px-4 py-3 text-right space-x-2">
                     <Button
                       variant="ghost"

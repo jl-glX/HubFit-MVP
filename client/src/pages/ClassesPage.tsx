@@ -1,24 +1,46 @@
 import { useState } from "react";
-import { AlertCircle, CalendarDays, Loader, RefreshCw, Sparkles, Users } from "lucide-react";
+import {
+  AlertCircle,
+  CalendarDays,
+  Loader,
+  RefreshCw,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { ClassCard } from "../components/ClassCard";
 import { useClasses } from "../hooks/useClasses";
 import { useBookings } from "../hooks/useBookings";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { groupClassesByDate } from "../lib/dateUtils";
+import { formatDate } from "../lib/dateUtils";
+import { useTranslation } from "react-i18next";
 
 export function ClassesPage() {
   const user = useCurrentUser();
-  const { classes, loading: classesLoading, error: classesError, refreshClasses } = useClasses();
+  const {
+    classes,
+    loading: classesLoading,
+    error: classesError,
+    refreshClasses,
+  } = useClasses();
   const { bookings, bookClass } = useBookings(user?.id || "");
   const [bookingError, setBookingError] = useState<string | null>(null);
-  const [bookingInProgress, setBookingInProgress] = useState<string | null>(null);
+  const [bookingInProgress, setBookingInProgress] = useState<string | null>(
+    null,
+  );
+  const { t } = useTranslation();
 
   const userBookedClassIds = new Set(bookings.map((b) => b.classId));
   const groupedClasses = groupClassesByDate(classes);
   const sortedDates = Object.keys(groupedClasses).sort();
-  const availableClasses = classes.filter((gymClass) => gymClass.availablePlaces > 0).length;
-  const totalPlaces = classes.reduce((total, gymClass) => total + gymClass.availablePlaces, 0);
+  const availableClasses = classes.filter(
+    (gymClass) => gymClass.availablePlaces > 0,
+  ).length;
+  const totalPlaces = classes.reduce(
+    (total, gymClass) => total + gymClass.availablePlaces,
+    0,
+  );
 
   const handleBook = async (classId: string) => {
     if (!user?.id) return;
@@ -29,7 +51,8 @@ export function ClassesPage() {
       await bookClass(classId);
       await refreshClasses();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
+      const message =
+        err instanceof Error ? err.message : t("common.unknownError");
       setBookingError(message);
     } finally {
       setBookingInProgress(null);
@@ -40,7 +63,7 @@ export function ClassesPage() {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader className="mr-2 animate-spin" />
-        <span>Loading...</span>
+        <span>{t("common.loading")}</span>
       </div>
     );
   }
@@ -55,25 +78,37 @@ export function ClassesPage() {
             <div className="max-w-2xl">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm text-blue-100">
                 <Sparkles size={15} />
-                Your weekly training agenda
+                {t("classes.agenda")}
               </div>
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Find your next class</h1>
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+                {t("classes.title")}
+              </h1>
               <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
-                Choose a session, check live availability and secure your place in a few seconds.
+                {t("classes.description")}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3 backdrop-blur-sm">
                 <p className="text-2xl font-bold">{classes.length}</p>
-                <p className="text-xs text-slate-300">Scheduled</p>
+                <p className="text-xs text-slate-300">
+                  {t("classes.scheduled")}
+                </p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3 backdrop-blur-sm">
-                <p className="text-2xl font-bold text-emerald-300">{availableClasses}</p>
-                <p className="text-xs text-slate-300">Available</p>
+                <p className="text-2xl font-bold text-emerald-300">
+                  {availableClasses}
+                </p>
+                <p className="text-xs text-slate-300">
+                  {t("classes.available")}
+                </p>
               </div>
               <div className="col-span-2 rounded-2xl border border-white/10 bg-white/8 px-4 py-3 backdrop-blur-sm sm:col-span-1">
-                <p className="text-2xl font-bold text-blue-300">{totalPlaces}</p>
-                <p className="text-xs text-slate-300">Open spots</p>
+                <p className="text-2xl font-bold text-blue-300">
+                  {totalPlaces}
+                </p>
+                <p className="text-xs text-slate-300">
+                  {t("classes.openSpots")}
+                </p>
               </div>
             </div>
           </div>
@@ -81,12 +116,25 @@ export function ClassesPage() {
 
         <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600">Class schedule</p>
-            <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">Upcoming sessions</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600">
+              {t("classes.schedule")}
+            </p>
+            <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
+              {t("classes.upcoming")}
+            </h2>
           </div>
-          <Button onClick={refreshClasses} disabled={classesLoading} variant="outline" size="lg" className="gap-2 rounded-xl border-slate-200 bg-white shadow-sm hover:border-blue-200 hover:bg-blue-50">
-            <RefreshCw size={18} className={classesLoading ? "animate-spin" : ""} />
-            Refresh schedule
+          <Button
+            onClick={refreshClasses}
+            disabled={classesLoading}
+            variant="outline"
+            size="lg"
+            className="gap-2 rounded-xl border-slate-200 bg-white shadow-sm hover:border-blue-200 hover:bg-blue-50"
+          >
+            <RefreshCw
+              size={18}
+              className={classesLoading ? "animate-spin" : ""}
+            />
+            {t("classes.refresh")}
           </Button>
         </div>
 
@@ -109,12 +157,12 @@ export function ClassesPage() {
         {classesLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader className="mr-2 animate-spin" size={32} />
-            <span className="text-lg">Loading classes...</span>
+            <span className="text-lg">{t("common.loadingClasses")}</span>
           </div>
         ) : classes.length === 0 ? (
           <div className="rounded-lg border border-gray-200 bg-white py-12 text-center">
             <AlertCircle className="mx-auto mb-4 text-gray-400" size={48} />
-            <p className="text-gray-600">No classes available</p>
+            <p className="text-gray-600">{t("classes.none")}</p>
           </div>
         ) : (
           <div className="space-y-10">
@@ -124,10 +172,13 @@ export function ClassesPage() {
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
                     <CalendarDays size={19} />
                   </span>
-                  <h3 className="text-xl font-bold capitalize text-slate-900">{date}</h3>
+                  <h3 className="text-xl font-bold capitalize text-slate-900">
+                    {formatDate(groupedClasses[date][0].scheduledAt)}
+                  </h3>
                   <div className="h-px flex-1 bg-slate-200" />
                   <span className="hidden items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-500 shadow-sm ring-1 ring-slate-200 sm:flex">
-                    <Users size={14} /> {groupedClasses[date].length} classes
+                    <Users size={14} />{" "}
+                    {t("classes.count", { count: groupedClasses[date].length })}
                   </span>
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

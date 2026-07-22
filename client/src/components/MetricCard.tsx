@@ -34,7 +34,9 @@ export function MetricCard({
             trend.direction === "up" ? "text-green-600" : "text-red-600"
           }`}
         >
-          <span>{trend.direction === "up" ? "↑" : "↓"} {trend.value}%</span>
+          <span>
+            {trend.direction === "up" ? "↑" : "↓"} {trend.value}%
+          </span>
         </div>
       )}
     </Card>

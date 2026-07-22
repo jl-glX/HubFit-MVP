@@ -2,6 +2,376 @@
   "common": {
     "appName": "HubFit",
     "loading": "Loading...",
-    "unauthorized": "You do not have permission to access this section"
+    "loadingClasses": "Loading classes...",
+    "loadingBookings": "Loading bookings...",
+    "loadingAnalytics": "Loading analytics...",
+    "unknownError": "Unknown error",
+    "errorPrefix": "Error: {{error}}",
+    "refresh": "Refresh",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "close": "Close",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "role": "Role",
+    "created": "Created",
+    "actions": "Actions",
+    "trainer": "Trainer",
+    "capacity": "Capacity",
+    "waitlist": "Waitlist",
+    "dateTime": "Date & time",
+    "description": "Description",
+    "noData": "No data available",
+    "at": "at",
+    "unauthorized": "You do not have permission to access this section",
+    "backHome": "Back to home"
+  },
+  "language": { "label": "Language", "es": "Español", "en": "English" },
+  "roles": { "member": "Member", "trainer": "Trainer", "admin": "Admin" },
+  "nav": {
+    "home": "Home",
+    "classes": "Classes",
+    "bookings": "My bookings",
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "analytics": "Analytics",
+    "logout": "Log out"
+  },
+  "auth": {
+    "brandTagline": "Train. Connect. Progress.",
+    "brandTitle": "Your gym life, all in one place.",
+    "brandDescription": "Plan sessions, manage bookings and stay connected to your training community.",
+    "highlights": {
+      "weekly": "Book your week in seconds",
+      "waitlists": "Smart waitlists with live availability",
+      "secure": "Secure access for every role"
+    },
+    "welcomeBack": "Welcome back",
+    "signInTitle": "Sign in to HubFit",
+    "signInDescription": "Continue managing your classes, bookings and training activity.",
+    "emailAddress": "Email address",
+    "emailRequired": "Email and password are required",
+    "signIn": "Sign in",
+    "signingIn": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "demoAccess": "Demo access",
+    "join": "Join HubFit",
+    "createTitle": "Create your account",
+    "createDescription": "Set up your profile and start planning your next training sessions.",
+    "fullName": "Full name",
+    "confirmPassword": "Confirm password",
+    "allRequired": "All fields are required",
+    "passwordMismatch": "Passwords do not match",
+    "passwordPolicy": "Password must contain at least 12 characters, uppercase, lowercase and a number",
+    "createAccount": "Create account",
+    "creatingAccount": "Creating account...",
+    "hasAccount": "Already have an account?"
+  },
+  "home": {
+    "welcome": "Welcome back, {{name}}",
+    "title": "Your training week,",
+    "titleAccent": "under control.",
+    "description": "Book classes, manage your schedule, and join waitlists. Get promoted automatically when spots open up.",
+    "browse": "Browse classes",
+    "bookings": "My bookings",
+    "rights": "All rights reserved.",
+    "features": {
+      "calendarTitle": "Class calendar",
+      "calendarText": "Find every session by date and time.",
+      "waitlistTitle": "Smart waitlists",
+      "waitlistText": "Move up automatically when a place opens.",
+      "bookingTitle": "Simple bookings",
+      "bookingText": "Review and manage your schedule anytime.",
+      "analyticsTitle": "Progress insights",
+      "analyticsText": "Understand your activity at a glance."
+    }
+  },
+  "classes": {
+    "agenda": "Your weekly training agenda",
+    "title": "Find your next class",
+    "description": "Choose a session, check live availability and secure your place in a few seconds.",
+    "scheduled": "Scheduled",
+    "available": "Available",
+    "openSpots": "Open spots",
+    "schedule": "Class schedule",
+    "upcoming": "Upcoming sessions",
+    "refresh": "Refresh schedule",
+    "none": "No classes available",
+    "count_one": "{{count}} class",
+    "count_other": "{{count}} classes",
+    "open_one": "{{count}} open",
+    "open_other": "{{count}} open",
+    "bookedCount": "{{booked}}/{{capacity}} booked",
+    "onWaitlist_one": "{{count}} person on waitlist",
+    "onWaitlist_other": "{{count}} people on waitlist",
+    "finished": "Class finished",
+    "booked": "Booked",
+    "joinWaitlist": "Join waitlist",
+    "joiningWaitlist": "Adding to waitlist...",
+    "book": "Book class",
+    "booking": "Booking...",
+    "attendees": "{{booked}}/{{capacity}} attendees",
+    "viewDetails": "View details",
+    "spotsAvailable_one": "{{count}} spot available",
+    "spotsAvailable_other": "{{count}} spots available",
+    "confirmedAttendees": "Confirmed attendees ({{count}})",
+    "noConfirmed": "No confirmed attendees yet",
+    "exportCsv": "Export CSV",
+    "exportFailed": "Failed to export CSV",
+    "loadingAttendees": "Loading attendees..."
+  },
+  "bookings": {
+    "title": "My bookings",
+    "description": "Manage your class reservations",
+    "none": "No active bookings",
+    "onWaitlist": "On waitlist",
+    "cancelLabel": "Cancel booking",
+    "fetchFailed": "Failed to fetch bookings",
+    "cancelFailed": "Failed to cancel booking",
+    "upcomingNone": "No upcoming bookings",
+    "confirmed": "Confirmed"
+  },
+  "trainer": {
+    "title": "Trainer dashboard",
+    "description": "Manage your classes and attendees",
+    "only": "This page is only accessible to trainers",
+    "search": "Search classes...",
+    "showingPast": "Showing past",
+    "futureOnly": "Future only",
+    "loading": "Loading your classes...",
+    "noneAssigned": "You don't have any classes assigned yet",
+    "noResults": "No classes match your search"
+  },
+  "admin": {
+    "title": "Admin dashboard",
+    "description": "Manage users and gym classes",
+    "usersTab": "User management",
+    "classesTab": "Class management",
+    "filterTrainer": "Filter by trainer:",
+    "allTrainers": "All trainers",
+    "newClass": "New class",
+    "noClasses": "No classes found",
+    "deleteClassConfirm": "Are you sure you want to delete this class?",
+    "editClass": "Edit class",
+    "createClass": "Create class",
+    "className": "Class name *",
+    "selectTrainer": "Select a trainer",
+    "maxCapacity": "Max capacity *",
+    "dateRequired": "Date and time are required",
+    "filterRole": "Filter by role:",
+    "allRoles": "All roles",
+    "members": "Members",
+    "trainers": "Trainers",
+    "admins": "Admins",
+    "newUser": "New user",
+    "noUsers": "No users found",
+    "deleteSelected": "Delete {{count}}",
+    "deleteUserConfirm": "Are you sure you want to delete this user?",
+    "deleteUsersConfirm": "Delete {{count}} users?",
+    "editUser": "Edit user",
+    "createUser": "Create user",
+    "passwordOptional": "Password (leave empty to keep current)",
+    "passwordRequired": "Password is required for new users"
+  },
+  "analytics": {
+    "activityTitle": "Activity dashboard",
+    "activityDescription": "Your bookings, metrics and gym activity",
+    "trainerTitle": "Trainer analytics",
+    "trainerDescription": "Your classes, attendance and gym insights",
+    "adminTitle": "Admin analytics dashboard",
+    "adminDescription": "System-wide metrics, usage and performance insights",
+    "trainerOnly": "Only trainers can access this dashboard",
+    "adminOnly": "Only administrators can access this dashboard",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "totalBookings": "Total bookings",
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+    "upcoming": "Upcoming",
+    "allTime": "All time",
+    "activeReservations": "Active reservations",
+    "cancelledBookings": "Cancelled bookings",
+    "nextReservations": "Next reservations",
+    "nextClasses": "Next classes",
+    "peakHours": "Peak hours",
+    "popularClasses": "Most popular classes",
+    "noBookingData": "No booking data yet",
+    "startBooking": "Start booking classes to see your activity metrics",
+    "totalClasses": "Total classes",
+    "allClasses": "All classes created",
+    "acrossClasses": "Across all classes",
+    "avgOccupancy": "Avg. occupancy",
+    "classCapacity": "Class capacity",
+    "uniqueMembers": "Unique members",
+    "registeredParticipants": "Registered participants",
+    "yourNextClasses": "Your next classes",
+    "gymPeakHours": "Gym peak hours",
+    "yourPopularClasses": "Your most popular classes",
+    "noClasses": "No classes created yet",
+    "createClasses": "Create classes to see analytics and attendance metrics",
+    "totalMembers": "Total members",
+    "registeredUsers": "Registered users",
+    "activeMembers": "Active members",
+    "last30Days": "Last 30 days",
+    "joinedWeek": "Joined this week",
+    "newMembers": "New members",
+    "joinedMonth": "Joined this month",
+    "thisMonth": "This month",
+    "thisMonthNumber": "This month ({{month}})",
+    "cancellations": "Cancellations",
+    "systemStatus": "System status",
+    "apiHealth": "API health",
+    "database": "Database",
+    "operational": "Operational",
+    "connected": "Connected",
+    "noSystemData": "No system data yet",
+    "systemDataHint": "Analytics will appear as users register and book classes",
+    "bookingsAt": "{{count}} bookings at {{hour}}",
+    "occupancy": "{{value}}% full"
+  },
+  "demoClasses": {
+    "yogaFlow": {
+      "name": "Yoga Flow",
+      "description": "Relaxing yoga session for all levels"
+    },
+    "hiitBootcamp": {
+      "name": "HIIT Bootcamp",
+      "description": "High intensity interval training workout"
+    },
+    "pilatesCore": {
+      "name": "Pilates Core",
+      "description": "Strengthen your core with pilates"
+    },
+    "spinning": { "name": "Spinning", "description": "Indoor cycling class" },
+    "boxFit": { "name": "Box Fit", "description": "Boxing fitness training" },
+    "zumba": { "name": "Zumba", "description": "Dance fitness class" }
+  },
+  "legal": {
+    "eyebrow": "Legal information",
+    "back": "Back to HubFit",
+    "lastUpdated": "Last updated: 22 July 2026",
+    "draftTitle": "Draft document.",
+    "draftDescription": "HubFit is under development. This text must be reviewed and completed with the real owner, service and commercial-policy details before publication or payment acceptance.",
+    "footer": {
+      "navigation": "Legal links",
+      "notice": "Legal notice",
+      "terms": "Terms and conditions",
+      "use": "Conditions of use"
+    },
+    "pages": {
+      "notice": {
+        "title": "Legal notice",
+        "introduction": "This notice sets out general information about the site and the basic rules governing access to HubFit during its development phase.",
+        "sections": {
+          "owner": {
+            "title": "1. Site owner",
+            "body": "HubFit is owned and operated by Javier López Díaz. HubFit is currently a software project under development. The address, tax identification, any applicable registration details and a direct legal contact channel must be added here before the service is commercially released."
+          },
+          "purpose": {
+            "title": "2. Purpose",
+            "body": "HubFit provides tools to browse classes, manage bookings and waitlists, and support sports-centre administration. Available features may change while the product remains under development."
+          },
+          "intellectualProperty": {
+            "title": "3. Intellectual and industrial property",
+            "body": "HubFit's design, code, brand, text and other original elements are protected by applicable law. Access does not grant rights to reproduce, distribute, modify or exploit them unless expressly authorised or covered by an applicable licence."
+          },
+          "links": {
+            "title": "4. Third-party links and services",
+            "body": "The application may include third-party links or integrations. HubFit does not control their content, availability or policies, and each external service is governed by its own terms."
+          },
+          "liability": {
+            "title": "5. Availability and liability",
+            "body": "Continuous availability and error-free operation are not guaranteed during development. HubFit will apply reasonable measures to protect and maintain the service, without excluding liabilities that cannot legally be excluded."
+          },
+          "law": {
+            "title": "6. Applicable law",
+            "body": "The final version must be adapted to the owner's actual activity, location and legal status, as well as the applicable e-commerce, consumer and data-protection rules."
+          }
+        }
+      },
+      "terms": {
+        "title": "Terms and conditions",
+        "introduction": "These terms describe the intended basis of the relationship between HubFit, sports centres and users. They are not yet final commercial terms.",
+        "sections": {
+          "scope": {
+            "title": "1. Scope of the service",
+            "body": "HubFit supports the management of classes, users, trainers, bookings, capacity and waitlists. Each centre may configure parts of the service and is responsible for communicating its schedules, prices and specific rules."
+          },
+          "accounts": {
+            "title": "2. Registration and accounts",
+            "body": "Users must provide accurate information and keep their credentials secure. Accounts are personal. Member, trainer and administrator permissions limit the actions available on the platform."
+          },
+          "bookings": {
+            "title": "3. Bookings and waitlists",
+            "body": "A booking is subject to capacity and the rules set by the centre. When a place becomes available, the system may automatically promote the first person on the waitlist. The centre must disclose any additional attendance or priority rules."
+          },
+          "payments": {
+            "title": "4. Payments and plans",
+            "body": "Commercial payments are not enabled in this version of HubFit. Before Stripe or another provider is added, prices, taxes, invoicing, renewals, refunds and responsibilities among HubFit, the centre and the payment provider must be defined. HubFit will not store full card details."
+          },
+          "cancellations": {
+            "title": "5. Cancellations and termination",
+            "body": "Cancellation policies for classes, fees or subscriptions must be shown before a purchase or booking. The final version will explain deadlines, consequences, refunds and ways to cancel the service."
+          },
+          "changes": {
+            "title": "6. Changes to these terms",
+            "body": "The terms may be updated when features or laws change. Material changes must be communicated clearly and, where appropriate, require renewed acceptance."
+          },
+          "law": {
+            "title": "7. Law and dispute resolution",
+            "body": "Applicable law, competent courts and complaint mechanisms will be specified according to the owner's real location and activity, while always respecting mandatory consumer rights."
+          }
+        }
+      },
+      "use": {
+        "title": "Conditions of use",
+        "introduction": "These rules explain how to use HubFit safely and responsibly when managing classes, bookings and community activities.",
+        "sections": {
+          "access": {
+            "title": "1. Access and security",
+            "body": "Do not share credentials or attempt to access accounts, features or data without authorisation. Report suspicious activity and keep your account information up to date."
+          },
+          "acceptableUse": {
+            "title": "2. Acceptable use",
+            "body": "You may not interfere with the service, automate abusive requests, introduce malicious code, impersonate others, extract data without authorisation or use HubFit for unlawful activity."
+          },
+          "bookings": {
+            "title": "3. Responsible booking",
+            "body": "Only book classes you reasonably expect to attend and cancel within the notice period set by the centre. Repeated misuse of bookings or waitlists may lead to proportionate restrictions that have been communicated in advance."
+          },
+          "community": {
+            "title": "4. Content and community",
+            "body": "If comments are enabled, they must be used respectfully. Harassment, discrimination, threats, unlawful content and the publication of third-party personal data without permission are not allowed."
+          },
+          "health": {
+            "title": "5. Health and physical activity",
+            "body": "HubFit organises information and bookings but does not provide medical advice. Each person must assess their health, follow professional guidance and inform the centre of relevant limitations before taking part in an activity."
+          },
+          "availability": {
+            "title": "6. Service availability",
+            "body": "Maintenance and interruptions may occur. Important bookings and changes must have suitable confirmation and recovery mechanisms before production use."
+          },
+          "suspension": {
+            "title": "7. Access suspension",
+            "body": "Access may be restricted because of security risks, fraud, serious breaches or legal requirements. Measures must be proportionate and provide information and review options where appropriate."
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "fetchClasses": "Failed to fetch classes",
+    "fetchTrainerClasses": "Failed to fetch trainer classes",
+    "fetchAttendees": "Failed to fetch attendees",
+    "fetchUsers": "Failed to fetch users",
+    "bookClass": "Failed to book class"
+  },
+  "unauthorized": {
+    "title": "Access denied",
+    "description": "You don't have permission to access this page. Your current role doesn't allow you to view this content."
   }
 }

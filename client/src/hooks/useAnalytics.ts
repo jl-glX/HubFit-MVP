@@ -2,32 +2,9 @@ import { useState, useEffect } from "react";
 import { authFetch } from "../lib/api";
 
 const API_BASE =
-  typeof window !== "undefined" &&
-  window.location.hostname === "localhost"
+  typeof window !== "undefined" && window.location.hostname === "localhost"
     ? "http://localhost:3001"
     : "";
-
-export interface DailyMetric {
-  date: string;
-  confirmedBookings: number;
-  cancelledBookings: number;
-  classesOccupancy: Array<{
-    classId: string;
-    className: string;
-    occupancyPercent: number;
-    booked: number;
-    capacity: number;
-  }>;
-}
-
-export interface WeeklyMetric {
-  startDate: string;
-  endDate: string;
-  totalBookings: number;
-  totalCancellations: number;
-  totalClasses: number;
-  averageOccupancy: number;
-}
 
 export interface MonthlyMetric {
   month: string;
@@ -77,70 +54,6 @@ export interface MemberMetric {
   memberJoinedThisMonth: number;
 }
 
-export function useDailyMetrics(startDate: number, endDate: number) {
-  const [data, setData] = useState<DailyMetric[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!startDate || !endDate) return;
-
-    const fetchMetrics = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await authFetch(
-          `${API_BASE}/api/analytics/daily?startDate=${startDate}&endDate=${endDate}`
-        );
-        if (!res.ok) throw new Error("Failed to fetch daily metrics");
-        const result = await res.json();
-        setData(result);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-        console.error("Error fetching daily metrics:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMetrics();
-  }, [startDate, endDate]);
-
-  return { data, loading, error };
-}
-
-export function useWeeklyMetrics(startDate: number, endDate: number) {
-  const [data, setData] = useState<WeeklyMetric | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!startDate || !endDate) return;
-
-    const fetchMetrics = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await authFetch(
-          `${API_BASE}/api/analytics/weekly?startDate=${startDate}&endDate=${endDate}`
-        );
-        if (!res.ok) throw new Error("Failed to fetch weekly metrics");
-        const result = await res.json();
-        setData(result);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-        console.error("Error fetching weekly metrics:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMetrics();
-  }, [startDate, endDate]);
-
-  return { data, loading, error };
-}
-
 export function useMonthlyMetrics(year: number, month: number) {
   const [data, setData] = useState<MonthlyMetric | null>(null);
   const [loading, setLoading] = useState(false);
@@ -154,7 +67,7 @@ export function useMonthlyMetrics(year: number, month: number) {
       setError(null);
       try {
         const res = await authFetch(
-          `${API_BASE}/api/analytics/monthly?year=${year}&month=${month}`
+          `${API_BASE}/api/analytics/monthly?year=${year}&month=${month}`,
         );
         if (!res.ok) throw new Error("Failed to fetch monthly metrics");
         const result = await res.json();
@@ -183,7 +96,9 @@ export function useClassPopularity() {
       setLoading(true);
       setError(null);
       try {
-        const res = await authFetch(`${API_BASE}/api/analytics/class-popularity`);
+        const res = await authFetch(
+          `${API_BASE}/api/analytics/class-popularity`,
+        );
         if (!res.ok) throw new Error("Failed to fetch class popularity");
         const result = await res.json();
         setData(result);
@@ -272,9 +187,10 @@ export function useTrainerActivityMetrics(trainerId: string) {
       setError(null);
       try {
         const res = await authFetch(
-          `${API_BASE}/api/analytics/trainer/${trainerId}`
+          `${API_BASE}/api/analytics/trainer/${trainerId}`,
         );
-        if (!res.ok) throw new Error("Failed to fetch trainer activity metrics");
+        if (!res.ok)
+          throw new Error("Failed to fetch trainer activity metrics");
         const result = await res.json();
         setData(result);
       } catch (err) {
@@ -332,7 +248,7 @@ export function useUpcomingBookings(userId: string) {
       setError(null);
       try {
         const res = await authFetch(
-          `${API_BASE}/api/analytics/user/${userId}/upcoming-bookings`
+          `${API_BASE}/api/analytics/user/${userId}/upcoming-bookings`,
         );
         if (!res.ok) throw new Error("Failed to fetch upcoming bookings");
         const result = await res.json();
@@ -364,7 +280,7 @@ export function useTrainerUpcomingClasses(trainerId: string) {
       setError(null);
       try {
         const res = await authFetch(
-          `${API_BASE}/api/analytics/trainer/${trainerId}/upcoming-classes`
+          `${API_BASE}/api/analytics/trainer/${trainerId}/upcoming-classes`,
         );
         if (!res.ok) throw new Error("Failed to fetch upcoming classes");
         const result = await res.json();

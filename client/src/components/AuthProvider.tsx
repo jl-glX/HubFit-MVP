@@ -32,8 +32,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = (await response.json()) as { user?: AuthUser; error?: string };
-      if (!response.ok || !data.user) throw new Error(data.error ?? "Login failed");
+      const data = (await response.json()) as {
+        user?: AuthUser;
+        error?: string;
+      };
+      if (!response.ok || !data.user)
+        throw new Error(data.error ?? "Login failed");
       setUser(data.user);
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Login failed";
@@ -44,26 +48,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const signup = useCallback(async (email: string, name: string, password: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await authFetch(`${API_BASE}/api/auth/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, password }),
-      });
-      const data = (await response.json()) as { user?: AuthUser; error?: string };
-      if (!response.ok || !data.user) throw new Error(data.error ?? "Signup failed");
-      setUser(data.user);
-    } catch (cause) {
-      const message = cause instanceof Error ? cause.message : "Signup failed";
-      setError(message);
-      throw cause;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const signup = useCallback(
+    async (email: string, name: string, password: string) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await authFetch(`${API_BASE}/api/auth/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, name, password }),
+        });
+        const data = (await response.json()) as {
+          user?: AuthUser;
+          error?: string;
+        };
+        if (!response.ok || !data.user)
+          throw new Error(data.error ?? "Signup failed");
+        setUser(data.user);
+      } catch (cause) {
+        const message =
+          cause instanceof Error ? cause.message : "Signup failed";
+        setError(message);
+        throw cause;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
 
   const logout = useCallback(async () => {
     try {
@@ -76,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({ user, isLoading, error, signup, login, logout }),
-    [user, isLoading, error, signup, login, logout]
+    [user, isLoading, error, signup, login, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

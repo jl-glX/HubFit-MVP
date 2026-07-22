@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { authFetch } from "../lib/api";
+import i18n from "../i18n/config";
 
-export interface Attendee {
+interface Attendee {
   id: string;
   userId: string;
   name: string;
@@ -9,7 +10,7 @@ export interface Attendee {
   status: "confirmed";
 }
 
-export interface WaitlistEntry {
+interface WaitlistEntry {
   id: string;
   userId: string;
   position: number;
@@ -26,8 +27,7 @@ interface AttendeeState {
 }
 
 const API_BASE =
-  typeof window !== "undefined" &&
-  window.location.hostname === "localhost"
+  typeof window !== "undefined" && window.location.hostname === "localhost"
     ? "http://localhost:3001"
     : "";
 
@@ -49,7 +49,7 @@ export function useClassAttendees(classId: string) {
       ]);
 
       if (!attendeesRes.ok || !waitlistRes.ok) {
-        throw new Error("Failed to fetch attendees");
+        throw new Error(i18n.t("errors.fetchAttendees"));
       }
 
       const attendees = await attendeesRes.json();
@@ -69,7 +69,7 @@ export function useClassAttendees(classId: string) {
             name: a.name,
             email: a.email,
             status: a.status,
-          })
+          }),
         ),
         waitlist: waitlist.map(
           (w: {
@@ -86,14 +86,14 @@ export function useClassAttendees(classId: string) {
             name: w.name,
             email: w.email,
             createdAt: w.createdAt,
-          })
+          }),
         ),
         loading: false,
         error: null,
       });
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Failed to fetch attendees";
+        err instanceof Error ? err.message : i18n.t("errors.fetchAttendees");
       setState({
         attendees: [],
         waitlist: [],

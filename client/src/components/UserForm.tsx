@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { useUsers, type User } from "../hooks/useUsers";
+import { useTranslation } from "react-i18next";
 
 interface UserFormProps {
   user?: User | null;
@@ -9,6 +10,7 @@ interface UserFormProps {
 }
 
 export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
+  const { t } = useTranslation();
   const { createUser, updateUser } = useUsers();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +34,7 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
           !/[A-Z]/.test(formData.password) ||
           !/[0-9]/.test(formData.password))
       ) {
-        setError("Password must contain at least 12 characters, uppercase, lowercase and a number");
+        setError(t("auth.passwordPolicy"));
         return;
       }
 
@@ -48,7 +50,7 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
         await updateUser(user.id, updates);
       } else {
         if (!formData.password) {
-          setError("Password is required for new users");
+          setError(t("admin.passwordRequired"));
           setLoading(false);
           return;
         }
@@ -56,7 +58,7 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
       }
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(err instanceof Error ? err.message : t("common.unknownError"));
     } finally {
       setLoading(false);
     }
@@ -65,65 +67,85 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <h2 className="text-xl font-bold mb-4">{user ? "Edit User" : "Create User"}</h2>
+        <h2 className="text-xl font-bold mb-4">
+          {user ? t("admin.editUser") : t("admin.createUser")}
+        </h2>
 
-        {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded text-sm">{error}</div>}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded text-sm">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("common.email")}
+            </label>
             <input
               type="email"
               required
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-            <input
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password {user && "(leave empty to keep current)"}
+              {t("common.name")}
             </label>
             <input
-              type="password"
-              required={!user}
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              type="text"
+              required
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {user ? t("admin.passwordOptional") : t("common.password")}
+            </label>
+            <input
+              type="password"
+              required={!user}
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("common.role")}
+            </label>
             <select
               value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
+              onChange={(e) =>
+                setFormData({ ...formData, role: e.target.value as any })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
             >
-              <option value="member">Member</option>
-              <option value="trainer">Trainer</option>
-              <option value="admin">Admin</option>
+              <option value="member">{t("roles.member")}</option>
+              <option value="trainer">{t("roles.trainer")}</option>
+              <option value="admin">{t("roles.admin")}</option>
             </select>
           </div>
 
           <div className="flex gap-2 justify-end pt-4">
             <Button variant="outline" onClick={onClose} disabled={loading}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button disabled={loading}>
-              {loading ? "Saving..." : "Save"}
+              {loading ? t("common.saving") : t("common.save")}
             </Button>
           </div>
         </form>

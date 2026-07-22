@@ -4,6 +4,8 @@ import { Card } from "./ui/card";
 import { AlertCircle, Loader, Trash2, Clock, User } from "lucide-react";
 import { formatDateTime, isFutureClass } from "../lib/dateUtils";
 import { authFetch } from "../lib/api";
+import { useTranslation } from "react-i18next";
+import { localizeClass } from "../lib/classLocalization";
 
 interface UserBooking {
   id: string;
@@ -20,6 +22,7 @@ interface UserBookingsProps {
 }
 
 export function UserBookings({ userId }: UserBookingsProps) {
+  const { t } = useTranslation();
   const [bookings, setBookings] = useState<UserBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,20 +35,21 @@ export function UserBookings({ userId }: UserBookingsProps) {
       const response = await authFetch(`/api/bookings/user/${userId}`);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch bookings");
+        throw new Error(t("bookings.fetchFailed"));
       }
 
       const data = await response.json();
       // Filter out cancelled bookings
       setBookings(data.filter((b: UserBooking) => b.status !== "cancelled"));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
+      const message =
+        err instanceof Error ? err.message : t("common.unknownError");
       setError(message);
       console.error("Error fetching bookings:", err);
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, t]);
 
   useEffect(() => {
     void fetchBookings();
@@ -64,12 +68,13 @@ export function UserBookings({ userId }: UserBookingsProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to cancel booking");
+        throw new Error(errorData.error || t("bookings.cancelFailed"));
       }
 
       await fetchBookings();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
+      const message =
+        err instanceof Error ? err.message : t("common.unknownError");
       setError(message);
     } finally {
       setCancelling(null);
@@ -80,7 +85,7 @@ export function UserBookings({ userId }: UserBookingsProps) {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader className="mr-2 animate-spin" />
-        <span>Loading bookings...</span>
+        <span>{t("common.loadingBookings")}</span>
       </div>
     );
   }
@@ -97,7 +102,7 @@ export function UserBookings({ userId }: UserBookingsProps) {
   if (bookings.length === 0) {
     return (
       <div className="rounded-lg border border-gray-200 bg-gray-50 py-8 text-center">
-        <p className="text-gray-600">No active bookings</p>
+        <p className="text-gray-600">{t("bookings.none")}</p>
       </div>
     );
   }
@@ -105,9 +110,14 @@ export function UserBookings({ userId }: UserBookingsProps) {
   return (
     <div className="space-y-3">
       {bookings.map((booking) => (
-        <Card key={booking.id} className="flex items-center justify-between p-4">
+        <Card
+          key={booking.id}
+          className="flex items-center justify-between p-4"
+        >
           <div className="flex-1 space-y-2">
-            <h4 className="font-semibold">{booking.name}</h4>
+            <h4 className="font-semibold">
+              {localizeClass(booking.name, undefined, t).name}
+            </h4>
             <div className="space-y-1 text-sm text-gray-600">
               <div className="flex items-center gap-2">
                 <User size={14} />
@@ -120,7 +130,7 @@ export function UserBookings({ userId }: UserBookingsProps) {
             </div>
             {booking.status === "waitlist" && (
               <div className="inline-block rounded bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800">
-                On Waitlist
+                {t("bookings.onWaitlist")}
               </div>
             )}
           </div>
@@ -132,6 +142,8 @@ export function UserBookings({ userId }: UserBookingsProps) {
               onClick={() => handleCancel(booking.id)}
               disabled={cancelling === booking.id}
               className="ml-4"
+              aria-label={t("bookings.cancelLabel")}
+              title={t("bookings.cancelLabel")}
             >
               <Trash2 size={18} />
             </Button>

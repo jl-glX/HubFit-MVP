@@ -47,7 +47,7 @@ usersRouter.get(
       console.error("Error fetching user:", error);
       res.status(500).json({ error: "Failed to fetch user" });
     }
-  }
+  },
 );
 
 // Create user
@@ -58,19 +58,14 @@ usersRouter.post(
     try {
       const { email, name, password, role } = req.body;
 
-      const user = await createUser(
-        email,
-        name,
-        password,
-        role || "member"
-      );
+      const user = await createUser(email, name, password, role || "member");
       res.status(201).json(user);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
       console.error("Error creating user:", error);
       res.status(400).json({ error: message });
     }
-  }
+  },
 );
 
 // Update user
@@ -93,7 +88,7 @@ usersRouter.put(
       console.error("Error updating user:", error);
       res.status(400).json({ error: message });
     }
-  }
+  },
 );
 
 // Update user role
@@ -116,7 +111,7 @@ usersRouter.patch(
       console.error("Error updating user role:", error);
       res.status(400).json({ error: message });
     }
-  }
+  },
 );
 
 // Delete user
@@ -132,7 +127,7 @@ usersRouter.delete(
       console.error("Error deleting user:", error);
       res.status(400).json({ error: message });
     }
-  }
+  },
 );
 
 // Delete multiple users
@@ -155,5 +150,5 @@ usersRouter.post(
       console.error("Error deleting users:", error);
       res.status(400).json({ error: message });
     }
-  }
+  },
 );

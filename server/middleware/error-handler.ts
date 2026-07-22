@@ -6,10 +6,7 @@ interface RequestError extends Error {
   type?: string;
 }
 
-export function notFoundHandler(
-  _req: Request,
-  res: Response
-): void {
+export function notFoundHandler(_req: Request, res: Response): void {
   res.status(404).json({
     error: "Endpoint not found",
     code: "NOT_FOUND",
@@ -20,7 +17,7 @@ export function errorHandler(
   error: RequestError,
   _req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ): void {
   void _next;
 
@@ -48,8 +45,7 @@ export function errorHandler(
 
   console.error("Unhandled request error:", error);
   res.status(safeStatusCode).json({
-    error:
-      safeStatusCode < 500 ? error.message : "Internal server error",
+    error: safeStatusCode < 500 ? error.message : "Internal server error",
     code: safeStatusCode < 500 ? "REQUEST_ERROR" : "INTERNAL_ERROR",
   });
 }

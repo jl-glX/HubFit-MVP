@@ -1,4 +1,6 @@
 import { Card } from "./ui/card";
+import { useTranslation } from "react-i18next";
+import { localizeClass } from "../lib/classLocalization";
 
 interface ClassPopularityData {
   classId: string;
@@ -20,13 +22,14 @@ export function ClassPopularityList({
   data,
   limit = 10,
 }: ClassPopularityListProps) {
+  const { t } = useTranslation();
   const topClasses = data.slice(0, limit);
 
   return (
     <Card className="p-6">
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
       {topClasses.length === 0 ? (
-        <p className="text-sm text-gray-400">No classes available</p>
+        <p className="text-sm text-gray-400">{t("classes.none")}</p>
       ) : (
         <div className="space-y-3">
           {topClasses.map((item, index) => (
@@ -40,7 +43,9 @@ export function ClassPopularityList({
                     #{index + 1}
                   </span>
                   <div>
-                    <p className="font-medium text-sm">{item.className}</p>
+                    <p className="font-medium text-sm">
+                      {localizeClass(item.className, undefined, t).name}
+                    </p>
                     <p className="text-xs text-gray-500">{item.trainerName}</p>
                   </div>
                 </div>
@@ -48,7 +53,7 @@ export function ClassPopularityList({
               <div className="text-right">
                 <p className="font-semibold text-sm">{item.totalBookings}</p>
                 <p className="text-xs text-gray-500">
-                  {item.averageOccupancy}% full
+                  {t("analytics.occupancy", { value: item.averageOccupancy })}
                 </p>
               </div>
             </div>

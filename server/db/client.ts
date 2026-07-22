@@ -24,7 +24,7 @@ export async function initializeDatabase() {
 
   const tables = sqliteDb
     .prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'",
     )
     .all() as Array<{ name: string }>;
 
@@ -49,24 +49,30 @@ export async function initializeDatabase() {
     const userColumns = sqliteDb
       .prepare("PRAGMA table_info(users)")
       .all() as Array<{ name: string }>;
-    
+
     const columnNames = userColumns.map((c) => c.name);
-    
+
     if (!columnNames.includes("password")) {
       console.log("Adding password column to users table...");
-      sqliteDb.exec("ALTER TABLE users ADD COLUMN password TEXT NOT NULL DEFAULT ''");
+      sqliteDb.exec(
+        "ALTER TABLE users ADD COLUMN password TEXT NOT NULL DEFAULT ''",
+      );
     }
-    
+
     if (!columnNames.includes("role")) {
       console.log("Adding role column to users table...");
-      sqliteDb.exec("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'member'");
-      
+      sqliteDb.exec(
+        "ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'member'",
+      );
+
       // Create index if it doesn't exist
       const indexes = sqliteDb
-        .prepare("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='users'")
+        .prepare(
+          "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='users'",
+        )
         .all() as Array<{ name: string }>;
-      
-      if (!indexes.some(idx => idx.name === "idx_users_role")) {
+
+      if (!indexes.some((idx) => idx.name === "idx_users_role")) {
         sqliteDb.exec("CREATE INDEX idx_users_role ON users(role)");
       }
     }

@@ -6,16 +6,22 @@ import { TrainerClassCard } from "../components/TrainerClassCard";
 import { ClassDetailsModal } from "../components/ClassDetailsModal";
 import { useTrainerClasses } from "../hooks/useTrainerClasses";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import { groupClassesByDate, isFutureClass } from "../lib/dateUtils";
+import {
+  formatDate,
+  groupClassesByDate,
+  isFutureClass,
+} from "../lib/dateUtils";
+import { useTranslation } from "react-i18next";
 
 export function TrainerDashboardPage() {
   const user = useCurrentUser();
   const { classes, loading, error, refreshClasses } = useTrainerClasses(
-    user?.id || ""
+    user?.id || "",
   );
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [showPastClasses, setShowPastClasses] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { t } = useTranslation();
 
   const filteredClasses = useMemo(() => {
     return classes.filter((cls) => {
@@ -36,7 +42,7 @@ export function TrainerDashboardPage() {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader className="mr-2 animate-spin" />
-        <span>Loading...</span>
+        <span>{t("common.loading")}</span>
       </div>
     );
   }
@@ -47,9 +53,7 @@ export function TrainerDashboardPage() {
         <div className="mx-auto max-w-6xl px-4 py-8">
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 text-center">
             <AlertCircle className="mx-auto mb-4 text-amber-600" size={48} />
-            <p className="text-amber-800 font-medium">
-              This page is only accessible to trainers
-            </p>
+            <p className="text-amber-800 font-medium">{t("trainer.only")}</p>
           </div>
         </div>
       </div>
@@ -61,8 +65,10 @@ export function TrainerDashboardPage() {
       <div className="mx-auto max-w-6xl px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900">Trainer Dashboard</h1>
-          <p className="mt-2 text-gray-600">Manage your classes and attendees</p>
+          <h1 className="text-4xl font-bold text-slate-900">
+            {t("trainer.title")}
+          </h1>
+          <p className="mt-2 text-gray-600">{t("trainer.description")}</p>
         </div>
 
         {/* Controls */}
@@ -71,7 +77,7 @@ export function TrainerDashboardPage() {
             <div className="flex-1 w-full sm:w-auto">
               <Input
                 type="text"
-                placeholder="Search classes..."
+                placeholder={t("trainer.search")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full"
@@ -86,7 +92,9 @@ export function TrainerDashboardPage() {
                 className="gap-2"
               >
                 <Filter size={16} />
-                {showPastClasses ? "Showing Past" : "Future Only"}
+                {showPastClasses
+                  ? t("trainer.showingPast")
+                  : t("trainer.futureOnly")}
               </Button>
 
               <Button
@@ -97,7 +105,7 @@ export function TrainerDashboardPage() {
                 className="gap-2"
               >
                 <RefreshCw size={16} />
-                Refresh
+                {t("common.refresh")}
               </Button>
             </div>
           </div>
@@ -115,25 +123,25 @@ export function TrainerDashboardPage() {
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Loader className="mr-2 animate-spin" size={32} />
-            <span className="text-lg">Loading your classes...</span>
+            <span className="text-lg">{t("trainer.loading")}</span>
           </div>
         ) : classes.length === 0 ? (
           <div className="rounded-lg border border-gray-200 bg-white py-12 text-center">
             <AlertCircle className="mx-auto mb-4 text-gray-400" size={48} />
-            <p className="text-gray-600">
-              You don't have any classes assigned yet
-            </p>
+            <p className="text-gray-600">{t("trainer.noneAssigned")}</p>
           </div>
         ) : filteredClasses.length === 0 ? (
           <div className="rounded-lg border border-gray-200 bg-white py-12 text-center">
             <AlertCircle className="mx-auto mb-4 text-gray-400" size={48} />
-            <p className="text-gray-600">No classes match your search</p>
+            <p className="text-gray-600">{t("trainer.noResults")}</p>
           </div>
         ) : (
           <div className="space-y-8">
             {sortedDates.map((date) => (
               <div key={date}>
-                <h2 className="mb-4 text-2xl font-bold text-slate-800">{date}</h2>
+                <h2 className="mb-4 text-2xl font-bold text-slate-800">
+                  {formatDate(groupedClasses[date][0].scheduledAt)}
+                </h2>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {groupedClasses[date].map((gymClass) => (
                     <TrainerClassCard
