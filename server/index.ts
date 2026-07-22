@@ -16,6 +16,8 @@ import { analyticsRouter } from "./routes/analytics.js";
 import { accountSecurityRouter } from "./routes/account-security.js";
 import { feedbackRouter } from "./routes/feedback.js";
 import { billingRouter } from "./routes/billing.js";
+import { facilityProfileRouter } from "./routes/facility-profile.js";
+import { accountProfileRouter } from "./routes/account-profile.js";
 import { apiLimiter, apiSecurityHeaders } from "./middleware/security.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 
@@ -51,6 +53,11 @@ app.use(
 
 app.use("/api", apiSecurityHeaders);
 app.use("/api", apiLimiter);
+
+// Facility logos use a larger JSON allowance inside their authenticated router.
+// The general API keeps its deliberately small request limit below.
+app.use("/api/facility-profile", facilityProfileRouter);
+app.use("/api/account/profile", accountProfileRouter);
 
 // Body parsing middleware
 const requestLimit = process.env.MAX_REQUEST_SIZE || "32kb";

@@ -153,12 +153,92 @@ export const feedbackValidation = validateRequest([
   body("message").isString().trim().isLength({ min: 10, max: 2000 }),
 ]);
 
+const FACILITY_LOGO_MAX_BYTES = 512 * 1024;
+
+export const facilityProfileValidation = validateRequest([
+  strictBody(["name", "logoDataUrl", "accentColor"], true),
+  body("name").optional().isString().trim().isLength({ min: 1, max: 100 }),
+  body("accentColor")
+    .optional()
+    .isString()
+    .matches(/^#[0-9a-fA-F]{6}$/)
+    .withMessage("Accent color must use the #RRGGBB format"),
+  body("logoDataUrl")
+    .optional()
+    .isString()
+    .custom((value: string) => {
+      if (value === "") return true;
+      const match = value.match(
+        /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/]+={0,2})$/,
+      );
+      if (!match) {
+        throw new Error("Logo must be a PNG, JPEG or WebP image");
+      }
+      if (Buffer.byteLength(match[2], "base64") > FACILITY_LOGO_MAX_BYTES) {
+        throw new Error("Logo must not exceed 512 KB");
+      }
+
+      const bytes = Buffer.from(match[2], "base64");
+      const hasExpectedSignature =
+        (match[1] === "png" &&
+          bytes
+            .subarray(0, 8)
+            .equals(Buffer.from("89504e470d0a1a0a", "hex"))) ||
+        (match[1] === "jpeg" && bytes[0] === 0xff && bytes[1] === 0xd8) ||
+        (match[1] === "webp" &&
+          bytes.subarray(0, 4).toString("ascii") === "RIFF" &&
+          bytes.subarray(8, 12).toString("ascii") === "WEBP");
+
+      if (!hasExpectedSignature) {
+        throw new Error("Logo contents do not match the declared image format");
+      }
+      return true;
+    }),
+]);
+
+export const accountProfileValidation = validateRequest([
+  strictBody(["avatarDataUrl"], true),
+  body("avatarDataUrl")
+    .isString()
+    .custom((value: string) => {
+      if (value === "") return true;
+      const match = value.match(
+        /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/]+={0,2})$/,
+      );
+      if (!match) {
+        throw new Error("Avatar must be a PNG, JPEG or WebP image");
+      }
+      if (Buffer.byteLength(match[2], "base64") > FACILITY_LOGO_MAX_BYTES) {
+        throw new Error("Avatar must not exceed 512 KB");
+      }
+
+      const bytes = Buffer.from(match[2], "base64");
+      const hasExpectedSignature =
+        (match[1] === "png" &&
+          bytes
+            .subarray(0, 8)
+            .equals(Buffer.from("89504e470d0a1a0a", "hex"))) ||
+        (match[1] === "jpeg" && bytes[0] === 0xff && bytes[1] === 0xd8) ||
+        (match[1] === "webp" &&
+          bytes.subarray(0, 4).toString("ascii") === "RIFF" &&
+          bytes.subarray(8, 12).toString("ascii") === "WEBP");
+
+      if (!hasExpectedSignature) {
+        throw new Error(
+          "Avatar contents do not match the declared image format",
+        );
+      }
+      return true;
+    }),
+]);
+
 const billingFields = [
   "userId",
   "customerName",
   "customerEmail",
   "concept",
   "billingCycle",
+  "customCycleLabel",
   "amountCents",
   "currency",
   "status",
@@ -167,6 +247,8 @@ const billingFields = [
   "invoiceNumber",
   "notes",
 ];
+
+const updateBillingFields = [...billingFields, "archivedAt"];
 
 export const createBillingRecordValidation = validateRequest([
   strictBody(billingFields),
@@ -178,14 +260,26 @@ export const createBillingRecordValidation = validateRequest([
     .normalizeEmail()
     .isLength({ max: 254 }),
   body("concept").isString().trim().isLength({ min: 1, max: 160 }),
-  body("billingCycle").isIn([
-    "monthly",
-    "quarterly",
-    "semiannual",
-    "annual",
-    "trial_day",
-    "custom",
-  ]),
+  body("billingCycle")
+    .isIn([
+      "monthly",
+      "quarterly",
+      "semiannual",
+      "annual",
+      "trial_day",
+      "custom",
+    ])
+    .custom((value, { req }) => {
+      if (
+        value === "custom" &&
+        (typeof req.body.customCycleLabel !== "string" ||
+          req.body.customCycleLabel.trim().length === 0)
+      ) {
+        throw new Error("Custom billing cycles require a description");
+      }
+      return true;
+    }),
+  body("customCycleLabel").optional().isString().trim().isLength({ max: 160 }),
   body("amountCents").isInt({ min: 0, max: 100000000 }).toInt(),
   body("currency").isString().trim().isLength({ min: 3, max: 3 }),
   body("status").isIn(["paid", "unpaid", "pending"]),
@@ -201,7 +295,7 @@ export const createBillingRecordValidation = validateRequest([
 
 export const updateBillingRecordValidation = validateRequest([
   param("id").isString().matches(ID_PATTERN),
-  strictBody(billingFields, true),
+  strictBody(updateBillingFields, true),
   body("userId").optional({ nullable: true }).isString().matches(ID_PATTERN),
   body("customerName")
     .optional()
@@ -224,6 +318,7 @@ export const updateBillingRecordValidation = validateRequest([
       "trial_day",
       "custom",
     ]),
+  body("customCycleLabel").optional().isString().trim().isLength({ max: 160 }),
   body("amountCents").optional().isInt({ min: 0, max: 100000000 }).toInt(),
   body("currency").optional().isString().trim().isLength({ min: 3, max: 3 }),
   body("status").optional().isIn(["paid", "unpaid", "pending"]),
@@ -235,6 +330,7 @@ export const updateBillingRecordValidation = validateRequest([
     .trim()
     .isLength({ max: 80 }),
   body("notes").optional().isString().trim().isLength({ max: 1000 }),
+  body("archivedAt").optional({ nullable: true }).isInt({ min: 0 }).toInt(),
 ]);
 
 export const bookingValidation = validateRequest([

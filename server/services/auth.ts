@@ -14,6 +14,7 @@ export interface SessionData {
   userId: string;
   email: string;
   name: string;
+  avatarDataUrl: string;
   role: "member" | "trainer" | "admin";
   createdAt: number;
   expiresAt: number;
@@ -26,6 +27,7 @@ export interface AuthResult {
     id: string;
     email: string;
     name: string;
+    avatarDataUrl: string;
     role: "member" | "trainer" | "admin";
   };
 }
@@ -122,6 +124,7 @@ export async function signup(
     email,
     phone: null,
     name,
+    avatarDataUrl: "",
     role: "member" as const,
   };
 
@@ -205,6 +208,7 @@ export async function login(
       id: user.id,
       email: user.email,
       name: user.name,
+      avatarDataUrl: user.avatarDataUrl,
       role: user.role,
     },
     metadata,
@@ -232,6 +236,7 @@ export async function completeMfaLogin(
       "authChallenges.rememberDevice",
       "users.email",
       "users.name",
+      "users.avatarDataUrl",
       "users.role",
     ])
     .where("authChallenges.id", "=", challengeId)
@@ -271,6 +276,7 @@ export async function completeMfaLogin(
       id: challenge.userId,
       email: challenge.email,
       name: challenge.name,
+      avatarDataUrl: challenge.avatarDataUrl,
       role: challenge.role,
     },
     metadata,
@@ -299,6 +305,7 @@ export async function verifyToken(token: string): Promise<SessionData | null> {
       "sessions.lastSeenAt",
       "users.email",
       "users.name",
+      "users.avatarDataUrl",
       "users.role",
     ])
     .where("sessions.id", "=", sessionId(token))
@@ -320,6 +327,7 @@ export async function verifyToken(token: string): Promise<SessionData | null> {
     userId: record.userId,
     email: record.email,
     name: record.name,
+    avatarDataUrl: record.avatarDataUrl,
     role: record.role,
     createdAt: record.createdAt,
     expiresAt: record.expiresAt,

@@ -25,6 +25,7 @@ describe("billing API", () => {
         email: "billing-admin@example.com",
         phone: null,
         name: "Billing Admin",
+        avatarDataUrl: "",
         password: await auth.hashPassword("BillingPassword123"),
         role: "admin",
         createdAt: Date.now(),
@@ -46,22 +47,24 @@ describe("billing API", () => {
     await rm(directory, { recursive: true, force: true });
   });
 
-  it("stores a customised membership payment and updates its status", async () => {
+  it("stores a customised payment, preserves its details and archives it", async () => {
+    const dueAt = Date.now() + 86_400_000;
     const created = await request(app)
       .post("/api/billing")
       .set("Cookie", adminCookie)
       .send({
         customerName: "Test Member",
         customerEmail: "member@example.com",
-        concept: "Quarterly membership",
-        billingCycle: "quarterly",
+        concept: "Flexible membership",
+        billingCycle: "custom",
+        customCycleLabel: "Every five weeks",
         amountCents: 12000,
         currency: "EUR",
         status: "pending",
-        dueAt: Date.now() + 86_400_000,
+        dueAt,
         paidAt: null,
         invoiceNumber: "HF-TEST-001",
-        notes: "Custom rate",
+        notes: "Custom rate agreed with the member",
       })
       .expect(201);
 
@@ -69,6 +72,10 @@ describe("billing API", () => {
       customerName: "Test Member",
       amountCents: 12000,
       status: "pending",
+      customCycleLabel: "Every five weeks",
+      notes: "Custom rate agreed with the member",
+      archivedAt: null,
+      dueAt,
     });
 
     const updated = await request(app)
@@ -78,9 +85,45 @@ describe("billing API", () => {
       .expect(200);
     expect(updated.body.status).toBe("paid");
     expect(updated.body.paidAt).toEqual(expect.any(Number));
+
+    const archivedAt = Date.now();
+    const archived = await request(app)
+      .patch(`/api/billing/${created.body.id}`)
+      .set("Cookie", adminCookie)
+      .send({ archivedAt })
+      .expect(200);
+    expect(archived.body.archivedAt).toBe(archivedAt);
+
+    const restored = await request(app)
+      .patch(`/api/billing/${created.body.id}`)
+      .set("Cookie", adminCookie)
+      .send({ archivedAt: null })
+      .expect(200);
+    expect(restored.body.archivedAt).toBeNull();
   });
 
   it("rejects unauthenticated billing access", async () => {
     await request(app).get("/api/billing").expect(401);
+  });
+
+  it("requires a description for a custom billing cycle", async () => {
+    await request(app)
+      .post("/api/billing")
+      .set("Cookie", adminCookie)
+      .send({
+        customerName: "Test Member",
+        customerEmail: "member@example.com",
+        concept: "Flexible membership",
+        billingCycle: "custom",
+        customCycleLabel: "",
+        amountCents: 12000,
+        currency: "EUR",
+        status: "pending",
+        dueAt: null,
+        paidAt: null,
+        invoiceNumber: "HF-TEST-002",
+        notes: "",
+      })
+      .expect(400);
   });
 });

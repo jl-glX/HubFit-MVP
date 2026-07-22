@@ -38,6 +38,7 @@ export async function initializeDatabase() {
         email TEXT NOT NULL UNIQUE,
         phone TEXT UNIQUE,
         name TEXT NOT NULL,
+        avatarDataUrl TEXT NOT NULL DEFAULT '',
         password TEXT NOT NULL DEFAULT '',
         role TEXT NOT NULL DEFAULT 'member',
         createdAt INTEGER NOT NULL
@@ -82,6 +83,13 @@ export async function initializeDatabase() {
     if (!columnNames.includes("phone")) {
       console.log("Adding phone column to users table...");
       sqliteDb.exec("ALTER TABLE users ADD COLUMN phone TEXT");
+    }
+
+    if (!columnNames.includes("avatarDataUrl")) {
+      console.log("Adding avatar column to users table...");
+      sqliteDb.exec(
+        "ALTER TABLE users ADD COLUMN avatarDataUrl TEXT NOT NULL DEFAULT ''",
+      );
     }
 
     const indexes = sqliteDb
@@ -310,6 +318,7 @@ export async function initializeDatabase() {
         customerEmail TEXT NOT NULL DEFAULT '',
         concept TEXT NOT NULL,
         billingCycle TEXT NOT NULL CHECK(billingCycle IN ('monthly', 'quarterly', 'semiannual', 'annual', 'trial_day', 'custom')),
+        customCycleLabel TEXT NOT NULL DEFAULT '',
         amountCents INTEGER NOT NULL CHECK(amountCents >= 0),
         currency TEXT NOT NULL DEFAULT 'EUR',
         status TEXT NOT NULL CHECK(status IN ('paid', 'unpaid', 'pending')),
@@ -317,6 +326,7 @@ export async function initializeDatabase() {
         paidAt INTEGER,
         invoiceNumber TEXT,
         notes TEXT NOT NULL DEFAULT '',
+        archivedAt INTEGER,
         createdAt INTEGER NOT NULL,
         updatedAt INTEGER NOT NULL,
         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE SET NULL
@@ -324,8 +334,49 @@ export async function initializeDatabase() {
       CREATE INDEX idx_billingRecords_userId ON billingRecords(userId);
       CREATE INDEX idx_billingRecords_status ON billingRecords(status);
       CREATE INDEX idx_billingRecords_dueAt ON billingRecords(dueAt);
+      CREATE INDEX idx_billingRecords_archivedAt ON billingRecords(archivedAt);
+    `);
+  } else {
+    const billingColumns = sqliteDb
+      .prepare("PRAGMA table_info(billingRecords)")
+      .all() as Array<{ name: string }>;
+    const billingColumnNames = billingColumns.map((column) => column.name);
+
+    if (!billingColumnNames.includes("customCycleLabel")) {
+      sqliteDb.exec(
+        "ALTER TABLE billingRecords ADD COLUMN customCycleLabel TEXT NOT NULL DEFAULT ''",
+      );
+    }
+
+    if (!billingColumnNames.includes("archivedAt")) {
+      sqliteDb.exec("ALTER TABLE billingRecords ADD COLUMN archivedAt INTEGER");
+    }
+
+    sqliteDb.exec(
+      "CREATE INDEX IF NOT EXISTS idx_billingRecords_archivedAt ON billingRecords(archivedAt)",
+    );
+  }
+
+  if (!tableNames.includes("facilityProfiles")) {
+    console.log("Creating facilityProfiles table...");
+    sqliteDb.exec(`
+      CREATE TABLE facilityProfiles (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        logoDataUrl TEXT NOT NULL DEFAULT '',
+        accentColor TEXT NOT NULL DEFAULT '#2563eb',
+        updatedAt INTEGER NOT NULL
+      );
     `);
   }
+
+  sqliteDb
+    .prepare(
+      `INSERT OR IGNORE INTO facilityProfiles
+       (id, name, logoDataUrl, accentColor, updatedAt)
+       VALUES ('primary', 'Centro HubFit', '', '#2563eb', ?)`,
+    )
+    .run(Date.now());
 
   console.log("Database initialized successfully");
 }

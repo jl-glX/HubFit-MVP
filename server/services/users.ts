@@ -72,6 +72,7 @@ export async function createUser(
       email,
       phone: null,
       name,
+      avatarDataUrl: "",
       password: hashedPassword,
       role,
       createdAt: Date.now(),

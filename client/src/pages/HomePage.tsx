@@ -9,11 +9,13 @@ import {
   ShieldCheck,
   Sparkles,
   Users,
+  Building2,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useTranslation } from "react-i18next";
 import { LegalFooter } from "../components/LegalFooter";
+import { useFacilityProfile } from "../hooks/useFacilityProfile";
 
 export function HomePage() {
   const user = useCurrentUser();
@@ -113,6 +115,7 @@ export function HomePage() {
 
 function AdminHome({ name }: { name: string }) {
   const { t } = useTranslation();
+  const { profile } = useFacilityProfile();
   const actions = [
     {
       to: "/classes",
@@ -143,9 +146,34 @@ function AdminHome({ name }: { name: string }) {
   return (
     <main className="min-h-[calc(100vh-4.5rem)] bg-slate-50 text-slate-950">
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
-        <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm sm:p-10">
+        <div
+          className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm sm:p-10"
+          style={{ borderTopColor: profile.accentColor, borderTopWidth: 4 }}
+        >
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
+              <div className="mb-5 flex items-center gap-3">
+                {profile.logoDataUrl ? (
+                  <img
+                    src={profile.logoDataUrl}
+                    alt={profile.name}
+                    className="h-14 w-14 rounded-xl object-contain"
+                  />
+                ) : (
+                  <span
+                    className="flex h-14 w-14 items-center justify-center rounded-xl text-white"
+                    style={{ backgroundColor: profile.accentColor }}
+                  >
+                    <Building2 size={26} />
+                  </span>
+                )}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    {t("facilityBranding.currentFacility")}
+                  </p>
+                  <p className="font-bold text-slate-950">{profile.name}</p>
+                </div>
+              </div>
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700">
                 <ShieldCheck size={16} />
                 {t("adminHome.welcome", { name })}
@@ -158,7 +186,10 @@ function AdminHome({ name }: { name: string }) {
               </p>
             </div>
             <Link to="/classes">
-              <Button className="h-12 gap-2 rounded-xl px-6">
+              <Button
+                className="h-12 gap-2 rounded-xl px-6"
+                style={{ backgroundColor: profile.accentColor }}
+              >
                 <CalendarDays /> {t("adminHome.createClass")}
                 <ArrowRight size={18} />
               </Button>
@@ -173,7 +204,10 @@ function AdminHome({ name }: { name: string }) {
               to={to}
               className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+              <span
+                className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50"
+                style={{ color: profile.accentColor }}
+              >
                 <Icon size={21} />
               </span>
               <h2 className="mt-5 font-bold text-slate-950">{title}</h2>

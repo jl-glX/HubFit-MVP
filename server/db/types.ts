@@ -3,6 +3,7 @@ interface User {
   email: string;
   phone: string | null;
   name: string;
+  avatarDataUrl: string;
   password: string;
   role: "member" | "trainer" | "admin";
   createdAt: number;
@@ -113,6 +114,7 @@ interface BillingRecord {
   concept: string;
   billingCycle:
     "monthly" | "quarterly" | "semiannual" | "annual" | "trial_day" | "custom";
+  customCycleLabel: string;
   amountCents: number;
   currency: string;
   status: "paid" | "unpaid" | "pending";
@@ -120,7 +122,16 @@ interface BillingRecord {
   paidAt: number | null;
   invoiceNumber: string | null;
   notes: string;
+  archivedAt: number | null;
   createdAt: number;
+  updatedAt: number;
+}
+
+interface FacilityProfile {
+  id: string;
+  name: string;
+  logoDataUrl: string;
+  accentColor: string;
   updatedAt: number;
 }
 
@@ -137,4 +148,5 @@ export interface Database {
   securityEvents: SecurityEvent;
   feedback: Feedback;
   billingRecords: BillingRecord;
+  facilityProfiles: FacilityProfile;
 }

@@ -42,10 +42,15 @@ billingRouter.post(
         userId: req.body.userId ?? null,
         customerEmail: req.body.customerEmail ?? "",
         currency: req.body.currency.toUpperCase(),
+        customCycleLabel:
+          req.body.billingCycle === "custom"
+            ? (req.body.customCycleLabel ?? "")
+            : "",
         dueAt: req.body.dueAt ?? null,
         paidAt: req.body.status === "paid" ? (req.body.paidAt ?? now) : null,
         invoiceNumber: req.body.invoiceNumber || null,
         notes: req.body.notes ?? "",
+        archivedAt: null,
         createdAt: now,
         updatedAt: now,
       };
@@ -76,6 +81,9 @@ billingRouter.patch(
     try {
       const values = {
         ...req.body,
+        ...(req.body.billingCycle && req.body.billingCycle !== "custom"
+          ? { customCycleLabel: "" }
+          : {}),
         ...(req.body.currency
           ? { currency: String(req.body.currency).toUpperCase() }
           : {}),

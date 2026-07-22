@@ -1,8 +1,9 @@
-import { Activity, ArrowLeft, FileText } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { LegalFooter } from "../components/LegalFooter";
+import { BrandLogo } from "../components/BrandLogo";
 
 type LegalPageKind = "notice" | "terms" | "use";
 
@@ -51,9 +52,7 @@ function LegalPage({ kind }: LegalPageProps) {
             className="flex items-center gap-3 font-bold tracking-tight"
             to="/"
           >
-            <span className="rounded-xl bg-linear-to-br from-blue-600 to-indigo-700 p-2.5 text-white shadow-lg shadow-blue-600/20">
-              <Activity size={22} />
-            </span>
+            <BrandLogo className="h-11 w-11 rounded-xl shadow-lg shadow-blue-600/20" />
             <span className="text-xl">HubFit</span>
           </Link>
           <LanguageSwitcher compact />

@@ -13,16 +13,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const refreshUser = useCallback(async () => {
+    const response = await authFetch(`${API_BASE}/api/auth/session`);
+    if (!response.ok) {
+      setUser(null);
+      return;
+    }
+    const data = (await response.json()) as { user: AuthUser };
+    setUser(data.user);
+  }, []);
+
   useEffect(() => {
-    authFetch(`${API_BASE}/api/auth/session`)
-      .then(async (response) => {
-        if (!response.ok) return null;
-        return (await response.json()) as { user: AuthUser };
-      })
-      .then((data) => setUser(data?.user ?? null))
+    refreshUser()
       .catch(() => setUser(null))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [refreshUser]);
 
   const login = useCallback(
     async (
@@ -190,6 +195,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       loginWithPasskey,
       verifyMfa,
+      refreshUser,
       logout,
     }),
     [
@@ -200,6 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       loginWithPasskey,
       verifyMfa,
+      refreshUser,
       logout,
     ],
   );

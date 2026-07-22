@@ -17,6 +17,7 @@ import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { PasswordInput } from "../components/PasswordInput";
+import { ProfilePhotoSettings } from "../components/ProfilePhotoSettings";
 import {
   browserSupportsWebAuthn,
   platformAuthenticatorIsAvailable,
@@ -252,6 +253,8 @@ export function AccountSecurityPage() {
             {error || notice}
           </div>
         )}
+
+        <ProfilePhotoSettings />
 
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <Card className="rounded-3xl border-slate-200 p-6 shadow-sm sm:p-8">

@@ -4,6 +4,7 @@ export interface AuthUser {
   id: string;
   email: string;
   name: string;
+  avatarDataUrl: string;
   role: "member" | "trainer" | "admin";
 }
 
@@ -24,6 +25,7 @@ export interface AuthContextValue {
     rememberDevice: boolean,
   ) => Promise<AuthUser>;
   verifyMfa: (code: string) => Promise<AuthUser>;
+  refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
 }
 

@@ -198,6 +198,7 @@
     "description": "Manage users and gym classes",
     "usersTab": "User management",
     "classesTab": "Class management",
+    "brandingTab": "Facility identity",
     "filterTrainer": "Filter by trainer:",
     "allTrainers": "All trainers",
     "newClass": "New class",
@@ -224,10 +225,30 @@
     "passwordOptional": "Password (leave empty to keep current)",
     "passwordRequired": "Password is required for new users"
   },
+  "facilityBranding": {
+    "title": "Panel customisation",
+    "description": "Configure your facility identity inside HubFit. The main HubFit product logo is not changed.",
+    "preview": "Facility preview",
+    "previewDescription": "This identity will appear in the facility panel and invoices.",
+    "currentFacility": "Active facility",
+    "name": "Facility trading name",
+    "accent": "Accent colour",
+    "logo": "Gym logo",
+    "logoAlt": "{{gym}} logo",
+    "logoHelp": "PNG, JPEG or WebP. Maximum size: 512 KB. SVG files are not accepted for security reasons.",
+    "chooseLogo": "Choose logo",
+    "removeLogo": "Remove logo",
+    "invalidType": "Choose a PNG, JPEG or WebP image.",
+    "tooLarge": "The logo cannot exceed 512 KB.",
+    "unnamed": "Unnamed facility",
+    "save": "Save customisation",
+    "saving": "Saving...",
+    "saved": "The facility identity has been updated."
+  },
   "billing": {
-    "eyebrow": "ProTrack · Financial management",
-    "title": "Billing and membership fees",
-    "description": "An operational ledger adapted from App-ProTrack to track fees, payments, pending decisions and trial access. It does not process bank payments yet.",
+    "eyebrow": "HubFit · Financial administration",
+    "title": "Fees, payments and invoices",
+    "description": "Manage facility fees, pending payments, invoices and trial access. This version records operations but does not process bank payments yet.",
     "requestFailed": "The billing operation could not be completed",
     "newRecord": "New record",
     "customer": "Member or customer",
@@ -238,15 +259,49 @@
     "dueDate": "Due date",
     "invoiceNumber": "Invoice number",
     "notes": "Notes and custom details",
+    "notesPlaceholder": "Add agreements, conditions, itemisation or information that must appear in the detail...",
+    "customCycleLabel": "Custom cycle description",
+    "customCyclePlaceholder": "For example: every 5 weeks or 10 sessions",
     "actions": "Actions",
     "add": "Add record",
     "delete": "Delete record",
+    "deleteConfirm": "Permanently delete this record? Archive it if you need to keep it for review or correction.",
+    "archive": "Archive invoice",
+    "restore": "Restore invoice",
+    "archived": "Archived",
+    "viewDetail": "View invoice detail",
     "empty": "There are no billing records yet.",
+    "noArchived": "There are no archived invoices yet.",
+    "recordsTitle": "Billing ledger",
+    "recordsDescription": "Expand an invoice to review its notes, print it or save it as a PDF.",
+    "invoiceDetail": "Invoice detail",
+    "noInvoiceNumber": "No number assigned",
+    "issueDate": "Issue date",
+    "noNotes": "This invoice has no notes or custom conditions.",
+    "facilityIdentity": "Facility identity",
+    "gymLogoAlt": "{{gym}} logo",
+    "logoConfigurationHint": "This facility has not configured a logo yet. Add one under Administration → Facility identity.",
+    "print": "Print",
+    "savePdf": "Save as PDF",
+    "pdfHint": "The PDF option opens your device print view; choose “Save as PDF” as the destination.",
+    "filters": {
+      "active": "Active invoices",
+      "archived": "Archived invoices",
+      "all": "All invoices"
+    },
+    "dateFormat": {
+      "label": "Date format",
+      "locale": "Follow language",
+      "day-first": "DD/MM/YYYY",
+      "month-first": "MM/DD/YYYY",
+      "iso": "YYYY-MM-DD"
+    },
     "summary": {
       "paid": "Paid",
       "unpaid": "Unpaid",
       "pending": "Pending",
-      "trial": "Trial days"
+      "trial": "Trial days",
+      "archived": "Archived"
     },
     "status": {
       "paid": "Paid",
@@ -449,6 +504,19 @@
         }
       }
     }
+  },
+  "profilePhoto": {
+    "title": "Profile photo",
+    "description": "This image identifies your account inside HubFit. It is separate from the official platform logo and the gym logo.",
+    "choose": "Choose photo",
+    "remove": "Remove photo",
+    "save": "Save photo",
+    "saving": "Saving…",
+    "saved": "Your profile photo has been updated.",
+    "saveError": "The profile photo could not be saved.",
+    "invalidType": "Choose a PNG, JPEG or WebP image.",
+    "tooLarge": "The image cannot exceed 512 KB.",
+    "avatarAlt": "{{name}}'s profile photo"
   },
   "security": {
     "eyebrow": "Account protection",

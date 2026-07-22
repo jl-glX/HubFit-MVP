@@ -180,6 +180,7 @@ authRouter.get(
         id: session.userId,
         email: session.email,
         name: session.name,
+        avatarDataUrl: session.avatarDataUrl,
         role: session.role,
       },
     });

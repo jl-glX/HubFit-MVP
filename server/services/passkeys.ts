@@ -230,7 +230,7 @@ export async function finishPasskeyAuthentication(
       .executeTakeFirst(),
     db
       .selectFrom("users")
-      .select(["id", "email", "name", "role"])
+      .select(["id", "email", "name", "avatarDataUrl", "role"])
       .where("id", "=", challenge.userId)
       .executeTakeFirst(),
   ]);

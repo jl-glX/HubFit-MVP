@@ -61,6 +61,25 @@
   }
 }
 
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: white !important;
+    background-image: none !important;
+  }
+
+  .invoice-print-sheet {
+    width: 100%;
+    min-height: 0;
+    box-shadow: none !important;
+  }
+}
+
 @layer base {
   :root {
     --background: 216 33% 97%;

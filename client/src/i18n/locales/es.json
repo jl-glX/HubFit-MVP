@@ -206,6 +206,7 @@
     "description": "Gestiona usuarios y clases del gimnasio",
     "usersTab": "Gestión de usuarios",
     "classesTab": "Gestión de clases",
+    "brandingTab": "Identidad del centro",
     "filterTrainer": "Filtrar por entrenador:",
     "allTrainers": "Todos los entrenadores",
     "newClass": "Nueva clase",
@@ -232,10 +233,30 @@
     "passwordOptional": "Contraseña (déjala vacía para conservar la actual)",
     "passwordRequired": "La contraseña es obligatoria para usuarios nuevos"
   },
+  "facilityBranding": {
+    "title": "Personalización del panel",
+    "description": "Configura la identidad visual de tu centro dentro de HubFit. El logotipo principal de HubFit no se modifica.",
+    "preview": "Vista previa del centro",
+    "previewDescription": "Esta identidad aparecerá en el panel y en las facturas del centro.",
+    "currentFacility": "Centro activo",
+    "name": "Nombre comercial del centro",
+    "accent": "Color de acento",
+    "logo": "Logotipo del gimnasio",
+    "logoAlt": "Logotipo de {{gym}}",
+    "logoHelp": "PNG, JPEG o WebP. Tamaño máximo: 512 KB. No se admiten SVG por seguridad.",
+    "chooseLogo": "Seleccionar logotipo",
+    "removeLogo": "Quitar logotipo",
+    "invalidType": "Selecciona una imagen PNG, JPEG o WebP.",
+    "tooLarge": "El logotipo no puede superar los 512 KB.",
+    "unnamed": "Centro sin nombre",
+    "save": "Guardar personalización",
+    "saving": "Guardando...",
+    "saved": "La identidad del centro se ha actualizado correctamente."
+  },
   "billing": {
-    "eyebrow": "ProTrack · Gestión económica",
-    "title": "Facturación y cuotas",
-    "description": "Registro operativo adaptado de App-ProTrack para controlar cuotas, pagos, pendientes y accesos de prueba. No procesa cobros bancarios todavía.",
+    "eyebrow": "HubFit · Administración financiera",
+    "title": "Cuotas, cobros y facturas",
+    "description": "Gestiona cuotas, pagos pendientes, facturas y accesos de prueba del centro. Esta versión registra las operaciones, pero todavía no procesa cobros bancarios.",
     "requestFailed": "No se ha podido completar la operación de facturación",
     "newRecord": "Nuevo registro",
     "customer": "Socio o cliente",
@@ -246,15 +267,49 @@
     "dueDate": "Vencimiento",
     "invoiceNumber": "N.º de factura",
     "notes": "Notas y personalización",
+    "notesPlaceholder": "Añade acuerdos, condiciones, desglose o información que deba aparecer en el detalle...",
+    "customCycleLabel": "Descripción de la periodicidad",
+    "customCyclePlaceholder": "Por ejemplo: cada 5 semanas o 10 sesiones",
     "actions": "Acciones",
     "add": "Añadir registro",
     "delete": "Eliminar registro",
+    "deleteConfirm": "¿Eliminar definitivamente este registro? Archívalo si quieres conservarlo para consulta o corrección.",
+    "archive": "Archivar factura",
+    "restore": "Restaurar factura",
+    "archived": "Archivada",
+    "viewDetail": "Ver detalle de la factura",
     "empty": "Todavía no hay registros de facturación.",
+    "noArchived": "Todavía no hay facturas archivadas.",
+    "recordsTitle": "Registro de facturación",
+    "recordsDescription": "Despliega una factura para consultar sus notas, imprimirla o guardarla como PDF.",
+    "invoiceDetail": "Detalle de factura",
+    "noInvoiceNumber": "Sin número asignado",
+    "issueDate": "Fecha de emisión",
+    "noNotes": "Esta factura no contiene notas ni condiciones personalizadas.",
+    "facilityIdentity": "Identidad del centro",
+    "gymLogoAlt": "Logotipo de {{gym}}",
+    "logoConfigurationHint": "Este centro todavía no ha configurado un logotipo. Puedes añadirlo desde Administración → Identidad del centro.",
+    "print": "Imprimir",
+    "savePdf": "Guardar como PDF",
+    "pdfHint": "La opción PDF abre la vista de impresión del dispositivo; selecciona «Guardar como PDF» como destino.",
+    "filters": {
+      "active": "Facturas activas",
+      "archived": "Facturas archivadas",
+      "all": "Todas las facturas"
+    },
+    "dateFormat": {
+      "label": "Formato de fecha",
+      "locale": "Según el idioma",
+      "day-first": "DD/MM/AAAA",
+      "month-first": "MM/DD/AAAA",
+      "iso": "AAAA-MM-DD"
+    },
     "summary": {
       "paid": "Pagados",
       "unpaid": "No pagados",
       "pending": "Pendientes",
-      "trial": "Días de prueba"
+      "trial": "Días de prueba",
+      "archived": "Archivadas"
     },
     "status": {
       "paid": "Pagado",
@@ -463,6 +518,19 @@
         }
       }
     }
+  },
+  "profilePhoto": {
+    "title": "Foto de perfil",
+    "description": "Esta imagen identifica tu cuenta dentro de HubFit. Es independiente del logotipo oficial de la plataforma y del logotipo del gimnasio.",
+    "choose": "Elegir foto",
+    "remove": "Quitar foto",
+    "save": "Guardar foto",
+    "saving": "Guardando…",
+    "saved": "La foto de perfil se ha actualizado.",
+    "saveError": "No se pudo guardar la foto de perfil.",
+    "invalidType": "Selecciona una imagen PNG, JPEG o WebP.",
+    "tooLarge": "La imagen no puede superar 512 KB.",
+    "avatarAlt": "Foto de perfil de {{name}}"
   },
   "security": {
     "eyebrow": "Protección de la cuenta",

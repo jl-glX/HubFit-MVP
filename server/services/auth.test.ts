@@ -64,6 +64,7 @@ describe("persistent authentication sessions", () => {
         email: "secure-admin@hubfit.test",
         phone: "+34953000123",
         name: "Secure Admin",
+        avatarDataUrl: "",
         password: await auth.hashPassword(password),
         role: "admin",
         createdAt: Date.now(),

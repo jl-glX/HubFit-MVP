@@ -1,6 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  Activity,
   BarChart3,
   Bookmark,
   CalendarDays,
@@ -10,17 +9,22 @@ import {
   Settings,
   Shield,
   ShieldCheck,
+  Building2,
+  UserRound,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "./ui/button";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import { BrandLogo } from "./BrandLogo";
+import { useFacilityProfile } from "../hooks/useFacilityProfile";
 
 export function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { t } = useTranslation();
+  const { profile } = useFacilityProfile();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -60,11 +64,29 @@ export function Navigation() {
             to="/"
             className="flex shrink-0 items-center gap-2.5 font-bold text-xl tracking-tight text-slate-950"
           >
-            <div className="rounded-xl bg-linear-to-br from-blue-600 to-indigo-700 p-2 shadow-lg shadow-blue-600/20">
-              <Activity size={21} className="text-white" />
-            </div>
+            <BrandLogo className="h-10 w-10 rounded-xl shadow-lg shadow-blue-600/20" />
             <span className="hidden sm:inline">HubFit</span>
           </Link>
+
+          <div className="hidden shrink-0 items-center gap-2 border-l border-slate-200 pl-4 xl:flex">
+            {profile.logoDataUrl ? (
+              <img
+                src={profile.logoDataUrl}
+                alt={profile.name}
+                className="h-8 w-8 rounded-lg object-contain"
+              />
+            ) : (
+              <span
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-white"
+                style={{ backgroundColor: profile.accentColor }}
+              >
+                <Building2 size={16} />
+              </span>
+            )}
+            <span className="max-w-36 truncate text-sm font-semibold text-slate-700">
+              {profile.name}
+            </span>
+          </div>
 
           <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <Link
@@ -155,6 +177,17 @@ export function Navigation() {
 
             <div className="ml-auto flex shrink-0 items-center gap-3 border-l border-slate-200 pl-4">
               <LanguageSwitcher compact />
+              {user?.avatarDataUrl ? (
+                <img
+                  src={user.avatarDataUrl}
+                  alt={user.name}
+                  className="h-10 w-10 rounded-full border-2 border-white object-cover shadow ring-1 ring-slate-200"
+                />
+              ) : (
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 ring-1 ring-slate-200">
+                  <UserRound size={20} />
+                </span>
+              )}
               <div className="hidden text-sm lg:block">
                 <div className="flex items-center gap-2">
                   <p className="font-semibold text-slate-900">{user?.name}</p>

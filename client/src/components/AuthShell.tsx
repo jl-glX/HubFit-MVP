@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
-import { Activity, CalendarDays, ShieldCheck, Users } from "lucide-react";
+import { CalendarDays, ShieldCheck, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { BrandLogo } from "./BrandLogo";
 
 interface AuthShellProps {
   eyebrow: string;
@@ -32,9 +33,7 @@ export function AuthShell({
         <div className="absolute -right-32 -top-20 h-80 w-80 rounded-full bg-cyan-400/15 blur-3xl" />
 
         <div className="relative flex items-center gap-3 text-xl font-bold tracking-tight">
-          <span className="rounded-xl bg-linear-to-br from-blue-600 to-indigo-700 p-2.5 shadow-lg shadow-blue-500/20">
-            <Activity size={23} />
-          </span>
+          <BrandLogo className="h-11 w-11 rounded-xl shadow-lg shadow-blue-500/20" />
           HubFit
         </div>
 
@@ -76,9 +75,7 @@ export function AuthShell({
               {utilityMenu}
             </div>
             <div className="mb-8 flex items-center gap-3 lg:hidden">
-              <span className="rounded-xl bg-linear-to-br from-blue-600 to-indigo-700 p-2.5 text-white shadow-lg shadow-blue-600/20">
-                <Activity size={22} />
-              </span>
+              <BrandLogo className="h-11 w-11 rounded-xl shadow-lg shadow-blue-600/20" />
               <span className="text-xl font-bold tracking-tight text-slate-950">
                 HubFit
               </span>
