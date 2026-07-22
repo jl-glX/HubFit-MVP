@@ -174,42 +174,47 @@ export function Navigation() {
               <ShieldCheck size={20} />
               <span>{t("nav.security")}</span>
             </Link>
+          </div>
 
-            <div className="ml-auto flex shrink-0 items-center gap-3 border-l border-slate-200 pl-4">
-              <LanguageSwitcher compact />
-              {user?.avatarDataUrl ? (
-                <img
-                  src={user.avatarDataUrl}
-                  alt={user.name}
-                  className="h-10 w-10 rounded-full border-2 border-white object-cover shadow ring-1 ring-slate-200"
-                />
-              ) : (
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 ring-1 ring-slate-200">
-                  <UserRound size={20} />
+          <div className="flex shrink-0 items-center gap-2 border-l border-slate-200 pl-2 sm:gap-3 sm:pl-4">
+            <LanguageSwitcher compact />
+            {user?.avatarDataUrl ? (
+              <img
+                src={user.avatarDataUrl}
+                alt={user.name}
+                className="hidden h-10 w-10 rounded-full border-2 border-white object-cover shadow ring-1 ring-slate-200 sm:block"
+              />
+            ) : (
+              <span className="hidden h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 ring-1 ring-slate-200 sm:flex">
+                <UserRound size={20} />
+              </span>
+            )}
+            <div className="hidden min-w-0 max-w-44 text-sm 2xl:block">
+              <div className="flex items-center gap-2">
+                <p className="truncate font-semibold text-slate-900">
+                  {user?.name}
+                </p>
+                <span
+                  className={`inline-flex shrink-0 items-center rounded-full px-2 py-1 text-xs font-semibold capitalize ${getRoleBadgeColor()}`}
+                >
+                  {user?.role ? t(`roles.${user.role}`) : ""}
                 </span>
-              )}
-              <div className="hidden text-sm lg:block">
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold text-slate-900">{user?.name}</p>
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold capitalize ${getRoleBadgeColor()}`}
-                  >
-                    {user?.role ? t(`roles.${user.role}`) : ""}
-                  </span>
-                </div>
-                <p className="mt-0.5 text-xs text-slate-500">{user?.email}</p>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                aria-label={t("nav.logout")}
-                title={t("nav.logout")}
-                className="rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600"
-              >
-                <LogOut size={18} />
-              </Button>
+              <p className="mt-0.5 truncate text-xs text-slate-500">
+                {user?.email}
+              </p>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              aria-label={t("nav.logout")}
+              title={t("nav.logout")}
+              className="shrink-0 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600"
+            >
+              <LogOut size={18} />
+              <span className="hidden 2xl:inline">{t("nav.logout")}</span>
+            </Button>
           </div>
         </div>
       </div>
