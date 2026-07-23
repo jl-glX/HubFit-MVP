@@ -28,6 +28,7 @@ describe("account profile API", () => {
         avatarDataUrl: "",
         password: await auth.hashPassword("ProfileMember123"),
         role: "member",
+        sessionIdleTimeoutMinutes: 7 * 24 * 60,
         createdAt: Date.now(),
       })
       .execute();

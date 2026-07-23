@@ -41,6 +41,7 @@ export async function initializeDatabase() {
         avatarDataUrl TEXT NOT NULL DEFAULT '',
         password TEXT NOT NULL DEFAULT '',
         role TEXT NOT NULL DEFAULT 'member',
+        sessionIdleTimeoutMinutes INTEGER NOT NULL DEFAULT 10080,
         createdAt INTEGER NOT NULL
       );
       CREATE INDEX idx_users_email ON users(email);
@@ -89,6 +90,13 @@ export async function initializeDatabase() {
       console.log("Adding avatar column to users table...");
       sqliteDb.exec(
         "ALTER TABLE users ADD COLUMN avatarDataUrl TEXT NOT NULL DEFAULT ''",
+      );
+    }
+
+    if (!columnNames.includes("sessionIdleTimeoutMinutes")) {
+      console.log("Adding session inactivity preference to users table...");
+      sqliteDb.exec(
+        "ALTER TABLE users ADD COLUMN sessionIdleTimeoutMinutes INTEGER NOT NULL DEFAULT 10080",
       );
     }
 

@@ -234,6 +234,7 @@
     "description": "Book classes, manage your schedule, and join waitlists. Get promoted automatically when spots open up.",
     "browse": "Browse classes",
     "bookings": "My bookings",
+    "downloads": "Download HubFit",
     "rights": "All rights reserved.",
     "features": {
       "calendarTitle": "Class calendar",
@@ -258,7 +259,81 @@
     "billing": "Billing",
     "billingDescription": "Track fees, pending payments and trial access.",
     "analytics": "Attendance and demand",
-    "analyticsDescription": "Find classes and time slots with the highest and lowest attendance."
+    "analyticsDescription": "Find classes and time slots with the highest and lowest attendance.",
+    "downloads": "Download center",
+    "downloadsDescription": "Access the official apps and HubFit portable package.",
+    "resources": "Server resources",
+    "resourcesDescription": "Monitor and control internal tasks registered by HubFit."
+  },
+  "downloads": {
+    "eyebrow": "HubFit on all your devices",
+    "title": "Download center",
+    "description": "Choose the official app for your device or download the portable package. Options become available as each distribution is published.",
+    "loadError": "Download options could not be loaded.",
+    "recommended": "Recommended",
+    "download": "Open download",
+    "comingSoon": "Coming soon",
+    "securityNotice": "HubFit only shows HTTPS destinations configured by the platform. Always confirm that the store or download belongs to HubFit before installing it.",
+    "platforms": {
+      "windows": {
+        "name": "Windows",
+        "destination": "Microsoft Store",
+        "format": "Store app"
+      },
+      "android": {
+        "name": "Android",
+        "destination": "Google Play",
+        "format": "Store app"
+      },
+      "macos": {
+        "name": "macOS",
+        "destination": "Mac App Store",
+        "format": "Store app"
+      },
+      "ios": {
+        "name": "iPhone and iPad",
+        "destination": "App Store",
+        "format": "Store app"
+      },
+      "zip": {
+        "name": "Portable package",
+        "destination": "Browser download",
+        "format": ".zip"
+      }
+    }
+  },
+  "resourceManager": {
+    "eyebrow": "API operations",
+    "title": "Resource manager",
+    "description": "Monitor HubFit internal tasks and run, pause or resume only processes registered by the platform.",
+    "loadError": "Resource status could not be loaded.",
+    "updateError": "The task could not be updated.",
+    "memory": "Memory in use",
+    "heapCapacity": "Reserved capacity",
+    "uptime": "Uptime",
+    "activeTasks": "Active tasks",
+    "managedTasks": "Managed processes",
+    "scopeNotice": "This panel never controls operating-system processes or other applications.",
+    "taskStats": "{{runs}} runs · {{duration}} ms on the last run · {{result}} items processed",
+    "runNow": "Run now",
+    "pause": "Pause",
+    "resume": "Resume",
+    "states": {
+      "idle": "Ready",
+      "running": "Running",
+      "paused": "Paused",
+      "error": "Error"
+    },
+    "tasks": {
+      "expired-auth-cleanup": {
+        "name": "Expired authentication cleanup",
+        "description": "Removes expired or revoked sessions and authentication challenges that have expired."
+      },
+      "sqlite-query-planner": {
+        "name": "SQLite query planner optimization",
+        "description": "Lets SQLite refresh lightweight statistics when the database needs them."
+      }
+    }
   },
   "classes": {
     "agenda": "Your weekly training agenda",
@@ -394,6 +469,7 @@
     "customer": "Member or customer",
     "concept": "Concept",
     "amount": "Amount",
+    "currencyLabel": "Currency",
     "cycleLabel": "Billing cycle",
     "statusLabel": "Status",
     "dueDate": "Due date",
@@ -434,7 +510,24 @@
       "locale": "Follow language",
       "day-first": "DD/MM/YYYY",
       "month-first": "MM/DD/YYYY",
-      "iso": "YYYY-MM-DD"
+      "iso": "YYYY-MM-DD",
+      "hint": "Applies to the ledger, invoice detail, printing and PDF output."
+    },
+    "currencies": {
+      "EUR": "Euro",
+      "USD": "US dollar",
+      "GBP": "Pound sterling",
+      "CAD": "Canadian dollar",
+      "AUD": "Australian dollar",
+      "MXN": "Mexican peso",
+      "ARS": "Argentine peso",
+      "CLP": "Chilean peso",
+      "COP": "Colombian peso",
+      "PEN": "Peruvian sol",
+      "UYU": "Uruguayan peso",
+      "DOP": "Dominican peso",
+      "CRC": "Costa Rican colón",
+      "GTQ": "Guatemalan quetzal"
     },
     "summary": {
       "paid": "Paid",
@@ -700,6 +793,25 @@
     "downloadWarning": "Store this file securely. Each code can only be used once.",
     "sessions": "Active sessions",
     "sessionsDescription": "Review where your account is open and close any access you do not recognise.",
+    "inactivityTitle": "Automatic closure after inactivity",
+    "inactivityDescription": "Choose how long a session may remain inactive before the API closes it on any device. This protection also applies to administrator accounts.",
+    "inactivitySave": "Save expiry",
+    "sessionTimeoutSaved": "The inactivity expiry has been updated.",
+    "expiresIn": "Expires in {{time}} without activity",
+    "remainingMinutes_one": "{{count}} minute",
+    "remainingMinutes_other": "{{count}} minutes",
+    "remainingHours_one": "{{count}} hour",
+    "remainingHours_other": "{{count}} hours",
+    "remainingDays_one": "{{count}} day",
+    "remainingDays_other": "{{count}} days",
+    "timeouts": {
+      "15": "15 minutes",
+      "60": "1 hour",
+      "480": "8 hours",
+      "1440": "1 day",
+      "10080": "7 days",
+      "43200": "30 days"
+    },
     "closeOthers": "Close the others",
     "current": "This device",
     "remembered": "Remembered for 30 days",

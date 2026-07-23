@@ -31,6 +31,7 @@ describe("facility profile API", () => {
           avatarDataUrl: "",
           password: await auth.hashPassword("FacilityAdmin123"),
           role: "admin",
+          sessionIdleTimeoutMinutes: 7 * 24 * 60,
           createdAt: Date.now(),
         },
         {
@@ -41,6 +42,7 @@ describe("facility profile API", () => {
           avatarDataUrl: "",
           password: await auth.hashPassword("FacilityMember123"),
           role: "member",
+          sessionIdleTimeoutMinutes: 7 * 24 * 60,
           createdAt: Date.now(),
         },
       ])

@@ -43,6 +43,7 @@ describe("delegations API", () => {
           avatarDataUrl: "",
           password: await auth.hashPassword("DelegationPassword123"),
           role: "member",
+          sessionIdleTimeoutMinutes: 7 * 24 * 60,
           createdAt: Date.now(),
         })
         .execute();

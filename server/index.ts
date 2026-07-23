@@ -20,8 +20,14 @@ import { facilityProfileRouter } from "./routes/facility-profile.js";
 import { accountProfileRouter } from "./routes/account-profile.js";
 import { memberCommerceRouter } from "./routes/member-commerce.js";
 import { delegationsRouter } from "./routes/delegations.js";
+import { downloadsRouter } from "./routes/downloads.js";
+import { resourceManagerRouter } from "./routes/resource-manager.js";
 import { apiLimiter, apiSecurityHeaders } from "./middleware/security.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
+import {
+  startResourceManager,
+  stopResourceManager,
+} from "./services/resource-manager.js";
 
 dotenv.config();
 
@@ -78,6 +84,8 @@ app.use("/api/feedback", feedbackRouter);
 app.use("/api/billing", billingRouter);
 app.use("/api/member-commerce", memberCommerceRouter);
 app.use("/api/account/delegations", delegationsRouter);
+app.use("/api/downloads", downloadsRouter);
+app.use("/api/admin/resource-manager", resourceManagerRouter);
 
 // Health check endpoint
 app.get("/api/health", (req: express.Request, res: express.Response) => {
@@ -103,6 +111,7 @@ export async function startServer(port: string | number): Promise<Server> {
     ) {
       await seedDatabase();
     }
+    startResourceManager();
 
     return await new Promise<Server>((resolve, reject) => {
       const server = app.listen(port, () => {
@@ -119,6 +128,7 @@ export async function startServer(port: string | number): Promise<Server> {
 
 function stopServer(server: Server): void {
   console.log("Shutting down gracefully...");
+  stopResourceManager();
   server.close((error) => {
     closeDatabase();
     if (error) console.error("Failed to stop API server:", error);

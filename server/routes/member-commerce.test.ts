@@ -28,6 +28,7 @@ describe("member commerce API", () => {
         avatarDataUrl: "",
         password: await auth.hashPassword("CommercePassword123"),
         role: "member",
+        sessionIdleTimeoutMinutes: 7 * 24 * 60,
         createdAt: Date.now(),
       })
       .execute();

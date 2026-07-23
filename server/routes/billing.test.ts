@@ -28,6 +28,7 @@ describe("billing API", () => {
         avatarDataUrl: "",
         password: await auth.hashPassword("BillingPassword123"),
         role: "admin",
+        sessionIdleTimeoutMinutes: 7 * 24 * 60,
         createdAt: Date.now(),
       })
       .execute();
@@ -59,7 +60,7 @@ describe("billing API", () => {
         billingCycle: "custom",
         customCycleLabel: "Every five weeks",
         amountCents: 12000,
-        currency: "EUR",
+        currency: "MXN",
         status: "pending",
         dueAt,
         paidAt: null,
@@ -71,6 +72,7 @@ describe("billing API", () => {
     expect(created.body).toMatchObject({
       customerName: "Test Member",
       amountCents: 12000,
+      currency: "MXN",
       status: "pending",
       customCycleLabel: "Every five weeks",
       notes: "Custom rate agreed with the member",
