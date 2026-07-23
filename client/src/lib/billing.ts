@@ -1,7 +1,6 @@
 export type BillingStatus = "paid" | "unpaid" | "pending";
 export type BillingCycle =
   "monthly" | "quarterly" | "semiannual" | "annual" | "trial_day" | "custom";
-export type BillingDateFormat = "locale" | "day-first" | "month-first" | "iso";
 
 export interface BillingRecord {
   id: string;
@@ -24,22 +23,25 @@ export interface BillingRecord {
 
 export function formatBillingDate(
   timestamp: number | null,
-  format: BillingDateFormat,
   language: string,
+  timeZone = getDeviceTimeZone(),
 ) {
   if (timestamp == null) return "—";
   const date = new Date(timestamp);
-  if (format === "iso") {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return new Intl.DateTimeFormat(language, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone,
+  }).format(date);
+}
+
+export function getDeviceTimeZone() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  } catch {
+    return "UTC";
   }
-  const locale =
-    format === "day-first"
-      ? "en-GB"
-      : format === "month-first"
-        ? "en-US"
-        : language;
-  return new Intl.DateTimeFormat(locale).format(date);
 }

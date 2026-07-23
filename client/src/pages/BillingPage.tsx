@@ -13,8 +13,8 @@ import { useTranslation } from "react-i18next";
 import { BillingInvoice } from "../components/BillingInvoice";
 import {
   formatBillingDate,
+  getDeviceTimeZone,
   type BillingCycle,
-  type BillingDateFormat,
   type BillingRecord,
   type BillingStatus,
 } from "../lib/billing";
@@ -25,7 +25,6 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
-const DATE_FORMAT_KEY = "hubfit-billing-date-format";
 const CURRENCY_KEY = "hubfit-billing-currency";
 type RecordFilter = "active" | "archived" | "all";
 const billingCurrencies = [
@@ -79,12 +78,7 @@ export function BillingPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [printRecord, setPrintRecord] = useState<BillingRecord | null>(null);
   const [recordFilter, setRecordFilter] = useState<RecordFilter>("active");
-  const [dateFormat, setDateFormat] = useState<BillingDateFormat>(() => {
-    const saved = localStorage.getItem(DATE_FORMAT_KEY);
-    return ["locale", "day-first", "month-first", "iso"].includes(saved ?? "")
-      ? (saved as BillingDateFormat)
-      : "locale";
-  });
+  const timeZone = useMemo(getDeviceTimeZone, []);
 
   const request = async <T,>(path: string, init?: RequestInit): Promise<T> => {
     const response = await authFetch(`${API_BASE}${path}`, {
@@ -222,11 +216,6 @@ export function BillingPage() {
       ? record.customCycleLabel
       : t(`billing.cycles.${record.billingCycle}`);
 
-  const changeDateFormat = (value: BillingDateFormat) => {
-    setDateFormat(value);
-    localStorage.setItem(DATE_FORMAT_KEY, value);
-  };
-
   const changeCurrency = (value: BillingCurrency) => {
     localStorage.setItem(CURRENCY_KEY, value);
     setForm((current) => ({ ...current, currency: value }));
@@ -254,26 +243,17 @@ export function BillingPage() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-              <Field label={t("billing.dateFormat.label")}>
-                <select
-                  className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm"
-                  value={dateFormat}
-                  onChange={(event) =>
-                    changeDateFormat(event.target.value as BillingDateFormat)
-                  }
-                >
-                  {(["locale", "day-first", "month-first", "iso"] as const).map(
-                    (format) => (
-                      <option key={format} value={format}>
-                        {t(`billing.dateFormat.${format}`)}
-                      </option>
-                    ),
-                  )}
-                </select>
-                <p className="max-w-64 text-xs text-slate-500">
-                  {t("billing.dateFormat.hint")}
+              <div className="rounded-xl border border-slate-200 bg-white px-4 py-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  {t("billing.timeZone.label")}
                 </p>
-              </Field>
+                <p className="mt-1 text-sm font-medium text-slate-900">
+                  {timeZone}
+                </p>
+                <p className="mt-1 max-w-72 text-xs text-slate-500">
+                  {t("billing.timeZone.hint")}
+                </p>
+              </div>
               <Button variant="outline" onClick={load} disabled={loading}>
                 <RefreshCw className={loading ? "animate-spin" : ""} />
                 {t("common.refresh")}
@@ -587,8 +567,8 @@ export function BillingPage() {
                         <td className="px-4 py-3">
                           {formatBillingDate(
                             record.dueAt,
-                            dateFormat,
                             editingLanguage,
+                            timeZone,
                           )}
                         </td>
                         <td className="px-4 py-3">
@@ -651,7 +631,7 @@ export function BillingPage() {
                           <td colSpan={8} className="bg-slate-50 p-4 sm:p-6">
                             <BillingInvoice
                               record={record}
-                              dateFormat={dateFormat}
+                              timeZone={timeZone}
                               onPrint={() => openPrintDialog(record)}
                               onSavePdf={() => openPrintDialog(record)}
                             />
@@ -681,11 +661,7 @@ export function BillingPage() {
 
       {printRecord && (
         <div className="hidden print:block">
-          <BillingInvoice
-            record={printRecord}
-            dateFormat={dateFormat}
-            printable
-          />
+          <BillingInvoice record={printRecord} timeZone={timeZone} printable />
         </div>
       )}
     </>

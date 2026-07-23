@@ -1,22 +1,18 @@
 import { Building2, FileDown, Printer } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import {
-  formatBillingDate,
-  type BillingDateFormat,
-  type BillingRecord,
-} from "../lib/billing";
+import { formatBillingDate, type BillingRecord } from "../lib/billing";
 import { Button } from "./ui/button";
 import { useFacilityProfile } from "../hooks/useFacilityProfile";
 
 export function BillingInvoice({
   record,
-  dateFormat,
+  timeZone,
   printable = false,
   onPrint,
   onSavePdf,
 }: {
   record: BillingRecord;
-  dateFormat: BillingDateFormat;
+  timeZone: string;
   printable?: boolean;
   onPrint?: () => void;
   onSavePdf?: () => void;
@@ -98,11 +94,11 @@ export function BillingInvoice({
         />
         <InvoiceValue
           label={t("billing.issueDate")}
-          value={formatBillingDate(record.createdAt, dateFormat, language)}
+          value={formatBillingDate(record.createdAt, language, timeZone)}
         />
         <InvoiceValue
           label={t("billing.dueDate")}
-          value={formatBillingDate(record.dueAt, dateFormat, language)}
+          value={formatBillingDate(record.dueAt, language, timeZone)}
         />
       </div>
 
