@@ -48,7 +48,7 @@ export function HomePage() {
 
   return (
     <main className="min-h-[calc(100vh-4.5rem)] overflow-hidden bg-slate-950 text-white">
-      <section className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+      <section className="relative mx-auto max-w-[96rem] px-4 py-16 sm:px-6 sm:py-24 2xl:px-8">
         <div className="absolute -right-44 top-0 h-96 w-96 rounded-full bg-blue-600/25 blur-3xl" />
         <div className="absolute -left-40 bottom-0 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
         <div className="relative grid gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
@@ -169,7 +169,7 @@ function AdminHome({ name }: { name: string }) {
 
   return (
     <main className="min-h-[calc(100vh-4.5rem)] bg-slate-50 text-slate-950">
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
+      <section className="mx-auto max-w-[96rem] px-4 py-10 sm:px-6 sm:py-14 2xl:px-8">
         <div
           className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm sm:p-10"
           style={{ borderTopColor: profile.accentColor, borderTopWidth: 4 }}

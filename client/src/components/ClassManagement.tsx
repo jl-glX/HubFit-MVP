@@ -116,7 +116,7 @@ export function ClassManagement() {
                         .description
                     }
                   </p>
-                  <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+                  <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
                     <div>
                       <p className="text-gray-600">{t("common.trainer")}</p>
                       <p className="font-medium text-gray-900">

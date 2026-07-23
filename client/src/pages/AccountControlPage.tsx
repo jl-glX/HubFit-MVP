@@ -164,7 +164,7 @@ export function AccountControlPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto w-full max-w-[96rem]">
         <header className="overflow-hidden rounded-3xl bg-slate-950 p-7 text-white shadow-xl sm:p-10">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
             {user?.avatarDataUrl ? (

@@ -139,9 +139,16 @@
   * {
     @apply border-border;
   }
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-height: 100%;
+  }
   body {
     @apply bg-background text-foreground;
     min-width: 320px;
+    overflow-x: clip;
     font-family:
       Inter,
       ui-sans-serif,

@@ -72,7 +72,7 @@ export function ClassesPage() {
   if (user.role === "admin") {
     return (
       <main className="min-h-screen bg-slate-50">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <div className="mx-auto max-w-[96rem] px-4 py-8 sm:px-6 2xl:px-8">
           <div className="mb-7">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600">
               {t("admin.operations")}
@@ -94,7 +94,7 @@ export function ClassesPage() {
 
   return (
     <main className="min-h-screen">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-[96rem] px-4 py-8 sm:px-6 sm:py-10 2xl:px-8">
         <section className="relative mb-10 overflow-hidden rounded-3xl bg-slate-950 px-6 py-8 text-white shadow-2xl shadow-slate-900/10 sm:px-9 sm:py-10">
           <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-500/25 blur-3xl" />
           <div className="absolute -bottom-24 left-1/3 h-52 w-52 rounded-full bg-emerald-400/15 blur-3xl" />

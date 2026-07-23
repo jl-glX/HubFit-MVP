@@ -17,7 +17,7 @@ export function LegalFooter({ variant = "dark" }: LegalFooterProps) {
           : "border-slate-200 bg-white text-slate-600"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
+      <div className="mx-auto flex max-w-[96rem] flex-col items-center justify-between gap-4 sm:flex-row">
         <p>
           © {new Date().getFullYear()} HubFit. {t("home.rights")}
         </p>

@@ -45,7 +45,7 @@ export function AdminAnalyticsDashboardPage() {
   if (user.role !== "admin") {
     return (
       <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
-        <div className="mx-auto max-w-6xl px-4 py-8">
+        <div className="mx-auto w-full max-w-[96rem] px-4 py-8 sm:px-6 2xl:px-8">
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 text-center">
             <AlertCircle className="mx-auto mb-4 text-amber-600" size={48} />
             <p className="text-amber-800 font-medium">
@@ -65,7 +65,7 @@ export function AdminAnalyticsDashboardPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
-      <div className="mx-auto max-w-6xl px-4 py-8">
+      <div className="mx-auto w-full max-w-[96rem] px-4 py-8 sm:px-6 2xl:px-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">

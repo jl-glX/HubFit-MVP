@@ -67,7 +67,7 @@ export function MemberPaymentsPage() {
 
   return (
     <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-[96rem] px-4 py-10 sm:px-6 2xl:px-8">
         <header className="mb-8 max-w-3xl">
           <p className="text-sm font-semibold tracking-[0.2em] text-blue-600">
             {t("memberCommerce.eyebrow")}

@@ -32,7 +32,7 @@ export function Navigation() {
   const inactiveClass =
     "text-slate-600 hover:bg-slate-100 hover:text-slate-950";
   const navLinkClass =
-    "flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all";
+    "flex shrink-0 items-center gap-1.5 rounded-xl px-2.5 py-2 text-sm font-medium transition-all 2xl:gap-2 2xl:px-3";
   const analyticsPath =
     user?.role === "admin"
       ? "/admin-analytics"
@@ -50,8 +50,8 @@ export function Navigation() {
 
   return (
     <nav className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 shadow-xs backdrop-blur-xl">
-      <div className="mx-auto w-full max-w-7xl px-2 sm:px-6">
-        <div className="flex min-h-18 min-w-0 items-center gap-2 sm:gap-5">
+      <div className="mx-auto w-full max-w-[112rem] px-2 sm:px-4 lg:px-6 2xl:px-8">
+        <div className="flex min-h-18 min-w-0 items-center gap-2 lg:gap-3 2xl:gap-5">
           <Link
             to="/"
             className="flex shrink-0 items-center gap-2.5 font-bold text-xl tracking-tight text-slate-950"
@@ -86,7 +86,7 @@ export function Navigation() {
             </button>
           </div>
 
-          <div className="hidden shrink-0 items-center gap-2 border-l border-slate-200 pl-4 xl:flex">
+          <div className="hidden shrink-0 items-center gap-2 border-l border-slate-200 pl-4 2xl:flex">
             {profile.logoDataUrl ? (
               <img
                 src={profile.logoDataUrl}
@@ -101,12 +101,12 @@ export function Navigation() {
                 <Building2 size={16} />
               </span>
             )}
-            <span className="max-w-36 truncate text-sm font-semibold text-slate-700">
+            <span className="max-w-32 truncate text-sm font-semibold text-slate-700 min-[1700px]:max-w-40">
               {profile.name}
             </span>
           </div>
 
-          <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto py-3 xl:gap-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <Link
               to="/"
               className={`${navLinkClass} ${

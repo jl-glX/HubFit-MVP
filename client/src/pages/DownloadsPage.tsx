@@ -67,7 +67,7 @@ export function DownloadsPage() {
 
   return (
     <main className="min-h-[calc(100vh-4.5rem)] bg-slate-950 px-4 py-12 text-white sm:px-6">
-      <section className="mx-auto max-w-6xl">
+      <section className="mx-auto w-full max-w-[96rem]">
         <div className="rounded-3xl border border-white/10 bg-white/6 p-7 sm:p-10">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/20 text-blue-300">
             <MonitorDown size={28} />

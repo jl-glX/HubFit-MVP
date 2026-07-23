@@ -115,7 +115,7 @@ export function ResourceManagerPage() {
 
   return (
     <main className="min-h-[calc(100vh-4.5rem)] bg-slate-50 px-4 py-10 text-slate-950 sm:px-6">
-      <section className="mx-auto max-w-6xl">
+      <section className="mx-auto w-full max-w-[96rem]">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-600">

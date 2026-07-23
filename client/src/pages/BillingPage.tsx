@@ -229,7 +229,7 @@ export function BillingPage() {
   return (
     <>
       <main className="min-h-screen bg-slate-50 px-4 py-8 print:hidden sm:px-6">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-[96rem]">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600">

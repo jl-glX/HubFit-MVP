@@ -304,7 +304,11 @@ export function WorkoutTimerPage() {
           : "min-h-[calc(100vh-4.5rem)]"
       }`}
     >
-      <div className={`mx-auto ${immersiveMode ? "max-w-none" : "max-w-6xl"}`}>
+      <div
+        className={`mx-auto w-full ${
+          immersiveMode ? "max-w-none" : "max-w-[96rem]"
+        }`}
+      >
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-cyan-300">

@@ -294,7 +294,7 @@ export function AccountSecurityPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto w-full max-w-[96rem]">
         <div className="mb-8 flex items-start gap-4">
           <span className="rounded-2xl bg-blue-600 p-3 text-white shadow-lg shadow-blue-600/20">
             <ShieldCheck size={28} />
