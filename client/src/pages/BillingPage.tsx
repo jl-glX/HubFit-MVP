@@ -26,27 +26,56 @@ import { Label } from "../components/ui/label";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 const DATE_FORMAT_KEY = "hubfit-billing-date-format";
+const CURRENCY_KEY = "hubfit-billing-currency";
 type RecordFilter = "active" | "archived" | "all";
+const billingCurrencies = [
+  "EUR",
+  "USD",
+  "GBP",
+  "CAD",
+  "AUD",
+  "MXN",
+  "ARS",
+  "CLP",
+  "COP",
+  "PEN",
+  "UYU",
+  "DOP",
+  "CRC",
+  "GTQ",
+] as const;
+type BillingCurrency = (typeof billingCurrencies)[number];
 
-const emptyForm = {
-  customerName: "",
-  customerEmail: "",
-  concept: "",
-  billingCycle: "monthly" as BillingCycle,
-  customCycleLabel: "",
-  amount: "",
-  status: "pending" as BillingStatus,
-  dueDate: "",
-  invoiceNumber: "",
-  notes: "",
-};
+function readSavedCurrency(): BillingCurrency {
+  const saved = localStorage.getItem(CURRENCY_KEY);
+  return billingCurrencies.includes(saved as BillingCurrency)
+    ? (saved as BillingCurrency)
+    : "EUR";
+}
+
+function createEmptyForm(currency: BillingCurrency) {
+  return {
+    customerName: "",
+    customerEmail: "",
+    concept: "",
+    billingCycle: "monthly" as BillingCycle,
+    customCycleLabel: "",
+    amount: "",
+    currency,
+    status: "pending" as BillingStatus,
+    dueDate: "",
+    invoiceNumber: "",
+    notes: "",
+  };
+}
 
 export function BillingPage() {
   const { t, i18n } = useTranslation();
+  const editingLanguage = i18n.resolvedLanguage ?? i18n.language;
   const [records, setRecords] = useState<BillingRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(() => createEmptyForm(readSavedCurrency()));
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [printRecord, setPrintRecord] = useState<BillingRecord | null>(null);
   const [recordFilter, setRecordFilter] = useState<RecordFilter>("active");
@@ -133,7 +162,7 @@ export function BillingPage() {
           customCycleLabel:
             form.billingCycle === "custom" ? form.customCycleLabel : "",
           amountCents: Math.round(Number(form.amount) * 100),
-          currency: "EUR",
+          currency: form.currency,
           status: form.status,
           dueAt: form.dueDate
             ? new Date(`${form.dueDate}T12:00:00`).getTime()
@@ -144,7 +173,7 @@ export function BillingPage() {
         }),
       });
       setRecords((current) => [created, ...current]);
-      setForm(emptyForm);
+      setForm(createEmptyForm(form.currency));
       setRecordFilter("active");
       setExpandedId(created.id);
       setError("");
@@ -183,7 +212,7 @@ export function BillingPage() {
   };
 
   const money = (record: BillingRecord) =>
-    new Intl.NumberFormat(i18n.language, {
+    new Intl.NumberFormat(editingLanguage, {
       style: "currency",
       currency: record.currency,
     }).format(record.amountCents / 100);
@@ -196,6 +225,11 @@ export function BillingPage() {
   const changeDateFormat = (value: BillingDateFormat) => {
     setDateFormat(value);
     localStorage.setItem(DATE_FORMAT_KEY, value);
+  };
+
+  const changeCurrency = (value: BillingCurrency) => {
+    localStorage.setItem(CURRENCY_KEY, value);
+    setForm((current) => ({ ...current, currency: value }));
   };
 
   const openPrintDialog = (record: BillingRecord) => {
@@ -236,6 +270,9 @@ export function BillingPage() {
                     ),
                   )}
                 </select>
+                <p className="max-w-64 text-xs text-slate-500">
+                  {t("billing.dateFormat.hint")}
+                </p>
               </Field>
               <Button variant="outline" onClick={load} disabled={loading}>
                 <RefreshCw className={loading ? "animate-spin" : ""} />
@@ -274,6 +311,8 @@ export function BillingPage() {
             </h2>
             <form
               onSubmit={submit}
+              lang={editingLanguage}
+              spellCheck
               className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-4"
             >
               <Field label={t("billing.customer")}>
@@ -326,6 +365,21 @@ export function BillingPage() {
                     }))
                   }
                 />
+              </Field>
+              <Field label={t("billing.currencyLabel")}>
+                <select
+                  className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm"
+                  value={form.currency}
+                  onChange={(event) =>
+                    changeCurrency(event.target.value as BillingCurrency)
+                  }
+                >
+                  {billingCurrencies.map((currency) => (
+                    <option key={currency} value={currency}>
+                      {t(`billing.currencies.${currency}`)} ({currency})
+                    </option>
+                  ))}
+                </select>
               </Field>
               <Field label={t("billing.cycleLabel")}>
                 <select
@@ -413,6 +467,8 @@ export function BillingPage() {
               <div className="md:col-span-2 lg:col-span-3">
                 <Field label={t("billing.notes")}>
                   <textarea
+                    lang={editingLanguage}
+                    spellCheck
                     className="min-h-24 w-full resize-y rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-100"
                     value={form.notes}
                     placeholder={t("billing.notesPlaceholder")}
@@ -532,7 +588,7 @@ export function BillingPage() {
                           {formatBillingDate(
                             record.dueAt,
                             dateFormat,
-                            i18n.language,
+                            editingLanguage,
                           )}
                         </td>
                         <td className="px-4 py-3">

@@ -38,6 +38,7 @@ interface SecurityOverview {
     recoveryCodesRemaining: number;
   };
   passkeys: { enabled: boolean; count: number };
+  sessionIdleTimeoutMinutes: number;
   sessions: Array<{
     id: string;
     createdAt: number;
@@ -46,6 +47,7 @@ interface SecurityOverview {
     userAgent: string;
     remembered: number;
     current: boolean;
+    idleExpiresAt: number;
   }>;
   events: Array<{ id: string; type: string; createdAt: number }>;
 }
@@ -91,9 +93,15 @@ export function AccountSecurityPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [sessionIdleTimeoutMinutes, setSessionIdleTimeoutMinutes] = useState(
+    7 * 24 * 60,
+  );
+  const [now, setNow] = useState(Date.now());
 
   const load = useCallback(async () => {
-    setOverview(await api<SecurityOverview>("/api/account/security"));
+    const result = await api<SecurityOverview>("/api/account/security");
+    setOverview(result);
+    setSessionIdleTimeoutMinutes(result.sessionIdleTimeoutMinutes);
   }, []);
 
   useEffect(() => {
@@ -107,6 +115,11 @@ export function AccountSecurityPage() {
     platformAuthenticatorIsAvailable()
       .then(setPasskeySupported)
       .catch(() => setPasskeySupported(false));
+  }, []);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(interval);
   }, []);
 
   const action = async (work: () => Promise<void>, success: string) => {
@@ -203,11 +216,40 @@ export function AccountSecurityPage() {
       t("security.sessionRevoked"),
     );
 
+  const updateSessionTimeout = () =>
+    action(
+      () =>
+        api<void>("/api/account/security/sessions/settings", {
+          method: "PATCH",
+          body: JSON.stringify({
+            timeoutMinutes: sessionIdleTimeoutMinutes,
+          }),
+        }),
+      t("security.sessionTimeoutSaved"),
+    );
+
   const date = (value: number) =>
     new Intl.DateTimeFormat(i18n.language, {
       dateStyle: "medium",
       timeStyle: "short",
     }).format(value);
+
+  const remainingSessionTime = (idleExpiresAt: number, expiresAt: number) => {
+    const remainingMinutes = Math.max(
+      0,
+      Math.ceil((Math.min(idleExpiresAt, expiresAt) - now) / 60_000),
+    );
+    if (remainingMinutes < 60) {
+      return t("security.remainingMinutes", { count: remainingMinutes });
+    }
+    const remainingHours = Math.ceil(remainingMinutes / 60);
+    if (remainingHours < 24) {
+      return t("security.remainingHours", { count: remainingHours });
+    }
+    return t("security.remainingDays", {
+      count: Math.ceil(remainingHours / 24),
+    });
+  };
 
   const copyRecoveryCodes = async () => {
     const value = recoveryCodes.join("\n");
@@ -503,33 +545,73 @@ export function AccountSecurityPage() {
           </Card>
 
           <Card className="rounded-3xl border-slate-200 p-6 shadow-sm sm:p-8">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-slate-950">
-                  {t("security.sessions")}
-                </h2>
-                <p className="mt-1 text-sm text-slate-600">
-                  {t("security.sessionsDescription")}
-                </p>
+            <div className="flex flex-col gap-5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-950">
+                    {t("security.sessions")}
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-600">
+                    {t("security.sessionsDescription")}
+                  </p>
+                </div>
+                {(overview?.sessions.length ?? 0) > 1 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      action(
+                        () =>
+                          api<void>(
+                            "/api/account/security/sessions/revoke-others",
+                            { method: "POST" },
+                          ),
+                        t("security.otherSessionsRevoked"),
+                      )
+                    }
+                  >
+                    <LogOut /> {t("security.closeOthers")}
+                  </Button>
+                )}
               </div>
-              {(overview?.sessions.length ?? 0) > 1 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    action(
-                      () =>
-                        api<void>(
-                          "/api/account/security/sessions/revoke-others",
-                          { method: "POST" },
-                        ),
-                      t("security.otherSessionsRevoked"),
-                    )
-                  }
+
+              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+                <Label
+                  htmlFor="session-timeout"
+                  className="font-semibold text-blue-950"
                 >
-                  <LogOut /> {t("security.closeOthers")}
-                </Button>
-              )}
+                  {t("security.inactivityTitle")}
+                </Label>
+                <p className="mt-1 text-sm leading-6 text-blue-900">
+                  {t("security.inactivityDescription")}
+                </p>
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                  <select
+                    id="session-timeout"
+                    value={sessionIdleTimeoutMinutes}
+                    onChange={(event) =>
+                      setSessionIdleTimeoutMinutes(Number(event.target.value))
+                    }
+                    className="h-10 flex-1 rounded-md border border-blue-200 bg-white px-3 text-sm text-slate-900"
+                  >
+                    {[15, 60, 480, 1440, 10080, 43200].map((minutes) => (
+                      <option key={minutes} value={minutes}>
+                        {t(`security.timeouts.${minutes}`)}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    onClick={updateSessionTimeout}
+                    disabled={
+                      busy ||
+                      sessionIdleTimeoutMinutes ===
+                        overview?.sessionIdleTimeoutMinutes
+                    }
+                  >
+                    {t("security.inactivitySave")}
+                  </Button>
+                </div>
+              </div>
             </div>
             <div className="mt-5 space-y-3">
               {overview?.sessions.map((session) => (
@@ -561,6 +643,14 @@ export function AccountSecurityPage() {
                     <p className="truncate text-xs text-slate-500">
                       {t("security.lastActivity", {
                         date: date(session.lastSeenAt),
+                      })}
+                    </p>
+                    <p className="mt-1 text-xs font-medium text-blue-600">
+                      {t("security.expiresIn", {
+                        time: remainingSessionTime(
+                          session.idleExpiresAt,
+                          session.expiresAt,
+                        ),
                       })}
                     </p>
                   </div>

@@ -124,6 +124,7 @@ export async function seedDatabase() {
             avatarDataUrl: "",
             password: hashedPassword,
             role: "admin",
+            sessionIdleTimeoutMinutes: 7 * 24 * 60,
             createdAt: Date.now(),
           })
           .execute();
@@ -168,6 +169,7 @@ export async function seedDatabase() {
               avatarDataUrl: "",
               password: hashedPassword,
               role: "trainer",
+              sessionIdleTimeoutMinutes: 7 * 24 * 60,
               createdAt: Date.now(),
             })
             .execute();
@@ -215,6 +217,7 @@ export async function seedDatabase() {
               avatarDataUrl: "",
               password: hashedPassword,
               role: user.role,
+              sessionIdleTimeoutMinutes: 7 * 24 * 60,
               createdAt: Date.now(),
             })
             .execute();

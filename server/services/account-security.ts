@@ -4,9 +4,14 @@ import { recordSecurityEvent } from "./security-events.js";
 import { passkeyStatus } from "./passkeys.js";
 
 export async function getSecurityOverview(userId: string, sessionId: string) {
-  const [mfa, passkeys, sessions, events] = await Promise.all([
+  const [mfa, passkeys, user, sessions, events] = await Promise.all([
     mfaStatus(userId),
     passkeyStatus(userId),
+    db
+      .selectFrom("users")
+      .select("sessionIdleTimeoutMinutes")
+      .where("id", "=", userId)
+      .executeTakeFirstOrThrow(),
     db
       .selectFrom("sessions")
       .select([
@@ -34,12 +39,45 @@ export async function getSecurityOverview(userId: string, sessionId: string) {
   return {
     mfa,
     passkeys,
-    sessions: sessions.map((session) => ({
-      ...session,
-      current: session.id === sessionId,
-    })),
+    sessionIdleTimeoutMinutes: user.sessionIdleTimeoutMinutes,
+    sessions: sessions
+      .map((session) => ({
+        ...session,
+        current: session.id === sessionId,
+        idleExpiresAt:
+          session.lastSeenAt + user.sessionIdleTimeoutMinutes * 60 * 1000,
+      }))
+      .filter((session) => session.idleExpiresAt > Date.now()),
     events,
   };
+}
+
+export const SESSION_IDLE_TIMEOUT_OPTIONS = [
+  15,
+  60,
+  8 * 60,
+  24 * 60,
+  7 * 24 * 60,
+  30 * 24 * 60,
+] as const;
+
+export async function updateSessionIdleTimeout(
+  userId: string,
+  timeoutMinutes: number,
+): Promise<void> {
+  if (
+    !SESSION_IDLE_TIMEOUT_OPTIONS.includes(
+      timeoutMinutes as (typeof SESSION_IDLE_TIMEOUT_OPTIONS)[number],
+    )
+  ) {
+    throw new Error("Invalid session inactivity timeout");
+  }
+
+  await db
+    .updateTable("users")
+    .set({ sessionIdleTimeoutMinutes: timeoutMinutes })
+    .where("id", "=", userId)
+    .execute();
 }
 
 export async function revokeSession(

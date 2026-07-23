@@ -242,6 +242,7 @@
     "description": "Reserva clases, organiza tu agenda y apúntate a listas de espera. Cuando quede una plaza libre, ascenderás automáticamente.",
     "browse": "Ver clases",
     "bookings": "Mis reservas",
+    "downloads": "Descargar HubFit",
     "features": {
       "calendarTitle": "Calendario de clases",
       "calendarText": "Encuentra cada sesión por fecha y hora.",
@@ -266,7 +267,81 @@
     "billing": "Facturación",
     "billingDescription": "Controla cuotas, pagos pendientes y accesos de prueba.",
     "analytics": "Asistencia y demanda",
-    "analyticsDescription": "Detecta clases y franjas horarias con mayor o menor ocupación."
+    "analyticsDescription": "Detecta clases y franjas horarias con mayor o menor ocupación.",
+    "downloads": "Centro de descargas",
+    "downloadsDescription": "Accede a las aplicaciones oficiales y al paquete portátil de HubFit.",
+    "resources": "Recursos del servidor",
+    "resourcesDescription": "Supervisa y controla las tareas internas registradas por HubFit."
+  },
+  "downloads": {
+    "eyebrow": "HubFit en todos tus dispositivos",
+    "title": "Centro de descargas",
+    "description": "Elige la aplicación oficial para tu dispositivo o descarga el paquete portátil. Las opciones se habilitan cuando cada distribución esté publicada.",
+    "loadError": "No se han podido cargar las opciones de descarga.",
+    "recommended": "Recomendado",
+    "download": "Abrir descarga",
+    "comingSoon": "Próximamente",
+    "securityNotice": "HubFit solo muestra destinos HTTPS configurados por la plataforma. Comprueba siempre que la tienda o descarga pertenece a HubFit antes de instalarla.",
+    "platforms": {
+      "windows": {
+        "name": "Windows",
+        "destination": "Microsoft Store",
+        "format": "Aplicación de tienda"
+      },
+      "android": {
+        "name": "Android",
+        "destination": "Google Play",
+        "format": "Aplicación de tienda"
+      },
+      "macos": {
+        "name": "macOS",
+        "destination": "Mac App Store",
+        "format": "Aplicación de tienda"
+      },
+      "ios": {
+        "name": "iPhone y iPad",
+        "destination": "App Store",
+        "format": "Aplicación de tienda"
+      },
+      "zip": {
+        "name": "Paquete portátil",
+        "destination": "Descarga del navegador",
+        "format": ".zip"
+      }
+    }
+  },
+  "resourceManager": {
+    "eyebrow": "Operación de la API",
+    "title": "Gestor de recursos",
+    "description": "Supervisa las tareas internas de HubFit y ejecuta, pausa o reanuda únicamente procesos registrados por la plataforma.",
+    "loadError": "No se ha podido cargar el estado de los recursos.",
+    "updateError": "No se ha podido actualizar la tarea.",
+    "memory": "Memoria en uso",
+    "heapCapacity": "Capacidad reservada",
+    "uptime": "Tiempo activo",
+    "activeTasks": "Tareas activas",
+    "managedTasks": "Procesos administrados",
+    "scopeNotice": "Este panel nunca controla procesos del sistema operativo ni de otras aplicaciones.",
+    "taskStats": "{{runs}} ejecuciones · {{duration}} ms en la última · {{result}} elementos procesados",
+    "runNow": "Ejecutar ahora",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "states": {
+      "idle": "Preparada",
+      "running": "En ejecución",
+      "paused": "Pausada",
+      "error": "Con error"
+    },
+    "tasks": {
+      "expired-auth-cleanup": {
+        "name": "Limpieza de autenticación caducada",
+        "description": "Elimina sesiones vencidas o revocadas y retos de autenticación ya caducados."
+      },
+      "sqlite-query-planner": {
+        "name": "Optimización del planificador SQLite",
+        "description": "Permite que SQLite actualice sus estadísticas ligeras cuando la base de datos lo necesita."
+      }
+    }
   },
   "classes": {
     "agenda": "Tu agenda semanal de entrenamiento",
@@ -402,6 +477,7 @@
     "customer": "Socio o cliente",
     "concept": "Concepto",
     "amount": "Importe",
+    "currencyLabel": "Moneda",
     "cycleLabel": "Periodicidad",
     "statusLabel": "Estado",
     "dueDate": "Vencimiento",
@@ -442,7 +518,24 @@
       "locale": "Según el idioma",
       "day-first": "DD/MM/AAAA",
       "month-first": "MM/DD/AAAA",
-      "iso": "AAAA-MM-DD"
+      "iso": "AAAA-MM-DD",
+      "hint": "Se aplica al registro, al detalle de factura, a la impresión y al PDF."
+    },
+    "currencies": {
+      "EUR": "Euro",
+      "USD": "Dólar estadounidense",
+      "GBP": "Libra esterlina",
+      "CAD": "Dólar canadiense",
+      "AUD": "Dólar australiano",
+      "MXN": "Peso mexicano",
+      "ARS": "Peso argentino",
+      "CLP": "Peso chileno",
+      "COP": "Peso colombiano",
+      "PEN": "Sol peruano",
+      "UYU": "Peso uruguayo",
+      "DOP": "Peso dominicano",
+      "CRC": "Colón costarricense",
+      "GTQ": "Quetzal guatemalteco"
     },
     "summary": {
       "paid": "Pagados",
@@ -714,6 +807,25 @@
     "downloadWarning": "Guarda este archivo en un lugar seguro. Cada código funciona una sola vez.",
     "sessions": "Sesiones activas",
     "sessionsDescription": "Revisa dónde está abierta tu cuenta y cierra accesos que no reconozcas.",
+    "inactivityTitle": "Cierre automático por inactividad",
+    "inactivityDescription": "Elige cuánto tiempo puede permanecer inactiva una sesión antes de que la API la cierre en cualquier dispositivo. Esta protección también se aplica a cuentas de administración.",
+    "inactivitySave": "Guardar caducidad",
+    "sessionTimeoutSaved": "Se ha actualizado la caducidad por inactividad.",
+    "expiresIn": "Caduca en {{time}} si no hay actividad",
+    "remainingMinutes_one": "{{count}} minuto",
+    "remainingMinutes_other": "{{count}} minutos",
+    "remainingHours_one": "{{count}} hora",
+    "remainingHours_other": "{{count}} horas",
+    "remainingDays_one": "{{count}} día",
+    "remainingDays_other": "{{count}} días",
+    "timeouts": {
+      "15": "15 minutos",
+      "60": "1 hora",
+      "480": "8 horas",
+      "1440": "1 día",
+      "10080": "7 días",
+      "43200": "30 días"
+    },
     "closeOthers": "Cerrar las demás",
     "current": "Este dispositivo",
     "remembered": "Recordado 30 días",

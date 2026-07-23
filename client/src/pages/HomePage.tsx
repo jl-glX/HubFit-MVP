@@ -10,6 +10,8 @@ import {
   Sparkles,
   Users,
   Building2,
+  MonitorDown,
+  ServerCog,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { useCurrentUser } from "../hooks/useCurrentUser";
@@ -86,6 +88,16 @@ export function HomePage() {
                   {t("home.bookings")}
                 </Button>
               </Link>
+              <Link to="/downloads">
+                <Button
+                  variant="outline"
+                  className="h-12 w-full gap-2 rounded-xl border-white/20 bg-white/5 px-6 text-white hover:bg-white/10 hover:text-white sm:w-auto"
+                  size="lg"
+                >
+                  <MonitorDown size={20} />
+                  {t("home.downloads")}
+                </Button>
+              </Link>
             </div>
           </div>
 
@@ -140,6 +152,18 @@ function AdminHome({ name }: { name: string }) {
       icon: BarChart3,
       title: t("adminHome.analytics"),
       text: t("adminHome.analyticsDescription"),
+    },
+    {
+      to: "/downloads",
+      icon: MonitorDown,
+      title: t("adminHome.downloads"),
+      text: t("adminHome.downloadsDescription"),
+    },
+    {
+      to: "/admin/resource-manager",
+      icon: ServerCog,
+      title: t("adminHome.resources"),
+      text: t("adminHome.resourcesDescription"),
     },
   ];
 
@@ -197,7 +221,7 @@ function AdminHome({ name }: { name: string }) {
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {actions.map(({ to, icon: Icon, title, text }) => (
             <Link
               key={to}

@@ -67,6 +67,7 @@ describe("persistent authentication sessions", () => {
         avatarDataUrl: "",
         password: await auth.hashPassword(password),
         role: "admin",
+        sessionIdleTimeoutMinutes: 7 * 24 * 60,
         createdAt: Date.now(),
       })
       .execute();
@@ -120,5 +121,34 @@ describe("persistent authentication sessions", () => {
     expect(stored.expiresAt - stored.createdAt).toBe(
       auth.REMEMBERED_SESSION_DURATION,
     );
+  });
+
+  it("revokes a session after the user-selected inactivity period", async () => {
+    const result = await auth.signup(
+      "idle-member@example.com",
+      "Idle Member",
+      "IdlePassword123",
+    );
+    const now = Date.now();
+
+    await database.db
+      .updateTable("users")
+      .set({ sessionIdleTimeoutMinutes: 15 })
+      .where("id", "=", result.user.id)
+      .execute();
+    await database.db
+      .updateTable("sessions")
+      .set({ lastSeenAt: now - 16 * 60 * 1000 })
+      .where("userId", "=", result.user.id)
+      .execute();
+
+    expect(await auth.verifyToken(result.sessionToken)).toBeNull();
+
+    const stored = await database.db
+      .selectFrom("sessions")
+      .select("revokedAt")
+      .where("userId", "=", result.user.id)
+      .executeTakeFirstOrThrow();
+    expect(stored.revokedAt).not.toBeNull();
   });
 });

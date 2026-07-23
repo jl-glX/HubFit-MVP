@@ -22,9 +22,10 @@ export function BillingInvoice({
   onSavePdf?: () => void;
 }) {
   const { t, i18n } = useTranslation();
+  const language = i18n.resolvedLanguage ?? i18n.language;
   const { profile } = useFacilityProfile();
   const gymName = profile.name;
-  const money = new Intl.NumberFormat(i18n.language, {
+  const money = new Intl.NumberFormat(language, {
     style: "currency",
     currency: record.currency,
   }).format(record.amountCents / 100);
@@ -97,11 +98,11 @@ export function BillingInvoice({
         />
         <InvoiceValue
           label={t("billing.issueDate")}
-          value={formatBillingDate(record.createdAt, dateFormat, i18n.language)}
+          value={formatBillingDate(record.createdAt, dateFormat, language)}
         />
         <InvoiceValue
           label={t("billing.dueDate")}
-          value={formatBillingDate(record.dueAt, dateFormat, i18n.language)}
+          value={formatBillingDate(record.dueAt, dateFormat, language)}
         />
       </div>
 

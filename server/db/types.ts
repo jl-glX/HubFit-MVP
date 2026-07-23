@@ -6,6 +6,7 @@ interface User {
   avatarDataUrl: string;
   password: string;
   role: "member" | "trainer" | "admin";
+  sessionIdleTimeoutMinutes: number;
   createdAt: number;
 }
 

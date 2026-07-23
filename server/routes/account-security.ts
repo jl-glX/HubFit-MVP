@@ -21,6 +21,8 @@ import {
   getSecurityOverview,
   revokeOtherSessions,
   revokeSession,
+  SESSION_IDLE_TIMEOUT_OPTIONS,
+  updateSessionIdleTimeout,
 } from "../services/account-security.js";
 import {
   beginMfaSetup,
@@ -270,3 +272,22 @@ accountSecurityRouter.post(
     }
   },
 );
+
+accountSecurityRouter.patch("/sessions/settings", async (req, res, next) => {
+  try {
+    const auth = getAuthenticatedUser(res);
+    const timeoutMinutes = Number(req.body?.timeoutMinutes);
+    if (
+      !SESSION_IDLE_TIMEOUT_OPTIONS.includes(
+        timeoutMinutes as (typeof SESSION_IDLE_TIMEOUT_OPTIONS)[number],
+      )
+    ) {
+      res.status(400).json({ error: "Invalid session inactivity timeout" });
+      return;
+    }
+    await updateSessionIdleTimeout(auth.userId, timeoutMinutes);
+    res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+});

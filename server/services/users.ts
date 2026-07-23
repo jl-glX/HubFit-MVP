@@ -75,6 +75,7 @@ export async function createUser(
       avatarDataUrl: "",
       password: hashedPassword,
       role,
+      sessionIdleTimeoutMinutes: 7 * 24 * 60,
       createdAt: Date.now(),
     })
     .execute();

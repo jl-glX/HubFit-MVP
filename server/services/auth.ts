@@ -8,6 +8,7 @@ export const SESSION_DURATION = 24 * 60 * 60 * 1000;
 export const REMEMBERED_SESSION_DURATION = 30 * 24 * 60 * 60 * 1000;
 export const MFA_CHALLENGE_DURATION = 5 * 60 * 1000;
 const MFA_MAX_ATTEMPTS = 5;
+export const DEFAULT_SESSION_IDLE_TIMEOUT_MINUTES = 7 * 24 * 60;
 
 export interface SessionData {
   sessionId: string;
@@ -126,6 +127,7 @@ export async function signup(
     name,
     avatarDataUrl: "",
     role: "member" as const,
+    sessionIdleTimeoutMinutes: DEFAULT_SESSION_IDLE_TIMEOUT_MINUTES,
   };
 
   await db
@@ -303,6 +305,7 @@ export async function verifyToken(token: string): Promise<SessionData | null> {
       "sessions.expiresAt",
       "sessions.revokedAt",
       "sessions.lastSeenAt",
+      "users.sessionIdleTimeoutMinutes",
       "users.email",
       "users.name",
       "users.avatarDataUrl",
@@ -311,7 +314,25 @@ export async function verifyToken(token: string): Promise<SessionData | null> {
     .where("sessions.id", "=", sessionId(token))
     .executeTakeFirst();
 
-  if (!record || record.revokedAt !== null || record.expiresAt <= now) {
+  if (!record) {
+    return null;
+  }
+
+  const idleExpiresAt =
+    record.lastSeenAt + record.sessionIdleTimeoutMinutes * 60 * 1000;
+
+  if (
+    record.revokedAt !== null ||
+    record.expiresAt <= now ||
+    idleExpiresAt <= now
+  ) {
+    if (record.revokedAt === null && idleExpiresAt <= now) {
+      await db
+        .updateTable("sessions")
+        .set({ revokedAt: now })
+        .where("id", "=", sessionId(token))
+        .execute();
+    }
     return null;
   }
 

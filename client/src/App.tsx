@@ -30,6 +30,8 @@ import { FeedbackPage } from "./pages/FeedbackPage";
 import { MemberPaymentsPage } from "./pages/MemberPaymentsPage";
 import { AccountControlPage } from "./pages/AccountControlPage";
 import { WorkoutTimerPage } from "./pages/WorkoutTimerPage";
+import { DownloadsPage } from "./pages/DownloadsPage";
+import { ResourceManagerPage } from "./pages/ResourceManagerPage";
 
 const BillingPage = lazy(() =>
   import("./pages/BillingPage").then((module) => ({
@@ -149,6 +151,22 @@ function AppContent() {
           element={
             <ProtectedRoute requiredRole="member">
               <WorkoutTimerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/downloads"
+          element={
+            <ProtectedRoute>
+              <DownloadsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/resource-manager"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <ResourceManagerPage />
             </ProtectedRoute>
           }
         />
