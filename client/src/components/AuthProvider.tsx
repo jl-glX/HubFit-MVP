@@ -13,6 +13,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const clearError = useCallback(() => setError(null), []);
 
   const refreshUser = useCallback(async () => {
     const response = await authFetch(`${API_BASE}/api/auth/session`);
@@ -91,11 +92,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             body: JSON.stringify({ identifier, accessPortal, rememberDevice }),
           },
         );
-        const options = await optionsResponse.json();
+        const options = (await optionsResponse.json()) as {
+          code?: string;
+          error?: string;
+        };
         if (!optionsResponse.ok) {
-          throw new Error(options.error ?? "Passkey access is not available");
+          throw new Error(
+            options.code ?? options.error ?? "PASSKEY_NOT_CONFIGURED",
+          );
         }
-        const response = await startAuthentication({ optionsJSON: options });
+        const response = await startAuthentication({
+          optionsJSON: options as Parameters<
+            typeof startAuthentication
+          >[0]["optionsJSON"],
+        });
         const verificationResponse = await authFetch(
           `${API_BASE}/api/auth/passkey/verify`,
           {
@@ -106,10 +116,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         );
         const data = (await verificationResponse.json()) as {
           user?: AuthUser;
+          code?: string;
           error?: string;
         };
         if (!verificationResponse.ok || !data.user) {
-          throw new Error(data.error ?? "Passkey verification failed");
+          throw new Error(
+            data.code ?? data.error ?? "PASSKEY_VERIFICATION_FAILED",
+          );
         }
         setUser(data.user);
         return data.user;
@@ -196,6 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       isInitializing,
       error,
+      clearError,
       signup,
       login,
       loginWithPasskey,
@@ -208,6 +222,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       isInitializing,
       error,
+      clearError,
       signup,
       login,
       loginWithPasskey,

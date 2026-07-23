@@ -13,6 +13,7 @@ export interface AuthContextValue {
   isLoading: boolean;
   isInitializing: boolean;
   error: string | null;
+  clearError: () => void;
   signup: (email: string, name: string, password: string) => Promise<void>;
   login: (
     identifier: string,

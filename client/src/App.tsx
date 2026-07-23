@@ -27,6 +27,7 @@ import {
 } from "./pages/LegalPage";
 import { AccountSecurityPage } from "./pages/AccountSecurityPage";
 import { FeedbackPage } from "./pages/FeedbackPage";
+import { MemberPaymentsPage } from "./pages/MemberPaymentsPage";
 
 const BillingPage = lazy(() =>
   import("./pages/BillingPage").then((module) => ({
@@ -122,6 +123,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <AccountSecurityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-payments"
+          element={
+            <ProtectedRoute requiredRole="member">
+              <MemberPaymentsPage />
             </ProtectedRoute>
           }
         />

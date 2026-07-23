@@ -36,6 +36,7 @@
     "home": "Home",
     "classes": "Classes",
     "bookings": "My bookings",
+    "paymentsAndOrders": "My payments and orders",
     "billing": "Billing",
     "dashboard": "Dashboard",
     "admin": "Admin",
@@ -73,6 +74,10 @@
     "signInWithPasskey": "Sign in with fingerprint or passkey",
     "passkeyHelp": "Use your device protection: fingerprint, face recognition, PIN or security key.",
     "passkeyIdentifierRequired": "Enter the account email or phone number first",
+    "passkeyNotConfigured": "The account {{identifier}} has not enabled fingerprint or passkey access.",
+    "passkeyDeviceUnavailable": "This device does not provide a compatible built-in authenticator such as fingerprint, face recognition or PIN. You can also use an external security key that you previously registered.",
+    "passkeyChallengeInvalid": "The sign-in request has expired. Please try again.",
+    "passkeyVerificationFailed": "Verification with the device protection could not be completed.",
     "accessMenu": {
       "label": "Access and help",
       "staffLogin": "Sign in as administrator",
@@ -186,6 +191,20 @@
     "cancelFailed": "Failed to cancel booking",
     "upcomingNone": "No upcoming bookings",
     "confirmed": "Confirmed"
+  },
+  "memberCommerce": {
+    "eyebrow": "MEMBER ACCOUNT",
+    "title": "My payments and orders",
+    "description": "Review facility fees and, when available, purchases and commercial incentives in one place.",
+    "paymentsTitle": "Payments and fees",
+    "paymentsDescription": "Your fees, due dates, receipts and payment status will appear here when the facility enables this feature.",
+    "ordersTitle": "Orders and benefits",
+    "ordersDescription": "This area will contain future orders, discounts and financial incentives offered by your facility.",
+    "notAvailable": "No activity is available yet.",
+    "ordersUnavailable": "Sales and orders are not enabled yet.",
+    "ordersAvailable": "You can now review your orders.",
+    "loadFailed": "Your payments and orders could not be loaded.",
+    "secureNotice": "HubFit does not process bank payments or store full card details in this version."
   },
   "trainer": {
     "title": "Trainer dashboard",

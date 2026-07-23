@@ -108,7 +108,10 @@ authRouter.post(
       setPasskeyChallengeCookie(res, result.token);
       res.json(result.options);
     } catch {
-      res.status(401).json({ error: "Passkey access is not available" });
+      res.status(401).json({
+        code: "PASSKEY_NOT_CONFIGURED",
+        error: "Passkey access is not available",
+      });
     }
   },
 );
@@ -120,7 +123,10 @@ authRouter.post(
   async (req: express.Request, res: express.Response) => {
     const challengeToken = readPasskeyChallengeToken(req);
     if (!challengeToken) {
-      res.status(401).json({ error: "Invalid or expired passkey challenge" });
+      res.status(401).json({
+        code: "PASSKEY_CHALLENGE_INVALID",
+        error: "Invalid or expired passkey challenge",
+      });
       return;
     }
     try {
@@ -137,7 +143,10 @@ authRouter.post(
       res.json({ user: result.user });
     } catch {
       clearPasskeyChallengeCookie(res);
-      res.status(401).json({ error: "Passkey verification failed" });
+      res.status(401).json({
+        code: "PASSKEY_VERIFICATION_FAILED",
+        error: "Passkey verification failed",
+      });
     }
   },
 );

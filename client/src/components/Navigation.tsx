@@ -8,6 +8,7 @@ import {
   Settings,
   Shield,
   Building2,
+  ShoppingBag,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "react-i18next";
@@ -119,6 +120,18 @@ export function Navigation() {
               >
                 <Settings size={20} />
                 <span>{t("nav.dashboard")}</span>
+              </Link>
+            )}
+
+            {user?.role === "member" && (
+              <Link
+                to="/my-payments"
+                className={`${navLinkClass} ${
+                  isActive("/my-payments") ? activeClass : inactiveClass
+                }`}
+              >
+                <ShoppingBag size={20} />
+                <span>{t("nav.paymentsAndOrders")}</span>
               </Link>
             )}
 

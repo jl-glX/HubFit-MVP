@@ -1,0 +1,98 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+
+describe("member commerce API", () => {
+  let directory: string;
+  let database: typeof import("../db/client.js");
+  let app: typeof import("../index.js").app;
+  let memberCookie: string;
+
+  beforeAll(async () => {
+    directory = await mkdtemp(join(tmpdir(), "hubfit-member-commerce-"));
+    vi.stubEnv("DATA_DIRECTORY", directory);
+    vi.stubEnv("NODE_ENV", "test");
+    vi.resetModules();
+    database = await import("../db/client.js");
+    const auth = await import("../services/auth.js");
+    await database.initializeDatabase();
+    await database.db
+      .insertInto("users")
+      .values({
+        id: "commerce-member",
+        email: "commerce-member@example.com",
+        phone: null,
+        name: "Commerce Member",
+        avatarDataUrl: "",
+        password: await auth.hashPassword("CommercePassword123"),
+        role: "member",
+        createdAt: Date.now(),
+      })
+      .execute();
+    await database.db
+      .insertInto("billingRecords")
+      .values({
+        id: "member-payment",
+        userId: "commerce-member",
+        customerName: "Commerce Member",
+        customerEmail: "commerce-member@example.com",
+        concept: "Monthly membership",
+        billingCycle: "monthly",
+        customCycleLabel: "",
+        amountCents: 4500,
+        currency: "EUR",
+        status: "paid",
+        dueAt: null,
+        paidAt: Date.now(),
+        invoiceNumber: "HF-MEMBER-001",
+        notes: "",
+        archivedAt: null,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      })
+      .execute();
+
+    app = (await import("../index.js")).app;
+    const login = await request(app).post("/api/auth/login").send({
+      identifier: "commerce-member@example.com",
+      password: "CommercePassword123",
+      accessPortal: "member",
+      rememberDevice: false,
+    });
+    memberCookie = login.headers["set-cookie"][0];
+  });
+
+  afterAll(async () => {
+    database.closeDatabase();
+    vi.unstubAllEnvs();
+    await rm(directory, { recursive: true, force: true });
+  });
+
+  it("returns only the signed-in member's active payments and API capabilities", async () => {
+    const response = await request(app)
+      .get("/api/member-commerce/summary")
+      .set("Cookie", memberCookie)
+      .expect(200);
+
+    expect(response.body.payments).toHaveLength(1);
+    expect(response.body.payments[0]).toMatchObject({
+      id: "member-payment",
+      amountCents: 4500,
+    });
+    expect(response.body.payments[0]).not.toHaveProperty("userId");
+    expect(response.body.payments[0]).not.toHaveProperty("customerEmail");
+    expect(response.body.payments[0]).not.toHaveProperty("notes");
+    expect(response.body.orders).toEqual([]);
+    expect(response.body.capabilities).toEqual({
+      payments: true,
+      orders: false,
+      bankPayments: false,
+    });
+  });
+
+  it("rejects unauthenticated access", async () => {
+    await request(app).get("/api/member-commerce/summary").expect(401);
+  });
+});

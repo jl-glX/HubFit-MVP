@@ -17,11 +17,15 @@ import {
   UserRound,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { browserSupportsWebAuthn } from "@simplewebauthn/browser";
+import {
+  browserSupportsWebAuthn,
+  platformAuthenticatorIsAvailable,
+} from "@simplewebauthn/browser";
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { login, loginWithPasskey, verifyMfa, isLoading, error } = useAuth();
+  const { login, loginWithPasskey, verifyMfa, isLoading, error, clearError } =
+    useAuth();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [rememberDevice, setRememberDevice] = useState(false);
@@ -54,6 +58,7 @@ export function LoginPage() {
     setIdentifier(demoEmail);
     setPassword(demoPassword);
     setValidationError("");
+    clearError();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -122,11 +127,25 @@ export function LoginPage() {
       setValidationError(t("auth.passkeyIdentifierRequired"));
       return;
     }
+    let platformAuthenticatorAvailable = true;
     try {
+      platformAuthenticatorAvailable = await platformAuthenticatorIsAvailable();
       navigateForRole(
         (await loginWithPasskey(identifier, accessPortal, rememberDevice)).role,
       );
     } catch (err) {
+      const errorCode = err instanceof Error ? err.message : "";
+      if (errorCode === "PASSKEY_NOT_CONFIGURED") {
+        setValidationError(
+          t("auth.passkeyNotConfigured", { identifier: identifier.trim() }),
+        );
+      } else if (!platformAuthenticatorAvailable) {
+        setValidationError(t("auth.passkeyDeviceUnavailable"));
+      } else if (errorCode === "PASSKEY_CHALLENGE_INVALID") {
+        setValidationError(t("auth.passkeyChallengeInvalid"));
+      } else {
+        setValidationError(t("auth.passkeyVerificationFailed"));
+      }
       console.error("Passkey login error:", err);
     }
   };
@@ -159,13 +178,14 @@ export function LoginPage() {
             setMfaCode("");
             setShowAlternativeSignIn(false);
             setValidationError("");
+            clearError();
           }}
         />
       }
     >
-      {(error || validationError) && (
+      {(validationError || error) && (
         <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-3.5">
-          <p className="text-sm text-red-600">{error || validationError}</p>
+          <p className="text-sm text-red-600">{validationError || error}</p>
         </div>
       )}
 

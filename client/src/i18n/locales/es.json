@@ -44,6 +44,7 @@
     "home": "Inicio",
     "classes": "Clases",
     "bookings": "Mis reservas",
+    "paymentsAndOrders": "Mis pagos y pedidos",
     "billing": "Facturación",
     "dashboard": "Panel",
     "admin": "Administración",
@@ -81,6 +82,10 @@
     "signInWithPasskey": "Entrar con huella o clave de acceso",
     "passkeyHelp": "Usa la protección disponible en tu dispositivo: huella, reconocimiento facial, PIN o clave de seguridad.",
     "passkeyIdentifierRequired": "Introduce primero el correo o teléfono de la cuenta",
+    "passkeyNotConfigured": "La cuenta {{identifier}} no tiene habilitado el acceso con huella o clave de acceso.",
+    "passkeyDeviceUnavailable": "Este dispositivo no tiene disponible un autenticador integrado compatible, como huella, reconocimiento facial o PIN. También puedes usar una clave de seguridad externa que hayas registrado.",
+    "passkeyChallengeInvalid": "La solicitud de acceso ha caducado. Inténtalo de nuevo.",
+    "passkeyVerificationFailed": "No se ha podido completar la verificación con la protección del dispositivo.",
     "accessMenu": {
       "label": "Acceso y ayuda",
       "staffLogin": "Inicia sesión como administrador",
@@ -194,6 +199,20 @@
     "cancelFailed": "No se ha podido cancelar la reserva",
     "upcomingNone": "No hay próximas reservas",
     "confirmed": "Confirmada"
+  },
+  "memberCommerce": {
+    "eyebrow": "CUENTA DEL SOCIO",
+    "title": "Mis pagos y pedidos",
+    "description": "Consulta en un mismo lugar las cuotas del centro y, cuando esté disponible, tus compras e incentivos comerciales.",
+    "paymentsTitle": "Pagos y cuotas",
+    "paymentsDescription": "Aquí aparecerán tus cuotas, vencimientos, justificantes y estados de pago cuando el centro habilite esta función.",
+    "ordersTitle": "Pedidos y ventajas",
+    "ordersDescription": "Este espacio reunirá los futuros pedidos, descuentos e incentivos económicos ofrecidos por tu centro.",
+    "notAvailable": "Todavía no hay movimientos disponibles.",
+    "ordersUnavailable": "La venta y los pedidos todavía no están habilitados.",
+    "ordersAvailable": "Ya puedes consultar tus pedidos.",
+    "loadFailed": "No se han podido cargar tus pagos y pedidos.",
+    "secureNotice": "HubFit no procesa cobros bancarios ni almacena datos completos de tarjetas en esta versión."
   },
   "trainer": {
     "title": "Panel del entrenador",
