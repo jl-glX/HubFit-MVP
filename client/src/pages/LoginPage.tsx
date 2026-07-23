@@ -21,6 +21,13 @@ import {
   browserSupportsWebAuthn,
   platformAuthenticatorIsAvailable,
 } from "@simplewebauthn/browser";
+import { SavedAccountSelector } from "../components/SavedAccountSelector";
+import {
+  forgetAccount,
+  getSavedAccounts,
+  rememberAccount,
+  type SavedAccount,
+} from "../lib/saved-accounts";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -36,6 +43,7 @@ export function LoginPage() {
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaCode, setMfaCode] = useState("");
   const [showAlternativeSignIn, setShowAlternativeSignIn] = useState(false);
+  const [savedAccounts, setSavedAccounts] = useState(getSavedAccounts);
   const { t } = useTranslation();
   const demoAccount =
     accessPortal === "member"
@@ -61,6 +69,22 @@ export function LoginPage() {
     clearError();
   };
 
+  const selectSavedAccount = (account: SavedAccount) => {
+    setAccessPortal(account.accessPortal);
+    setIdentifier(account.identifier);
+    setPassword("");
+    setMfaRequired(false);
+    setMfaCode("");
+    setValidationError("");
+    clearError();
+  };
+
+  const rememberSignedInAccount = (
+    user: NonNullable<Awaited<ReturnType<typeof login>>["user"]>,
+  ) => {
+    setSavedAccounts(rememberAccount(user, identifier));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError("");
@@ -84,6 +108,7 @@ export function LoginPage() {
         }
         return;
       }
+      if (result.user) rememberSignedInAccount(result.user);
       navigate(
         result.user?.role === "admin"
           ? "/admin-dashboard"
@@ -100,6 +125,7 @@ export function LoginPage() {
     e.preventDefault();
     try {
       const verifiedUser = await verifyMfa(mfaCode);
+      setSavedAccounts(rememberAccount(verifiedUser, identifier));
       navigate(
         verifiedUser.role === "admin"
           ? "/admin-dashboard"
@@ -131,7 +157,14 @@ export function LoginPage() {
     try {
       platformAuthenticatorAvailable = await platformAuthenticatorIsAvailable();
       navigateForRole(
-        (await loginWithPasskey(identifier, accessPortal, rememberDevice)).role,
+        (
+          await loginWithPasskey(identifier, accessPortal, rememberDevice).then(
+            (user) => {
+              setSavedAccounts(rememberAccount(user, identifier));
+              return user;
+            },
+          )
+        ).role,
       );
     } catch (err) {
       const errorCode = err instanceof Error ? err.message : "";
@@ -183,6 +216,20 @@ export function LoginPage() {
         />
       }
     >
+      {!mfaRequired && (
+        <SavedAccountSelector
+          accounts={savedAccounts.filter(
+            (account) => account.accessPortal === accessPortal,
+          )}
+          onSelect={selectSavedAccount}
+          onRemove={(accountId) => setSavedAccounts(forgetAccount(accountId))}
+          onUseAnother={() => {
+            setIdentifier("");
+            setPassword("");
+            clearError();
+          }}
+        />
+      )}
       {(validationError || error) && (
         <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-3.5">
           <p className="text-sm text-red-600">{validationError || error}</p>

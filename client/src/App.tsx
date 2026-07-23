@@ -28,6 +28,8 @@ import {
 import { AccountSecurityPage } from "./pages/AccountSecurityPage";
 import { FeedbackPage } from "./pages/FeedbackPage";
 import { MemberPaymentsPage } from "./pages/MemberPaymentsPage";
+import { AccountControlPage } from "./pages/AccountControlPage";
+import { WorkoutTimerPage } from "./pages/WorkoutTimerPage";
 
 const BillingPage = lazy(() =>
   import("./pages/BillingPage").then((module) => ({
@@ -119,6 +121,14 @@ function AppContent() {
           }
         />
         <Route
+          path="/account"
+          element={
+            <ProtectedRoute>
+              <AccountControlPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/account/security"
           element={
             <ProtectedRoute>
@@ -131,6 +141,14 @@ function AppContent() {
           element={
             <ProtectedRoute requiredRole="member">
               <MemberPaymentsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workout-timer"
+          element={
+            <ProtectedRoute requiredRole="member">
+              <WorkoutTimerPage />
             </ProtectedRoute>
           }
         />

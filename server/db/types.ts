@@ -135,6 +135,20 @@ interface FacilityProfile {
   updatedAt: number;
 }
 
+interface DelegationGrant {
+  id: string;
+  ownerUserId: string;
+  delegateUserId: string | null;
+  tokenHash: string;
+  tokenPreview: string;
+  scope: "bookings";
+  duration: "24h" | "7d" | "30d" | "indefinite";
+  expiresAt: number | null;
+  createdAt: number;
+  redeemedAt: number | null;
+  revokedAt: number | null;
+}
+
 export interface Database {
   users: User;
   gymClasses: GymClass;
@@ -149,4 +163,5 @@ export interface Database {
   feedback: Feedback;
   billingRecords: BillingRecord;
   facilityProfiles: FacilityProfile;
+  delegationGrants: DelegationGrant;
 }

@@ -9,6 +9,7 @@ import {
   Shield,
   Building2,
   ShoppingBag,
+  Timer,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "react-i18next";
@@ -124,15 +125,26 @@ export function Navigation() {
             )}
 
             {user?.role === "member" && (
-              <Link
-                to="/my-payments"
-                className={`${navLinkClass} ${
-                  isActive("/my-payments") ? activeClass : inactiveClass
-                }`}
-              >
-                <ShoppingBag size={20} />
-                <span>{t("nav.paymentsAndOrders")}</span>
-              </Link>
+              <>
+                <Link
+                  to="/workout-timer"
+                  className={`${navLinkClass} ${
+                    isActive("/workout-timer") ? activeClass : inactiveClass
+                  }`}
+                >
+                  <Timer size={20} />
+                  <span>{t("nav.timer")}</span>
+                </Link>
+                <Link
+                  to="/my-payments"
+                  className={`${navLinkClass} ${
+                    isActive("/my-payments") ? activeClass : inactiveClass
+                  }`}
+                >
+                  <ShoppingBag size={20} />
+                  <span>{t("nav.paymentsAndOrders")}</span>
+                </Link>
+              </>
             )}
 
             {user?.role === "admin" && (

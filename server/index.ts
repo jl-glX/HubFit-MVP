@@ -19,6 +19,7 @@ import { billingRouter } from "./routes/billing.js";
 import { facilityProfileRouter } from "./routes/facility-profile.js";
 import { accountProfileRouter } from "./routes/account-profile.js";
 import { memberCommerceRouter } from "./routes/member-commerce.js";
+import { delegationsRouter } from "./routes/delegations.js";
 import { apiLimiter, apiSecurityHeaders } from "./middleware/security.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 
@@ -76,6 +77,7 @@ app.use("/api/account/security", accountSecurityRouter);
 app.use("/api/feedback", feedbackRouter);
 app.use("/api/billing", billingRouter);
 app.use("/api/member-commerce", memberCommerceRouter);
+app.use("/api/account/delegations", delegationsRouter);
 
 // Health check endpoint
 app.get("/api/health", (req: express.Request, res: express.Response) => {

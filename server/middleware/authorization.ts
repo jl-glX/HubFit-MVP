@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { db } from "../db/client.js";
 import { verifyToken } from "../services/auth.js";
 import { readSessionToken } from "../lib/session-cookie.js";
+import { hasActiveBookingDelegation } from "../services/delegations.js";
 
 export type UserRole = "member" | "trainer" | "admin";
 
@@ -87,6 +88,34 @@ export function requireSelfBodyOrRole(bodyName: string, ...roles: UserRole[]) {
       return;
     }
     next();
+  };
+}
+
+export function requireSelfRoleOrBookingDelegation(
+  bodyName: string,
+  ...roles: UserRole[]
+) {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const auth = getAuthenticatedUser(res);
+      const ownerUserId = req.body?.[bodyName];
+      if (
+        ownerUserId === auth.userId ||
+        roles.includes(auth.role) ||
+        (typeof ownerUserId === "string" &&
+          (await hasActiveBookingDelegation(auth.userId, ownerUserId)))
+      ) {
+        next();
+        return;
+      }
+      forbidden(res);
+    } catch (error) {
+      next(error);
+    }
   };
 }
 

@@ -37,6 +37,7 @@
     "classes": "Classes",
     "bookings": "My bookings",
     "paymentsAndOrders": "My payments and orders",
+    "timer": "Timer",
     "billing": "Billing",
     "dashboard": "Dashboard",
     "admin": "Admin",
@@ -46,7 +47,113 @@
   },
   "accountMenu": {
     "open": "Open account menu",
-    "manage": "Manage account and security"
+    "manage": "Open account area"
+  },
+  "savedAccounts": {
+    "title": "Accounts on this device",
+    "remove": "Remove {{name}} from this device",
+    "useAnother": "Add or use another account",
+    "privacy": "Only the identifier and visual details are stored. HubFit never saves the password or session here."
+  },
+  "accountControl": {
+    "eyebrow": "Account control area",
+    "security": "Security and sign-in",
+    "securityDescription": "Manage 2FA, passkeys and open sessions.",
+    "bookings": "Bookings and calendar",
+    "bookingsDescription": "Review and manage your upcoming bookings.",
+    "payments": "Payments and orders",
+    "paymentsDescription": "Review fees, activity and future orders.",
+    "timer": "Workout timers",
+    "timerDescription": "Configure AMRAP, For Time, EMOM and Tabata for your sessions.",
+    "notifications": "Notifications",
+    "notificationsDescription": "Notification preferences and history will be enabled in a future phase.",
+    "preferences": "Preferences",
+    "preferencesDescription": "Theme, privacy and more personal options will be added progressively.",
+    "delegationSecurity": "Delegations only allow someone to book or cancel on your behalf. They do not provide access to your profile, password, payments or security settings."
+  },
+  "workoutTimer": {
+    "eyebrow": "Personal training",
+    "title": "Workout timers",
+    "description": "Plan and control your sessions with configurable modes. Your preferences are stored only on this device.",
+    "fullscreen": "Full screen",
+    "chooseMode": "Choose a mode",
+    "minutes": "Duration in minutes",
+    "timeCap": "Time cap in minutes",
+    "intervalMinutes": "Minutes per interval",
+    "rounds": "Rounds",
+    "workSeconds": "Work seconds",
+    "restSeconds": "Rest seconds",
+    "sound": "Sound alerts",
+    "soundHelp": "Plays an alert when an interval changes and when the timer ends.",
+    "start": "Start workout",
+    "pause": "Pause",
+    "resume": "Resume",
+    "finish": "Finish",
+    "reset": "Configure again",
+    "complete": "Workout complete",
+    "roundProgress": "Round {{current}} of {{total}}",
+    "roundsCompleted": "Rounds completed",
+    "work": "Work",
+    "rest": "Rest",
+    "modes": {
+      "amrap": {
+        "name": "AMRAP",
+        "description": "Complete as many rounds as possible before time expires."
+      },
+      "forTime": {
+        "name": "For Time",
+        "description": "Track your completion time with a safety time cap."
+      },
+      "emom": {
+        "name": "EMOM",
+        "description": "Start a new work block at every configured interval."
+      },
+      "tabata": {
+        "name": "Tabata",
+        "description": "Alternate configurable work and rest periods."
+      }
+    }
+  },
+  "delegations": {
+    "title": "Booking delegation",
+    "description": "Authorise someone you trust to book or cancel classes on your behalf. Limit the duration or revoke access at any time.",
+    "createTitle": "Create permission",
+    "createHelp": "The token is shown once. Only share it with the authorised person.",
+    "duration": "Permission duration",
+    "create": "Create delegation token",
+    "tokenShownOnce": "Copy this token now: it will not be shown in full again.",
+    "copy": "Copy token",
+    "copied": "Token copied",
+    "redeemTitle": "Accept a delegation",
+    "redeemHelp": "Enter the token another member gave you to manage their bookings.",
+    "redeem": "Accept delegation",
+    "activeTitle": "Permissions and delegations",
+    "empty": "No delegations have been created or received yet.",
+    "awaitingRedemption": "Waiting for someone to accept the token",
+    "active": "Active",
+    "inactive": "Inactive",
+    "indefinite": "No expiry date",
+    "revoke": "Revoke",
+    "loadFailed": "Delegations could not be loaded.",
+    "revokeFailed": "The delegation could not be revoked.",
+    "durations": {
+      "24h": "24 hours",
+      "7d": "7 days",
+      "30d": "30 days",
+      "indefinite": "Indefinite until revoked"
+    },
+    "directions": {
+      "granted": "Can act on your behalf",
+      "received": "You can act on their behalf"
+    },
+    "errors": {
+      "DELEGATION_LIMIT_REACHED": "You have reached the maximum of five active permissions.",
+      "DELEGATION_DURATION_INVALID": "Choose a valid duration.",
+      "DELEGATION_TOKEN_INVALID": "The token does not exist, has expired or is no longer valid.",
+      "DELEGATION_SELF_NOT_ALLOWED": "You cannot delegate actions to your own account.",
+      "DELEGATION_TOKEN_ALREADY_USED": "This token has already been accepted by someone else.",
+      "unknown": "The delegation operation could not be completed."
+    }
   },
   "auth": {
     "brandTagline": "Train. Connect. Progress.",

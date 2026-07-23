@@ -45,6 +45,7 @@
     "classes": "Clases",
     "bookings": "Mis reservas",
     "paymentsAndOrders": "Mis pagos y pedidos",
+    "timer": "Temporizador",
     "billing": "Facturación",
     "dashboard": "Panel",
     "admin": "Administración",
@@ -54,7 +55,113 @@
   },
   "accountMenu": {
     "open": "Abrir menú de cuenta",
-    "manage": "Gestionar cuenta y seguridad"
+    "manage": "Abrir área de cuenta"
+  },
+  "savedAccounts": {
+    "title": "Cuentas de este dispositivo",
+    "remove": "Quitar {{name}} de este dispositivo",
+    "useAnother": "Añadir o usar otra cuenta",
+    "privacy": "Solo se guardan el identificador y los datos visuales. HubFit nunca guarda aquí la contraseña ni la sesión."
+  },
+  "accountControl": {
+    "eyebrow": "Área de control de la cuenta",
+    "security": "Seguridad e inicio de sesión",
+    "securityDescription": "Gestiona 2FA, claves de acceso y sesiones abiertas.",
+    "bookings": "Reservas y calendario",
+    "bookingsDescription": "Consulta y administra tus próximas reservas.",
+    "payments": "Pagos y pedidos",
+    "paymentsDescription": "Revisa cuotas, movimientos y futuros pedidos.",
+    "timer": "Temporizadores de entrenamiento",
+    "timerDescription": "Configura AMRAP, For Time, EMOM y Tabata para tus sesiones.",
+    "notifications": "Notificaciones",
+    "notificationsDescription": "El centro de preferencias y avisos se habilitará en una próxima fase.",
+    "preferences": "Preferencias",
+    "preferencesDescription": "Tema, privacidad y más opciones personales se incorporarán de forma progresiva.",
+    "delegationSecurity": "Las delegaciones solo permiten reservar o cancelar en tu nombre. No dan acceso a tu perfil, contraseña, pagos ni configuración de seguridad."
+  },
+  "workoutTimer": {
+    "eyebrow": "Entrenamiento personal",
+    "title": "Temporizadores de entrenamiento",
+    "description": "Planifica y controla tus sesiones con modos configurables. Tus preferencias se guardan únicamente en este dispositivo.",
+    "fullscreen": "Pantalla completa",
+    "chooseMode": "Elige un modo",
+    "minutes": "Duración en minutos",
+    "timeCap": "Tiempo límite en minutos",
+    "intervalMinutes": "Minutos por intervalo",
+    "rounds": "Rondas",
+    "workSeconds": "Segundos de trabajo",
+    "restSeconds": "Segundos de descanso",
+    "sound": "Avisos sonoros",
+    "soundHelp": "Emite avisos al cambiar de intervalo y al finalizar.",
+    "start": "Empezar entrenamiento",
+    "pause": "Pausar",
+    "resume": "Continuar",
+    "finish": "Terminar",
+    "reset": "Configurar de nuevo",
+    "complete": "Entrenamiento completado",
+    "roundProgress": "Ronda {{current}} de {{total}}",
+    "roundsCompleted": "Rondas completadas",
+    "work": "Trabajo",
+    "rest": "Descanso",
+    "modes": {
+      "amrap": {
+        "name": "AMRAP",
+        "description": "Completa tantas rondas como puedas antes de que termine el tiempo."
+      },
+      "forTime": {
+        "name": "For Time",
+        "description": "Cronometra cuánto tardas con un tiempo límite de seguridad."
+      },
+      "emom": {
+        "name": "EMOM",
+        "description": "Inicia un nuevo bloque de trabajo en cada intervalo."
+      },
+      "tabata": {
+        "name": "Tabata",
+        "description": "Alterna periodos configurables de trabajo y descanso."
+      }
+    }
+  },
+  "delegations": {
+    "title": "Delegación de reservas",
+    "description": "Autoriza a una persona de confianza para reservar o cancelar clases en tu nombre. Puedes limitar la duración o revocar el permiso cuando quieras.",
+    "createTitle": "Crear un permiso",
+    "createHelp": "El token se muestra una sola vez. Compártelo únicamente con la persona autorizada.",
+    "duration": "Duración del permiso",
+    "create": "Crear token de delegación",
+    "tokenShownOnce": "Copia ahora este token: no volverá a mostrarse completo.",
+    "copy": "Copiar token",
+    "copied": "Token copiado",
+    "redeemTitle": "Aceptar una delegación",
+    "redeemHelp": "Introduce el token que te haya facilitado otro socio para poder gestionar sus reservas.",
+    "redeem": "Aceptar delegación",
+    "activeTitle": "Permisos y delegaciones",
+    "empty": "Todavía no hay delegaciones creadas ni recibidas.",
+    "awaitingRedemption": "Pendiente de que otra persona acepte el token",
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "indefinite": "Sin fecha de caducidad",
+    "revoke": "Revocar",
+    "loadFailed": "No se han podido cargar las delegaciones.",
+    "revokeFailed": "No se ha podido revocar la delegación.",
+    "durations": {
+      "24h": "24 horas",
+      "7d": "7 días",
+      "30d": "30 días",
+      "indefinite": "Indefinida hasta que la revoques"
+    },
+    "directions": {
+      "granted": "Puede actuar en tu nombre",
+      "received": "Puedes actuar en su nombre"
+    },
+    "errors": {
+      "DELEGATION_LIMIT_REACHED": "Has alcanzado el máximo de cinco permisos activos.",
+      "DELEGATION_DURATION_INVALID": "Selecciona una duración válida.",
+      "DELEGATION_TOKEN_INVALID": "El token no existe, ha caducado o ya no es válido.",
+      "DELEGATION_SELF_NOT_ALLOWED": "No puedes delegar acciones en tu propia cuenta.",
+      "DELEGATION_TOKEN_ALREADY_USED": "Este token ya fue aceptado por otra persona.",
+      "unknown": "No se ha podido completar la operación de delegación."
+    }
   },
   "auth": {
     "brandTagline": "Entrena. Conecta. Progresa.",
