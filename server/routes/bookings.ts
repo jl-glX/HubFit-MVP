@@ -14,7 +14,7 @@ import {
 } from "../middleware/validation.js";
 import {
   authenticate,
-  requireSelfBodyOrRole,
+  requireSelfRoleOrBookingDelegation,
   requireSelfParamOrRole,
   requireTrainerClassOrRole,
 } from "../middleware/authorization.js";
@@ -79,7 +79,7 @@ bookingsRouter.get(
 bookingsRouter.post(
   "/",
   bookingValidation,
-  requireSelfBodyOrRole("userId", "admin"),
+  requireSelfRoleOrBookingDelegation("userId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const { classId, userId } = req.body;
@@ -103,7 +103,7 @@ bookingsRouter.post(
 bookingsRouter.delete(
   "/:bookingId",
   bookingCancellationValidation,
-  requireSelfBodyOrRole("userId", "admin"),
+  requireSelfRoleOrBookingDelegation("userId", "admin"),
   async (req: express.Request, res: express.Response) => {
     try {
       const { userId } = req.body;

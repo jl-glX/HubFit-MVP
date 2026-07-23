@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, LogOut, ShieldCheck, UserRound, X } from "lucide-react";
+import { ChevronDown, LogOut, Settings, UserRound, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../hooks/useAuth";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -116,11 +116,11 @@ export function AccountMenu() {
 
           <Link
             role="menuitem"
-            to="/account/security"
+            to="/account"
             onClick={() => setIsOpen(false)}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-blue-200 px-4 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
-            <ShieldCheck size={18} />
+            <Settings size={18} />
             {t("accountMenu.manage")}
           </Link>
 

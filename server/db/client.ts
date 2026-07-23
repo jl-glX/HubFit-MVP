@@ -370,6 +370,30 @@ export async function initializeDatabase() {
     `);
   }
 
+  if (!tableNames.includes("delegationGrants")) {
+    console.log("Creating delegationGrants table...");
+    sqliteDb.exec(`
+      CREATE TABLE delegationGrants (
+        id TEXT PRIMARY KEY,
+        ownerUserId TEXT NOT NULL,
+        delegateUserId TEXT,
+        tokenHash TEXT NOT NULL UNIQUE,
+        tokenPreview TEXT NOT NULL,
+        scope TEXT NOT NULL DEFAULT 'bookings' CHECK(scope = 'bookings'),
+        duration TEXT NOT NULL CHECK(duration IN ('24h', '7d', '30d', 'indefinite')),
+        expiresAt INTEGER,
+        createdAt INTEGER NOT NULL,
+        redeemedAt INTEGER,
+        revokedAt INTEGER,
+        FOREIGN KEY(ownerUserId) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY(delegateUserId) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_delegationGrants_owner ON delegationGrants(ownerUserId);
+      CREATE INDEX idx_delegationGrants_delegate ON delegationGrants(delegateUserId);
+      CREATE INDEX idx_delegationGrants_expiry ON delegationGrants(expiresAt);
+    `);
+  }
+
   sqliteDb
     .prepare(
       `INSERT OR IGNORE INTO facilityProfiles
