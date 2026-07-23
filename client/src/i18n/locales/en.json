@@ -49,6 +49,11 @@
     "open": "Open account menu",
     "manage": "Open account area"
   },
+  "navigationControls": {
+    "label": "Application navigation",
+    "back": "Back to the previous screen",
+    "exit": "Exit this screen and go home"
+  },
   "savedAccounts": {
     "title": "Accounts on this device",
     "remove": "Remove {{name}} from this device",
@@ -76,6 +81,7 @@
     "title": "Workout timers",
     "description": "Plan and control your sessions with configurable modes. Your preferences are stored only on this device.",
     "fullscreen": "Full screen",
+    "exitFullscreen": "Exit full screen",
     "chooseMode": "Choose a mode",
     "minutes": "Duration in minutes",
     "timeCap": "Time cap in minutes",

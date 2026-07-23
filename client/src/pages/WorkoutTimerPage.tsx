@@ -3,6 +3,7 @@ import {
   BellRing,
   CheckCircle2,
   Expand,
+  Minimize,
   Pause,
   Play,
   RefreshCcw,
@@ -93,6 +94,8 @@ export function WorkoutTimerPage() {
   const [elapsedBeforeRun, setElapsedBeforeRun] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [roundsCompleted, setRoundsCompleted] = useState(0);
+  const [immersiveMode, setImmersiveMode] = useState(false);
+  const pageRef = useRef<HTMLElement | null>(null);
   const startedAt = useRef<number | null>(null);
   const lastInterval = useRef(0);
 
@@ -118,6 +121,29 @@ export function WorkoutTimerPage() {
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   }, [settings]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setImmersiveMode(document.fullscreenElement === pageRef.current);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  useEffect(() => {
+    if (!immersiveMode) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !document.fullscreenElement) {
+        setImmersiveMode(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [immersiveMode]);
 
   const finish = useCallback(
     (finalElapsed: number) => {
@@ -219,11 +245,25 @@ export function WorkoutTimerPage() {
   };
 
   const toggleFullscreen = async () => {
+    const page = pageRef.current;
+    if (!page) return;
+
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    if (immersiveMode) {
+      setImmersiveMode(false);
+      return;
+    }
+
+    setImmersiveMode(true);
     try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else await document.documentElement.requestFullscreen();
+      await page.requestFullscreen();
     } catch {
-      // Fullscreen is optional and can be blocked by the browser or device.
+      // Keep the CSS-based immersive mode when an embedded browser blocks
+      // the native Fullscreen API.
     }
   };
 
@@ -256,8 +296,15 @@ export function WorkoutTimerPage() {
     tabataCycleElapsed < settings.tabataWorkSeconds * 1000 ? "work" : "rest";
 
   return (
-    <main className="min-h-[calc(100vh-4.5rem)] bg-slate-950 px-4 py-8 text-white sm:px-6">
-      <div className="mx-auto max-w-6xl">
+    <main
+      ref={pageRef}
+      className={`bg-slate-950 px-4 py-8 text-white sm:px-6 ${
+        immersiveMode
+          ? "fixed inset-0 z-[100] min-h-screen overflow-y-auto"
+          : "min-h-[calc(100vh-4.5rem)]"
+      }`}
+    >
+      <div className={`mx-auto ${immersiveMode ? "max-w-none" : "max-w-6xl"}`}>
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-cyan-300">
@@ -273,10 +320,15 @@ export function WorkoutTimerPage() {
           <button
             type="button"
             onClick={() => void toggleFullscreen()}
+            aria-pressed={immersiveMode}
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-semibold hover:bg-slate-800"
           >
-            <Expand size={18} />
-            {t("workoutTimer.fullscreen")}
+            {immersiveMode ? <Minimize size={18} /> : <Expand size={18} />}
+            {t(
+              immersiveMode
+                ? "workoutTimer.exitFullscreen"
+                : "workoutTimer.fullscreen",
+            )}
           </button>
         </header>
 

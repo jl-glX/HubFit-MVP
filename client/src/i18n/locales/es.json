@@ -57,6 +57,11 @@
     "open": "Abrir menú de cuenta",
     "manage": "Abrir área de cuenta"
   },
+  "navigationControls": {
+    "label": "Navegación de la aplicación",
+    "back": "Volver a la pantalla anterior",
+    "exit": "Salir de esta pantalla e ir al inicio"
+  },
   "savedAccounts": {
     "title": "Cuentas de este dispositivo",
     "remove": "Quitar {{name}} de este dispositivo",
@@ -84,6 +89,7 @@
     "title": "Temporizadores de entrenamiento",
     "description": "Planifica y controla tus sesiones con modos configurables. Tus preferencias se guardan únicamente en este dispositivo.",
     "fullscreen": "Pantalla completa",
+    "exitFullscreen": "Salir de pantalla completa",
     "chooseMode": "Elige un modo",
     "minutes": "Duración en minutos",
     "timeCap": "Tiempo límite en minutos",

@@ -1,5 +1,6 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
+  ArrowLeft,
   BarChart3,
   Bookmark,
   CalendarDays,
@@ -10,6 +11,7 @@ import {
   Building2,
   ShoppingBag,
   Timer,
+  X,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "react-i18next";
@@ -19,6 +21,7 @@ import { AccountMenu } from "./AccountMenu";
 
 export function Navigation() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
   const { profile } = useFacilityProfile();
@@ -36,6 +39,14 @@ export function Navigation() {
       : user?.role === "trainer"
         ? "/trainer-analytics"
         : "/activity-dashboard";
+  const historyIndex =
+    typeof window.history.state?.idx === "number"
+      ? window.history.state.idx
+      : 0;
+  const canGoBack = historyIndex > 0;
+  const isHome = location.pathname === "/";
+  const navigationButtonClass =
+    "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-600";
 
   return (
     <nav className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 shadow-xs backdrop-blur-xl">
@@ -48,6 +59,32 @@ export function Navigation() {
             <BrandLogo className="h-10 w-10 rounded-xl shadow-lg shadow-blue-600/20" />
             <span className="hidden sm:inline">HubFit</span>
           </Link>
+
+          <div
+            className="flex shrink-0 items-center gap-1 border-l border-slate-200 pl-2 sm:pl-4"
+            aria-label={t("navigationControls.label")}
+          >
+            <button
+              type="button"
+              className={navigationButtonClass}
+              onClick={() => navigate(-1)}
+              disabled={!canGoBack}
+              aria-label={t("navigationControls.back")}
+              title={t("navigationControls.back")}
+            >
+              <ArrowLeft size={18} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              className={navigationButtonClass}
+              onClick={() => navigate("/")}
+              disabled={isHome}
+              aria-label={t("navigationControls.exit")}
+              title={t("navigationControls.exit")}
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
+          </div>
 
           <div className="hidden shrink-0 items-center gap-2 border-l border-slate-200 pl-4 xl:flex">
             {profile.logoDataUrl ? (
